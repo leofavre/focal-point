@@ -25,13 +25,13 @@ const ASPECT_RATIO: AspectRatio[] = Object.entries(ASPECT_RATIO_MAP)
   }))
   .sort((a, b) => a.preciseValue - b.preciseValue);
 
-export function getAspectRatioList(userAspectRatioValue?: number) {
-  if (!userAspectRatioValue) return ASPECT_RATIO;
+export function getAspectRatioList(originalAspectRatioValue?: number) {
+  if (!originalAspectRatioValue) return ASPECT_RATIO;
 
   const userAspectRatio = {
     name: "original",
-    value: userAspectRatioValue,
-    preciseValue: toPreciseAspectRatio(userAspectRatioValue),
+    value: originalAspectRatioValue,
+    preciseValue: toPreciseAspectRatio(originalAspectRatioValue),
   };
 
   return [...ASPECT_RATIO, userAspectRatio]
