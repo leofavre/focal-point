@@ -118,6 +118,11 @@ export function ImageContainer({
 
   const focalPoint = cssObjectPositionToCoordinates(objectPosition);
 
+  const h = `${detectProportionalImageHeight({ aspectRatio: naturalAspectRatio }) ?? 0}vmin`;
+  const w = `calc(${h} * ${naturalAspectRatio ?? 1})`;
+
+  console.log({ h, w, focalPoint });
+
   return (
     <div
       className={clsx("touch-none select-none", className)}
@@ -173,11 +178,14 @@ export function ImageContainer({
       {/* ghost */}
       <div
         className={clsx(
-          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-500 opacity-50",
+          "absolute bg-amber-500 opacity-50",
           imageObserved?.changedDimension === "width" ? "h-full" : "w-full",
         )}
         style={{
           aspectRatio: naturalAspectRatio ?? "auto",
+          top: `50%`,
+          left: `50%`,
+          transform: `translate(calc(-50% + 0px), calc(-50% + 0px))`,
           cursor,
         }}
       ></div>
