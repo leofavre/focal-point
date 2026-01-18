@@ -88,7 +88,7 @@ export default function App() {
   ) : (
     <>
       <ImageContainer
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        className="fixed top-[calc(50%-2.5rem)] left-1/2 -translate-x-1/2 -translate-y-1/2"
         ref={imageRef}
         aspectRatio={aspectRatio}
         imageUrl={imageUrl}
@@ -96,7 +96,7 @@ export default function App() {
         onImageError={handleImageError}
       />
       {aspectRatio && (
-        <div className="fixed bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4">
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-6xl px-4">
           <AspectRatioSlider
             aspectRatio={aspectRatio}
             aspectRatioList={aspectRatioList}
@@ -104,7 +104,7 @@ export default function App() {
           />
           <AspectRatioRuler
             aspectRatioList={aspectRatioList}
-            className="mx-[7px]"
+            className="mx-2"
           />
         </div>
       )}

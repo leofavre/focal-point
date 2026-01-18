@@ -12,7 +12,7 @@ export function AspectRatioRuler({
   return (
     <ul
       className={clsx(
-        "relative flex items-center text-xs text-gray-500 h-8",
+        "relative flex items-start text-xs text-gray-500",
         className,
       )}
       {...rest}
@@ -20,12 +20,15 @@ export function AspectRatioRuler({
       {aspectRatioList.map(({ name, preciseValue }) => (
         <li
           key={name}
-          className="w-px flex flex-col items-center justify-center absolute"
+          className="w-px flex flex-col justify-center absolute"
           style={{
             left: `${((preciseValue - preciseMinAspectRatio) / (preciseMaxAspectRatio - preciseMinAspectRatio)) * 100}%`,
+            writingMode: "sideways-lr",
           }}
         >
-          {name}
+          <span className="flex flew-row flex-nowrap items-center after:content-[''] after:mb-1 after:inline-block after:w-px after:h-3 after:bg-gray-500 after:align-middle">
+            {name}
+          </span>
         </li>
       ))}
     </ul>
