@@ -32,14 +32,22 @@ export function AspectRatioSlider({
     >
       <input
         ref={ref}
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+        className="w-full bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
         type="range"
         step={1}
         min={preciseMinAspectRatio}
         max={preciseMaxAspectRatio}
         value={preciseAspectRatio}
         onChange={handleChange}
+        list="aspect-ratio"
       />
+      <datalist id="aspect-ratio">
+        {aspectRatioList.map(({ name, preciseValue }) => (
+          <option key={preciseValue} value={preciseValue}>
+            {name}
+          </option>
+        ))}
+      </datalist>
     </div>
   );
 }
