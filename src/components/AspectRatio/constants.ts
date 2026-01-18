@@ -1,6 +1,8 @@
 import { toPreciseAspectRatio } from "./helpers";
 import type { AspectRatio } from "./types";
 
+export const ASPECT_RATIO_PRECISION = 100;
+
 const ASPECT_RATIO_MAP: Record<string, number> = {
   "9:16": 9 / 16,
   "4:5": 4 / 5,
@@ -17,7 +19,7 @@ const ASPECT_RATIO_MAP: Record<string, number> = {
   "16:9": 16 / 9,
 };
 
-export const ASPECT_RATIO: AspectRatio[] = Object.entries(ASPECT_RATIO_MAP)
+export const ASPECT_RATIO_LIST: AspectRatio[] = Object.entries(ASPECT_RATIO_MAP)
   .map(([name, value]) => ({
     name,
     value,

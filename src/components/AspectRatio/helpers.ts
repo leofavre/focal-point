@@ -1,4 +1,4 @@
-const ASPECT_RATIO_PRECISION = 100_000;
+import { ASPECT_RATIO_PRECISION } from "./constants";
 
 export function toPreciseAspectRatio(aspectRatio: number) {
   return Math.round(aspectRatio * ASPECT_RATIO_PRECISION);
