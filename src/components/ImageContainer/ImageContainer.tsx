@@ -141,6 +141,7 @@ export function ImageContainer({
           onError={onImageError}
           aria-label="Image uploaded by the user"
         />
+        {/* focal point */}
         <svg
           aria-hidden="true"
           className="absolute top-0 left-0 w-full h-full pointer-events-none touch-none select-none"
@@ -169,6 +170,17 @@ export function ImageContainer({
           />
         </svg>
       </div>
+      {/* ghost */}
+      <div
+        className={clsx(
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-500 opacity-50",
+          imageObserved?.changedDimension === "width" ? "h-full" : "w-full",
+        )}
+        style={{
+          aspectRatio: naturalAspectRatio ?? "auto",
+          cursor,
+        }}
+      ></div>
     </div>
   );
 }
