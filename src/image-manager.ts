@@ -25,14 +25,6 @@ function initDB(): Promise<IDBDatabase> {
       db = request.result;
       resolve(db);
     };
-
-    request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-      const database = (event.target as IDBOpenDBRequest).result;
-      if (!database.objectStoreNames.contains(STORE_NAME)) {
-        const objectStore = database.createObjectStore(STORE_NAME, { keyPath: "id" });
-        objectStore.createIndex("timestamp", "timestamp", { unique: false });
-      }
-    };
   });
 }
 
@@ -43,6 +35,7 @@ function saveImageToDB(imageData: Image): Promise<IDBValidKey> {
       reject(new Error("Database not initialized"));
       return;
     }
+
     const transaction = db.transaction([STORE_NAME], "readwrite");
     const store = transaction.objectStore(STORE_NAME);
     const request = store.add(imageData);
@@ -59,11 +52,12 @@ function getAllImages(): Promise<Image[]> {
       reject(new Error("Database not initialized"));
       return;
     }
+
     const transaction = db.transaction([STORE_NAME], "readonly");
     const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAll();
+    const request: IDBRequest<Image[]> = store.getAll();
 
-    request.onsuccess = () => resolve(request.result as Image[]);
+    request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
@@ -75,6 +69,7 @@ function deleteImageFromDB(id: string): Promise<void> {
       reject(new Error("Database not initialized"));
       return;
     }
+
     const transaction = db.transaction([STORE_NAME], "readwrite");
     const store = transaction.objectStore(STORE_NAME);
     const request = store.delete(id);
