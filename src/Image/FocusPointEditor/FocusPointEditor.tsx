@@ -6,9 +6,9 @@ import { CURSOR_MAP } from "./constants";
 import { cssObjectPositionObjectToString } from "./helpers/cssObjectPositionObjectToString";
 import { cssObjectPositionStringToObject } from "./helpers/cssObjectPositionStringToObject";
 import { detectProportionalImageHeight } from "./helpers/detectRelativeImageSize";
-import { getPointerCoordinatesFromEvent } from "./helpers/getPointerPositionFromEvent";
+import { getPointerCoordinatesFromEvent } from "./helpers/getPointerCoordinatesFromEvent";
 import { scaleDimensionsToContainRect } from "./helpers/scaleDimensionToContainRect";
-import type { Coordinates, FocusPointEditorProps, ImageObserved } from "./types";
+import type { Coordinates, FocusPointEditorProps, ImageDimensionDelta } from "./types";
 
 const DELTA_DIMENSION_THRESHOLD_PX = 1;
 
@@ -24,11 +24,11 @@ export function FocusPointEditor({
   className,
   ...rest
 }: FocusPointEditorProps) {
-  const [imageObserved, setImageObserved] = useState<ImageObserved | null>(null);
+  const [imageDimensionDelta, setImageDimensionDelta] = useState<ImageDimensionDelta | null>(null);
 
   const isDraggingRef = useRef(false);
   const objectPositionStartRef = useRef(objectPosition);
-  const pointerPositionStartRef = useRef<Coordinates | null>(null);
+  const pointerCoordinatesStartRef = useRef<Coordinates | null>(null);
 
   useEffect(() => {
     if (ref.current == null || imageUrl == null) return;
@@ -56,11 +56,9 @@ export function FocusPointEditor({
               ? "height"
               : undefined;
 
-        setImageObserved({
-          deltaWidthPx,
-          deltaHeightPx,
-          deltaWidthPercent,
-          deltaHeightPercent,
+        setImageDimensionDelta({
+          width: { px: deltaWidthPx, percent: deltaWidthPercent },
+          height: { px: deltaHeightPx, percent: deltaHeightPercent },
           changedDimension,
         });
       }
@@ -81,7 +79,7 @@ export function FocusPointEditor({
       target.setPointerCapture(event.pointerId);
 
       objectPositionStartRef.current = objectPosition;
-      pointerPositionStartRef.current = getPointerCoordinatesFromEvent(event);
+      pointerCoordinatesStartRef.current = getPointerCoordinatesFromEvent(event);
     },
     [objectPosition],
   );
@@ -90,21 +88,22 @@ export function FocusPointEditor({
 
   const handlePointerMove = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
-      if (!isDraggingRef.current || imageObserved == null) return;
+      if (!isDraggingRef.current || imageDimensionDelta == null) return;
 
-      const { x: pointerPositionX, y: pointerPositionY } = getPointerCoordinatesFromEvent(event);
+      const { x: pointerCoordinateX, y: pointerCoordinateY } =
+        getPointerCoordinatesFromEvent(event);
 
-      const deltaXPx = pointerPositionX - (pointerPositionStartRef.current?.x ?? 0);
-      const deltaYPx = pointerPositionY - (pointerPositionStartRef.current?.y ?? 0);
+      const pointerDeltaXPx = pointerCoordinateX - (pointerCoordinatesStartRef.current?.x ?? 0);
+      const pointerDeltaYPx = pointerCoordinateY - (pointerCoordinatesStartRef.current?.y ?? 0);
 
-      const deltaX =
-        imageObserved.changedDimension === "width"
-          ? clamp(toPercentage(deltaXPx, imageObserved.deltaWidthPx), -100, 100)
+      const objectPositionDeltaX =
+        imageDimensionDelta.changedDimension === "width"
+          ? clamp(toPercentage(pointerDeltaXPx, imageDimensionDelta.width.px), -100, 100)
           : 0;
 
-      const deltaY =
-        imageObserved.changedDimension === "height"
-          ? clamp(toPercentage(deltaYPx, imageObserved.deltaHeightPx), -100, 100)
+      const objectPositionDeltaY =
+        imageDimensionDelta.changedDimension === "height"
+          ? clamp(toPercentage(pointerDeltaYPx, imageDimensionDelta.height.px), -100, 100)
           : 0;
 
       const { x: prevObjectPositionX, y: prevObjectPositionY } = cssObjectPositionStringToObject(
@@ -112,13 +111,13 @@ export function FocusPointEditor({
       );
 
       const nextObjectPosition = cssObjectPositionObjectToString({
-        x: prevObjectPositionX - deltaX,
-        y: prevObjectPositionY - deltaY,
+        x: prevObjectPositionX - objectPositionDeltaX,
+        y: prevObjectPositionY - objectPositionDeltaY,
       });
 
       stableOnObjectPositionChange(nextObjectPosition);
     },
-    [imageObserved],
+    [imageDimensionDelta],
   );
 
   const handlePointerUp = useCallback((event: PointerEvent<HTMLDivElement>) => {
@@ -129,9 +128,9 @@ export function FocusPointEditor({
   }, []);
 
   const cursor =
-    imageObserved?.changedDimension == null
+    imageDimensionDelta?.changedDimension == null
       ? "crosshair"
-      : CURSOR_MAP[imageObserved.changedDimension];
+      : CURSOR_MAP[imageDimensionDelta.changedDimension];
 
   const { x: objectPositionX, y: objectPositionY } =
     cssObjectPositionStringToObject(objectPosition);
@@ -192,14 +191,14 @@ export function FocusPointEditor({
       <div
         className={clsx(
           "absolute bg-cover bg-center bg-no-repeat opacity-50 top-0 left-0 z-0",
-          imageObserved?.changedDimension === "width" ? "h-full" : "w-full",
+          imageDimensionDelta?.changedDimension === "width" ? "h-full" : "w-full",
         )}
         style={{
           aspectRatio: naturalAspectRatio ?? "auto",
           backgroundImage: `url(${imageUrl})`,
           transform: `translate(
-            ${(objectPositionX ?? 0) * ((imageObserved?.deltaWidthPercent ?? 0) / -100)}%,
-            ${(objectPositionY ?? 0) * ((imageObserved?.deltaHeightPercent ?? 0) / -100)}%
+            ${(objectPositionX ?? 0) * ((imageDimensionDelta?.width.percent ?? 0) / -100)}%,
+            ${(objectPositionY ?? 0) * ((imageDimensionDelta?.height.percent ?? 0) / -100)}%
           )`,
           cursor,
         }}
