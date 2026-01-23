@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AspectRatioRuler } from "./AspectRatio/AspectRatioRuler/AspectRatioRuler";
 import { AspectRatioSlider } from "./AspectRatio/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "./AspectRatio/hooks";
+import { CodeSnippet } from "./CodeSnippet/CodeSnippet";
+import { DEFAULT_OBJECT_POSITION } from "./Image/ImageContainer/constants";
 import { ImageContainer } from "./Image/ImageContainer/ImageContainer";
 import { ImageUploader } from "./Image/ImageUploader/ImageUploader";
 
@@ -34,6 +36,7 @@ export default function App() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<number>();
   const [naturalAspectRatio, setNaturalAspectRatio] = useState<number>();
+  const [objectPosition, setObjectPosition] = useState(DEFAULT_OBJECT_POSITION);
 
   const aspectRatioList = useAspectRatioList(naturalAspectRatio);
 
@@ -84,9 +87,11 @@ export default function App() {
       <ImageContainer
         ref={imageRef}
         className="fixed top-[calc(50%-2.5rem)] left-1/2 -translate-x-1/2 -translate-y-1/2"
+        imageUrl={imageUrl}
         aspectRatio={aspectRatio}
         naturalAspectRatio={naturalAspectRatio}
-        imageUrl={imageUrl}
+        objectPosition={objectPosition}
+        onObjectPositionChange={setObjectPosition}
         onImageLoad={handleImageLoad}
         onImageError={handleImageError}
       />
@@ -100,6 +105,7 @@ export default function App() {
           <AspectRatioRuler aspectRatioList={aspectRatioList} className="mx-2" />
         </div>
       )}
+      <CodeSnippet className="relative z-5" src={imageUrl} objectPosition={objectPosition} />
     </>
   );
 }

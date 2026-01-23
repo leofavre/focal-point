@@ -1,5 +1,5 @@
 import type { RefObject, SyntheticEvent } from "react";
-import type { StyleProps } from "../../types";
+import type { ObjectPositionString, StyleProps } from "../../types";
 
 export type Coordinates = {
   x: number;
@@ -21,9 +21,11 @@ export type ImageObserved = {
 
 export type ImageContainerProps = StyleProps & {
   ref: RefObject<HTMLImageElement | null>;
+  imageUrl: string;
   aspectRatio?: number;
   naturalAspectRatio?: number;
-  imageUrl: string;
+  objectPosition: ObjectPositionString;
+  onObjectPositionChange: (objectPosition: ObjectPositionString) => void;
   onImageLoad: (event: SyntheticEvent<HTMLImageElement>) => void;
   onImageError: (event: SyntheticEvent<HTMLImageElement>) => void;
 };

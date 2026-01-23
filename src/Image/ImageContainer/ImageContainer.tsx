@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import type { PointerEvent } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { clamp, toPercentage } from "../../helpers";
-import { CURSOR_MAP, DEFAULT_OBJECT_POSITION } from "./constants";
+import { CURSOR_MAP } from "./constants";
 import { cssObjectPositionObjectToString } from "./helpers/cssObjectPositionObjectToString";
 import { cssObjectPositionStringToObject } from "./helpers/cssObjectPositionStringToObject";
 import { detectProportionalImageHeight } from "./helpers/detectRelativeImageSize";
@@ -14,19 +14,20 @@ const DELTA_DIMENSION_THRESHOLD_PX = 1;
 
 export function ImageContainer({
   ref,
+  imageUrl,
   aspectRatio,
   naturalAspectRatio,
-  imageUrl,
+  objectPosition,
+  onObjectPositionChange,
   onImageLoad,
   onImageError,
   className,
   ...rest
 }: ImageContainerProps) {
-  const [objectPosition, setObjectPosition] = useState(DEFAULT_OBJECT_POSITION);
   const [imageObserved, setImageObserved] = useState<ImageObserved | null>(null);
 
   const isDraggingRef = useRef(false);
-  const objectPositionStartRef = useRef(DEFAULT_OBJECT_POSITION);
+  const objectPositionStartRef = useRef(objectPosition);
   const pointerPositionStartRef = useRef<Coordinates | null>(null);
 
   useEffect(() => {
@@ -85,6 +86,8 @@ export function ImageContainer({
     [objectPosition],
   );
 
+  const stableOnObjectPositionChange = useEffectEvent(onObjectPositionChange);
+
   const handlePointerMove = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
       if (!isDraggingRef.current || imageObserved == null) return;
@@ -113,7 +116,7 @@ export function ImageContainer({
         y: prevObjectPositionY - deltaY,
       });
 
-      setObjectPosition(nextObjectPosition);
+      stableOnObjectPositionChange(nextObjectPosition);
     },
     [imageObserved],
   );
