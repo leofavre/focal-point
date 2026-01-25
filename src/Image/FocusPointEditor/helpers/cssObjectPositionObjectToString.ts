@@ -12,8 +12,8 @@ export function cssObjectPositionObjectToString({
   x,
   y,
 }: ObjectPositionObject): ObjectPositionString {
-  const clampedX = roundWithTwoDecimals(clamp(x, 0, 100));
-  const clampedY = roundWithTwoDecimals(clamp(y, 0, 100));
+  const clampedX = String(roundWithTwoDecimals(clamp(x, 0, 100))).replace(/(\.\d)$/, "$10");
+  const clampedY = String(roundWithTwoDecimals(clamp(y, 0, 100))).replace(/(\.\d)$/, "$10");
 
   return `${clampedX}% ${clampedY}%`;
 }

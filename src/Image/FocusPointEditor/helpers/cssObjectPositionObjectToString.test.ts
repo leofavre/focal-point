@@ -16,4 +16,8 @@ describe("cssObjectPositionObjectToString", () => {
   it("rounds to two decimals", () => {
     expect(cssObjectPositionObjectToString({ x: 33.333, y: 66.666 })).toBe("33.33% 66.67%");
   });
+
+  it("rounds to two decimals with padding", () => {
+    expect(cssObjectPositionObjectToString({ x: 33.3, y: 66.6 })).toBe("33.30% 66.60%");
+  });
 });

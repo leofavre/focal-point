@@ -33,6 +33,7 @@ import { ImageUploader } from "./Image/ImageUploader/ImageUploader";
  */
 export default function App() {
   const imageRef = useRef<HTMLImageElement>(null);
+  const [imageFileName, setImageFileName] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<number>();
   const [naturalAspectRatio, setNaturalAspectRatio] = useState<number>();
@@ -53,6 +54,7 @@ export default function App() {
 
     if (file?.type.startsWith("image/")) {
       const url = URL.createObjectURL(file);
+      setImageFileName(file.name);
       setImageUrl(url);
     }
   }, []);
@@ -105,7 +107,11 @@ export default function App() {
           <AspectRatioRuler aspectRatioList={aspectRatioList} className="mx-2" />
         </div>
       )}
-      <CodeSnippet className="relative z-5" src={imageUrl} objectPosition={objectPosition} />
+      <CodeSnippet
+        className="relative z-5 w-[620px]"
+        src={imageFileName}
+        objectPosition={objectPosition}
+      />
     </>
   );
 }
