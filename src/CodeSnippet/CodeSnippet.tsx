@@ -9,22 +9,19 @@ const getCodeSnippet = ({ src, objectPosition }: CodeSnippetProps) => `<img
   style="object-fit: cover; object-position: ${objectPosition};"
 />`;
 
-hljs.configure({ ignoreUnescapedHTML: true });
-
 export function CodeSnippet({ src, objectPosition, className, ...rest }: CodeSnippetProps) {
   const ref = useRef<HTMLElement>(null);
   const escapedCodeSnippet = escapeHtml(getCodeSnippet({ src, objectPosition }));
 
   useLayoutEffect(() => {
-    const codeElement = ref.current;
-    if (codeElement == null) return;
-    delete codeElement.dataset.highlighted;
-    hljs.highlightElement(codeElement);
+    if (ref.current == null) return;
+    delete ref.current.dataset.highlighted;
+    hljs.highlightElement(ref.current);
   });
 
   return (
     <pre className={clsx("language-html", className)} {...rest}>
-      {/** biome-ignore lint/security/noDangerouslySetInnerHtml: Text is escaped and sanitized */}
+      {/** biome-ignore lint/security/noDangerouslySetInnerHtml: Text is escaped */}
       {<code ref={ref} dangerouslySetInnerHTML={{ __html: escapedCodeSnippet }} />}
     </pre>
   );
