@@ -10,7 +10,6 @@ export function AspectRatioSlider({
   aspectRatioList,
   onAspectRatioChange,
   className,
-  ...rest
 }: AspectRatioSliderProps) {
   const stableOnAspectRatioChange = useEffectEvent((aspectRatio: number) => {
     onAspectRatioChange?.(aspectRatio);
@@ -22,7 +21,7 @@ export function AspectRatioSlider({
   }, []);
 
   return (
-    <div className={clsx("flex flex-col items-center gap-2 w-full", className)} {...rest}>
+    <div className={clsx("flex flex-col items-center gap-2 w-full", className)}>
       <input
         ref={ref}
         className="w-full bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"

@@ -22,7 +22,6 @@ export function FocusPointEditor({
   onImageLoad,
   onImageError,
   className,
-  ...rest
 }: FocusPointEditorProps) {
   const [imageDimensionDelta, setImageDimensionDelta] = useState<ImageDimensionDelta | null>(null);
 
@@ -146,7 +145,6 @@ export function FocusPointEditor({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      {...rest}
     >
       <div className="isolate w-full h-full relative overflow-hidden pointer-events-none touch-none select-none z-1">
         <img
