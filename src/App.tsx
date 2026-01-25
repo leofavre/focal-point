@@ -108,7 +108,7 @@ export default function App() {
         </div>
       )}
       <CodeSnippet
-        className="relative z-5 w-[620px]"
+        className="relative z-5 w-2xl"
         src={imageFileName}
         objectPosition={objectPosition}
       />
