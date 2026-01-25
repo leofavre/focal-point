@@ -4,8 +4,8 @@ import { AspectRatioRuler } from "./AspectRatio/AspectRatioRuler/AspectRatioRule
 import { AspectRatioSlider } from "./AspectRatio/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "./AspectRatio/hooks";
 import { CodeSnippet } from "./CodeSnippet/CodeSnippet";
-import { DEFAULT_OBJECT_POSITION } from "./Image/FocusPointEditor/constants";
-import { FocusPointEditor } from "./Image/FocusPointEditor/FocusPointEditor";
+import { DEFAULT_OBJECT_POSITION } from "./FocusPointEditor/constants";
+import { FocusPointEditor } from "./FocusPointEditor/FocusPointEditor";
 import { ImageUploader } from "./Image/ImageUploader/ImageUploader";
 
 /**
