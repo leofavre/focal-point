@@ -1,7 +1,7 @@
 import type { ChangeEvent, FormEvent, SyntheticEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AspectRatioControl } from "./components/AspectRatio/AspectRatioControl/AspectRatioControl";
 import { AspectRatioRuler } from "./components/AspectRatio/AspectRatioRuler/AspectRatioRuler";
-import { AspectRatioSlider } from "./components/AspectRatio/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "./components/AspectRatio/hooks";
 import { CodeSnippet } from "./components/CodeSnippet/CodeSnippet";
 import { DEFAULT_OBJECT_POSITION } from "./components/FocusPointEditor/constants";
@@ -99,7 +99,7 @@ export default function App() {
       />
       {aspectRatio && (
         <div className="app__controls-container">
-          <AspectRatioSlider
+          <AspectRatioControl
             aspectRatio={aspectRatio}
             aspectRatioList={aspectRatioList}
             onAspectRatioChange={setAspectRatio}

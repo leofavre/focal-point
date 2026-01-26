@@ -154,7 +154,7 @@
   }
 }
 
-.aspect-ratio-slider {
+.aspect-ratio-control {
   display: flex;
   flex-direction: column;
   align-items: center;

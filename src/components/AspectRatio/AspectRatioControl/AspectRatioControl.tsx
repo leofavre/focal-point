@@ -4,7 +4,7 @@ import { useCallback, useEffectEvent } from "react";
 import { toAspectRatio, toPreciseAspectRatio } from "../helpers";
 import type { AspectRatioSliderProps } from "./types";
 
-export function AspectRatioSlider({
+export function AspectRatioControl({
   ref,
   aspectRatio,
   aspectRatioList,
@@ -21,7 +21,7 @@ export function AspectRatioSlider({
   }, []);
 
   return (
-    <div className={clsx("aspect-ratio-slider", className)}>
+    <div className={clsx("aspect-ratio-control", className)}>
       <input
         ref={ref}
         className="control"
