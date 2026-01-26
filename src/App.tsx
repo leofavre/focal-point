@@ -93,6 +93,7 @@ export default function App() {
             onImageLoad={handleImageLoad}
             onImageError={handleImageError}
           />
+          <CodeSnippet src={imageFileName} objectPosition={objectPosition} />
           {aspectRatio && (
             <AspectRatioSlider
               aspectRatio={aspectRatio}
@@ -100,7 +101,6 @@ export default function App() {
               onAspectRatioChange={setAspectRatio}
             />
           )}
-          <CodeSnippet src={imageFileName} objectPosition={objectPosition} />
         </>
       )}
     </>
