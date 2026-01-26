@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import { CodeBlock } from "react-code-block";
 import type { CodeSnippetProps } from "./types";
 
@@ -7,15 +6,12 @@ const getCodeSnippet = ({ src, objectPosition }: CodeSnippetProps) => `<img
   style="object-fit: cover; object-position: ${objectPosition};"
 />`;
 
-export function CodeSnippet({ ref, src, objectPosition, className }: CodeSnippetProps) {
+export function CodeSnippet({ ref, src, objectPosition }: CodeSnippetProps) {
   const codeSnippet = getCodeSnippet({ src, objectPosition });
 
   return (
     <CodeBlock code={codeSnippet} language="html">
-      <CodeBlock.Code
-        ref={ref}
-        className={clsx("code-snippet", className)}
-      >
+      <CodeBlock.Code ref={ref} className="code-snippet">
         <div className="line">
           <CodeBlock.LineNumber className="line-number" />
           <CodeBlock.LineContent className="line-content">

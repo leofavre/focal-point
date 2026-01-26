@@ -78,40 +78,35 @@ export default function App() {
     event.preventDefault();
   }, []);
 
-  return !imageUrl ? (
-    <ImageUploader
-      className="app__image-uploader"
-      onFormSubmit={handleFormSubmit}
-      onImageChange={handleFileChange}
-    />
-  ) : (
-    <>
-      <FocusPointEditor
-        ref={imageRef}
-        className="app__focus-point-editor"
-        imageUrl={imageUrl}
-        aspectRatio={aspectRatio}
-        naturalAspectRatio={naturalAspectRatio}
-        objectPosition={objectPosition}
-        onObjectPositionChange={setObjectPosition}
-        onImageLoad={handleImageLoad}
-        onImageError={handleImageError}
-      />
-      {aspectRatio && (
-        <div className="app__controls-container">
-          <AspectRatioControl
+  return (
+    <div className="app">
+      {!imageUrl ? (
+        <ImageUploader onFormSubmit={handleFormSubmit} onImageChange={handleFileChange} />
+      ) : (
+        <>
+          <FocusPointEditor
+            ref={imageRef}
+            imageUrl={imageUrl}
             aspectRatio={aspectRatio}
-            aspectRatioList={aspectRatioList}
-            onAspectRatioChange={setAspectRatio}
+            naturalAspectRatio={naturalAspectRatio}
+            objectPosition={objectPosition}
+            onObjectPositionChange={setObjectPosition}
+            onImageLoad={handleImageLoad}
+            onImageError={handleImageError}
           />
-          <AspectRatioRuler aspectRatioList={aspectRatioList} className="spaced" />
-        </div>
+          {aspectRatio && (
+            <div className="controls-container">
+              <AspectRatioControl
+                aspectRatio={aspectRatio}
+                aspectRatioList={aspectRatioList}
+                onAspectRatioChange={setAspectRatio}
+              />
+              <AspectRatioRuler aspectRatioList={aspectRatioList} />
+            </div>
+          )}
+          <CodeSnippet src={imageFileName} objectPosition={objectPosition} />
+        </>
       )}
-      <CodeSnippet
-        className="app__code-snippet"
-        src={imageFileName}
-        objectPosition={objectPosition}
-      />
-    </>
+    </div>
   );
 }

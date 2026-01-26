@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import type { ChangeEvent } from "react";
 import { useCallback, useEffectEvent } from "react";
 import { toAspectRatio, toPreciseAspectRatio } from "../helpers";
@@ -9,7 +8,6 @@ export function AspectRatioControl({
   aspectRatio,
   aspectRatioList,
   onAspectRatioChange,
-  className,
 }: AspectRatioSliderProps) {
   const stableOnAspectRatioChange = useEffectEvent((aspectRatio: number) => {
     onAspectRatioChange?.(aspectRatio);
@@ -21,7 +19,7 @@ export function AspectRatioControl({
   }, []);
 
   return (
-    <div className={clsx("aspect-ratio-control", className)}>
+    <div className="aspect-ratio-control">
       <input
         ref={ref}
         className="control"

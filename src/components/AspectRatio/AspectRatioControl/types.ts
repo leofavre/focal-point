@@ -1,8 +1,7 @@
 import type { RefObject } from "react";
-import type { StyleProps } from "../../../types";
 import type { AspectRatio } from "../types";
 
-export type AspectRatioSliderProps = StyleProps & {
+export type AspectRatioSliderProps = {
   ref?: RefObject<HTMLInputElement | null>;
   aspectRatio: number;
   aspectRatioList: AspectRatio[];

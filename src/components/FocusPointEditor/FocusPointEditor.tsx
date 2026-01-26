@@ -21,7 +21,6 @@ export function FocusPointEditor({
   onObjectPositionChange,
   onImageLoad,
   onImageError,
-  className,
 }: FocusPointEditorProps) {
   const [imageDimensionDelta, setImageDimensionDelta] = useState<ImageDimensionDelta | null>(null);
 
@@ -135,7 +134,7 @@ export function FocusPointEditor({
     cssObjectPositionStringToObject(objectPosition);
 
   return (
-    <div className={clsx("focus-point-editor", className)} style={{ containerType: "size" }}>
+    <div className="focus-point-editor">
       <div
         className="container"
         style={{

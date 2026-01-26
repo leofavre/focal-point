@@ -1,5 +1,5 @@
 import type { RefObject, SyntheticEvent } from "react";
-import type { ObjectPositionString, StyleProps } from "../../types";
+import type { ObjectPositionString } from "../../types";
 
 /**
  * Represents a point in 2D space.
@@ -38,7 +38,7 @@ export type ImageDimensionDelta = {
   changedDimension: "width" | "height" | undefined;
 };
 
-export type FocusPointEditorProps = StyleProps & {
+export type FocusPointEditorProps = {
   ref: RefObject<HTMLImageElement | null>;
   imageUrl: string;
   aspectRatio?: number;
