@@ -80,7 +80,7 @@ export default function App() {
 
   return !imageUrl ? (
     <ImageUploader
-      className="flex items-center justify-center"
+      className="app__image-uploader"
       onFormSubmit={handleFormSubmit}
       onImageChange={handleFileChange}
     />
@@ -88,7 +88,7 @@ export default function App() {
     <>
       <FocusPointEditor
         ref={imageRef}
-        className="fixed inset-0"
+        className="app__focus-point-editor"
         imageUrl={imageUrl}
         aspectRatio={aspectRatio}
         naturalAspectRatio={naturalAspectRatio}
@@ -98,17 +98,17 @@ export default function App() {
         onImageError={handleImageError}
       />
       {aspectRatio && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-6xl px-4">
+        <div className="app__controls-container">
           <AspectRatioSlider
             aspectRatio={aspectRatio}
             aspectRatioList={aspectRatioList}
             onAspectRatioChange={setAspectRatio}
           />
-          <AspectRatioRuler aspectRatioList={aspectRatioList} className="mx-2" />
+          <AspectRatioRuler aspectRatioList={aspectRatioList} className="spaced" />
         </div>
       )}
       <CodeSnippet
-        className="relative z-5 w-2xl"
+        className="app__code-snippet"
         src={imageFileName}
         objectPosition={objectPosition}
       />

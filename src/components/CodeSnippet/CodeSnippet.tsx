@@ -14,11 +14,11 @@ export function CodeSnippet({ ref, src, objectPosition, className }: CodeSnippet
     <CodeBlock code={codeSnippet} language="html">
       <CodeBlock.Code
         ref={ref}
-        className={clsx("bg-gray-900 p-6 rounded-xl shadow-lg overflow-auto", className)}
+        className={clsx("code-snippet", className)}
       >
-        <div className="table-row">
-          <CodeBlock.LineNumber className="table-cell pr-4 text-sm text-gray-500 text-right select-none" />
-          <CodeBlock.LineContent className="table-cell">
+        <div className="line">
+          <CodeBlock.LineNumber className="line-number" />
+          <CodeBlock.LineContent className="line-content">
             <CodeBlock.Token />
           </CodeBlock.LineContent>
         </div>

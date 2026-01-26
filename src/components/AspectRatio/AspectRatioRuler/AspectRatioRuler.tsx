@@ -6,17 +6,17 @@ export function AspectRatioRuler({ ref, aspectRatioList, className }: AspectRati
   const max = aspectRatioList.at(-1)?.preciseValue ?? 1;
 
   return (
-    <ul ref={ref} className={clsx("relative flex items-start text-xs text-gray-500", className)}>
+    <ul ref={ref} className={clsx("aspect-ratio-ruler", className)}>
       {aspectRatioList.map(({ name, preciseValue }) => {
         const left = `${((preciseValue - min) / (max - min)) * 100}%`;
 
         return (
           <li
             key={name}
-            className={`w-px flex flex-col justify-center absolute text-sideways-lr`}
+            className="item"
             style={{ left }}
           >
-            <span className="flex flew-row flex-nowrap items-center after:content-[''] after:mb-1 after:inline-block after:w-px after:h-3 after:bg-gray-500 after:align-middle">
+            <span className="label">
               {name}
             </span>
           </li>

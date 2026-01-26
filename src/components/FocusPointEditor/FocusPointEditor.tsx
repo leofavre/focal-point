@@ -135,12 +135,9 @@ export function FocusPointEditor({
     cssObjectPositionStringToObject(objectPosition);
 
   return (
-    <div
-      className={clsx("isolate flex items-center justify-center", className)}
-      style={{ containerType: "size" }}
-    >
+    <div className={clsx("focus-point-editor", className)} style={{ containerType: "size" }}>
       <div
-        className="relative touch-none select-none"
+        className="container"
         style={{
           aspectRatio: aspectRatio ?? "auto",
           height: `${detectProportionalImageHeight({ aspectRatio }) ?? 0}cqmin`,
@@ -150,11 +147,11 @@ export function FocusPointEditor({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
-        <div className="relative w-full h-full overflow-hidden pointer-events-none touch-none select-none z-1">
+        <div className="image-wrapper">
           <img
             ref={ref}
+            className="image"
             src={imageUrl}
-            className="w-full h-full object-cover touch-none select-none"
             style={{ objectPosition }}
             onLoad={onImageLoad}
             onError={onImageError}
@@ -163,7 +160,7 @@ export function FocusPointEditor({
           {/* focal point */}
           <svg
             aria-hidden="true"
-            className="absolute top-0 left-0 w-full h-full pointer-events-none touch-none select-none z-2"
+            className="point"
             xmlns="http://www.w3.org/2000/svg"
             viewBox={`0 0 1000 ${1000 / (aspectRatio ?? 1)}`}
           >
@@ -192,8 +189,8 @@ export function FocusPointEditor({
         {/* ghost */}
         <div
           className={clsx(
-            "absolute bg-cover bg-center bg-no-repeat opacity-50 top-0 left-0 z-0",
-            imageDimensionDelta?.changedDimension === "width" ? "h-full" : "w-full",
+            "ghost",
+            imageDimensionDelta?.changedDimension === "width" ? "full-height" : "full-width",
           )}
           style={{
             aspectRatio: naturalAspectRatio ?? "auto",
