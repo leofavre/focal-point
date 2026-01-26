@@ -207,6 +207,13 @@ export default function App() {
               aspectRatio={aspectRatio}
               aspectRatioList={aspectRatioList}
               onAspectRatioChange={setAspectRatio}
+              /** @todo Move inline static CSS into App > AspectRatioSlider */
+              css={{
+                marginLeft: "auto",
+                marginRight: "auto",
+                maxWidth: 1200,
+                zIndex: 1,
+              }}
             />
           )}
         </>
