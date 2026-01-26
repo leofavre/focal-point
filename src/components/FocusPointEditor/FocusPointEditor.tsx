@@ -25,6 +25,7 @@ export function FocusPointEditor({
   onObjectPositionChange,
   onImageLoad,
   onImageError,
+  ...rest
 }: FocusPointEditorProps) {
   const [imageDimensionDelta, setImageDimensionDelta] = useState<ImageDimensionDelta | null>(null);
 
@@ -137,13 +138,12 @@ export function FocusPointEditor({
 
   return (
     <FocusPointEditorWrapper
-      /** @todo Move inline static CSS into App > FocusPointEditorWrapper */
-      css={{ zIndex: 0 }}
       aspectRatio={aspectRatio}
       cursor={cursor}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      {...rest}
     >
       <ClippedImage
         ref={ref}

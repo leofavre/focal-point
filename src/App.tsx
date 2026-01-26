@@ -6,6 +6,7 @@ import { CodeSnippet } from "./components/CodeSnippet/CodeSnippet";
 import { DEFAULT_OBJECT_POSITION } from "./components/FocusPointEditor/constants";
 import { FocusPointEditor } from "./components/FocusPointEditor/FocusPointEditor";
 import { ImageUploader } from "./components/ImageUploader/ImageUploader";
+import { ToggleButton } from "./components/ToggleButton/ToggleButton";
 
 function PointMarkerToggleIcon() {
   return (
@@ -160,24 +161,20 @@ export default function App() {
       ) : (
         <>
           <div className="editor-toggles">
-            <button
-              type="button"
-              className={`editor-toggle ${showPointMarker ? "is-on" : ""}`}
-              title={showPointMarker ? "Hide pointer marker" : "Show pointer marker"}
-              aria-pressed={showPointMarker}
-              onClick={() => setShowPointMarker((prev) => !prev)}
-            >
-              <PointMarkerToggleIcon />
-            </button>
-            <button
-              type="button"
-              className={`editor-toggle ${showGhostImage ? "is-on" : ""}`}
-              title={showGhostImage ? "Hide ghost image" : "Show ghost image"}
-              aria-pressed={showGhostImage}
-              onClick={() => setShowGhostImage((prev) => !prev)}
-            >
-              <GhostImageToggleIcon />
-            </button>
+            <ToggleButton
+              toggled={showPointMarker}
+              onToggle={() => setShowPointMarker((prev) => !prev)}
+              titleOn="Hide pointer marker"
+              titleOff="Show pointer marker"
+              icon={<PointMarkerToggleIcon />}
+            />
+            <ToggleButton
+              toggled={showGhostImage}
+              onToggle={() => setShowGhostImage((prev) => !prev)}
+              titleOn="Hide ghost image"
+              titleOff="Show ghost image"
+              icon={<GhostImageToggleIcon />}
+            />
           </div>
           <FocusPointEditor
             ref={imageRef}
@@ -190,6 +187,10 @@ export default function App() {
             onObjectPositionChange={setObjectPosition}
             onImageLoad={handleImageLoad}
             onImageError={handleImageError}
+            /** @todo Move inline static CSS into App > FocusPointEditor */
+            css={{
+              zIndex: 0,
+            }}
           />
           <CodeSnippet
             src={imageFileName}

@@ -14,7 +14,11 @@ export function AspectRatioSlider({
         aspectRatioList={aspectRatioList}
         onAspectRatioChange={onAspectRatioChange}
       />
-      <AspectRatioRuler aspectRatioList={aspectRatioList} />
+      <AspectRatioRuler
+        aspectRatioList={aspectRatioList}
+        /** @todo Move inline static CSS into AspectRatioSlider > AspectRatioRuler */
+        css={{ marginLeft: "0.5rem", marginRight: "0.5rem" }}
+      />
     </div>
   );
 }
