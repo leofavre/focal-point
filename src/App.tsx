@@ -157,7 +157,15 @@ export default function App() {
   return (
     <>
       {!imageUrl ? (
-        <ImageUploader onFormSubmit={handleFormSubmit} onImageChange={handleFileChange} />
+        <ImageUploader
+          onFormSubmit={handleFormSubmit}
+          onImageChange={handleFileChange}
+          /** @todo Move inline static CSS into App > ImageUploader */
+          css={{
+            gridRow: "span 3",
+            gridColumn: "span 2",
+          }}
+        />
       ) : (
         <>
           <div className="editor-toggles">
