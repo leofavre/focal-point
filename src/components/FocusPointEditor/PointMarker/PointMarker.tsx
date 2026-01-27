@@ -1,17 +1,23 @@
 import styled from "@emotion/styled";
+import type { PointerEvent } from "react";
+import { useCallback, useEffectEvent, useRef } from "react";
+import { clamp } from "../../../helpers";
+import { cssObjectPositionObjectToString } from "../helpers/cssObjectPositionObjectToString";
 import type { PointMarkerProps } from "./types";
 
 const PointerMarkerWrapper = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
+  width: 2rem;
+  height: 2rem;
+  margin: -1rem 0 0 -1rem;
+  pointer-events: auto;
   touch-action: none;
   user-select: none;
   transition: opacity 0.25s ease;
   z-index: 2;
+  cursor: pointer;
 
   svg {
     position: absolute;
@@ -19,23 +25,80 @@ const PointerMarkerWrapper = styled.div`
     left: 0;
     width: 2rem;
     height: 2rem;
+    pointer-events: none;
   }
 
   svg:nth-of-type(1) {
-    transform: translate(-49%, -49%);
+    transform: translate(-1px, -1px);
     opacity: 0.65;
     color: #fff;
   }
 
   svg:nth-of-type(2) {
-    transform: translate(-50%, -50%);
     color: #111827;
   }
 `;
 
-export function PointMarker({ ...rest }: PointMarkerProps) {
+export function PointMarker({ onObjectPositionChange, ...rest }: PointMarkerProps) {
+  const isDraggingRef = useRef(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const handlePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    isDraggingRef.current = true;
+
+    const target = event.target as HTMLElement;
+    target.setPointerCapture(event.pointerId);
+  }, []);
+
+  const stableOnObjectPositionChange = useEffectEvent(onObjectPositionChange);
+
+  const handlePointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || wrapperRef.current == null) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const parent = wrapperRef.current.parentElement;
+    if (parent == null) return;
+
+    const parentRect = parent.getBoundingClientRect();
+    const x = event.clientX - parentRect.left;
+    const y = event.clientY - parentRect.top;
+
+    const xPercent = clamp((x / parentRect.width) * 100, 0, 100);
+    const yPercent = clamp((y / parentRect.height) * 100, 0, 100);
+
+    const objectPosition = cssObjectPositionObjectToString({
+      x: xPercent,
+      y: yPercent,
+    });
+
+    stableOnObjectPositionChange(objectPosition);
+  }, []);
+
+  const handlePointerUp = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = false;
+    const target = event.target as HTMLElement;
+    target.releasePointerCapture(event.pointerId);
+  }, []);
+
+  const handlePointerCancel = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = false;
+    const target = event.target as HTMLElement;
+    target.releasePointerCapture(event.pointerId);
+  }, []);
+
   return (
-    <PointerMarkerWrapper {...rest}>
+    <PointerMarkerWrapper
+      ref={wrapperRef}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      {...rest}
+    >
       <PointMarkerIcon />
       <PointMarkerIcon />
     </PointerMarkerWrapper>

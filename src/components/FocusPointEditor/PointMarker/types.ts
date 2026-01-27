@@ -1,2 +1,5 @@
-// biome-ignore lint/complexity/noBannedTypes: Explicitly no props
-export type PointMarkerProps = {};
+import type { ObjectPositionString } from "../../../types";
+
+export type PointMarkerProps = {
+  onObjectPositionChange: (objectPosition: ObjectPositionString) => void;
+};

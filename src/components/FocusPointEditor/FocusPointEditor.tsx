@@ -175,6 +175,7 @@ export function FocusPointEditor({
           top: `${objectPositionY}%`,
         }}
         aria-hidden={!showPointMarker}
+        onObjectPositionChange={stableOnObjectPositionChange}
       />
     </FocusPointEditorWrapper>
   );
