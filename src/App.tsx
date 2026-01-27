@@ -17,10 +17,13 @@ import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
  * ### Basic functionality
  *
  * - Document functions, hooks and components
- * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider
  * - Persist image and objectPosition locally (needs IndexedDB)
  * - Drag image to upload
- * - Implement arrow/tab keyboard interactions
+ * - Implement keyboard shortcuts to show or hide point marker, ghost image and code snippet
+ * - Implement arrow/tab keyboard interactions in AspectRatioSlider
+ * - Make shure focus is visible, specially in AspectRatioSlider
+ * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider
+ * - CodeSnippet with copy button.
  * - Melhorize™ UI
  *
  * ### Advanced functionality
@@ -30,6 +33,7 @@ import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
  * - Undo/redo (needs state tracking)
  * - Maybe make a browser extension?
  * - Maybe make a React component?
+ * - Maybe make a native custom element?
  */
 export default function App() {
   const imageRef = useRef<HTMLImageElement>(null);
