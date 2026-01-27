@@ -1,29 +1,32 @@
-import { ASPECT_RATIO_PRECISION } from "./constants";
-
 /**
- * Converts an aspect ratio (width/height) to an integer “precise” value for storage or comparison.
+ * Converts an aspect ratio to a logarithmic position value between 0 and 1.
  *
- * @param aspectRatio - The aspect ratio as a decimal (e.g. `16/9`).
- * @returns The aspect ratio scaled by `ASPECT_RATIO_PRECISION` and rounded to an integer.
- */
-export function toPreciseAspectRatio(aspectRatio: number) {
-  return Math.round(aspectRatio * ASPECT_RATIO_PRECISION);
-}
-
-/**
- * Converts a “precise” integer aspect ratio back to the decimal form (width/height).
+ * This function maps an aspect ratio value within a given range [min, max] to a
+ * position on a logarithmic scale. The logarithmic scale ensures that equal
+ * multiplicative changes in aspect ratio correspond to equal changes in position,
+ * which is useful for representing aspect ratios visually.
  *
- * @param preciseAspectRatio - The scaled integer from `toPreciseAspectRatio`.
- * @returns The aspect ratio as a decimal.
+ * @param ratio - The aspect ratio value to convert (must be between min and max)
+ * @param min - The minimum aspect ratio value in the range
+ * @param max - The maximum aspect ratio value in the range
+ * @returns A position value between 0 and 1, where 0 corresponds to min and 1 corresponds to max
  */
-export function toAspectRatio(preciseAspectRatio: number) {
-  return preciseAspectRatio / ASPECT_RATIO_PRECISION;
-}
-
 export function toLogPosition(ratio: number, min: number, max: number) {
   return (Math.log(ratio) - Math.log(min)) / (Math.log(max) - Math.log(min));
 }
 
-export function toAspectRatioMoo(position: number, min: number, max: number) {
+/**
+ * Converts a logarithmic position value (0-1) back to an aspect ratio.
+ *
+ * This is the inverse function of `toLogPosition`. It takes a position on a
+ * logarithmic scale and converts it back to the corresponding aspect ratio value
+ * within the specified range [min, max].
+ *
+ * @param position - The logarithmic position value between 0 and 1
+ * @param min - The minimum aspect ratio value in the range
+ * @param max - The maximum aspect ratio value in the range
+ * @returns The aspect ratio value corresponding to the given position
+ */
+export function toAspectRatio(position: number, min: number, max: number) {
   return Math.exp(position * (Math.log(max) - Math.log(min)) + Math.log(min));
 }

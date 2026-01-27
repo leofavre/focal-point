@@ -1,7 +1,5 @@
-import { toLogPosition, toPreciseAspectRatio } from "./helpers";
+import { toLogPosition } from "./helpers";
 import type { AspectRatio } from "./types";
-
-export const ASPECT_RATIO_PRECISION = 100_000;
 
 const ASPECT_RATIO_MAP: Record<string, number> = {
   "9:16": 9 / 16,
@@ -24,7 +22,6 @@ export const ASPECT_RATIO_LIST: AspectRatio[] = Object.entries(ASPECT_RATIO_MAP)
   .map(([name, value]) => ({
     name,
     value,
-    preciseValue: toPreciseAspectRatio(value),
     position: toLogPosition(value, ASPECT_RATIO_MAP["9:16"], ASPECT_RATIO_MAP["4:1"]),
   }))
   .sort((a, b) => a.value - b.value);

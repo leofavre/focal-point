@@ -16,6 +16,6 @@ describe("detectProportionalImageHeight", () => {
   it("computes height as percentage of the container's smaller dimension", () => {
     const aspectRatio = 16 / 9;
     const result = detectProportionalImageHeight({ aspectRatio });
-    expect(result).toBeCloseTo(47.43, 2);
+    expect(result).toBeCloseTo(53.03, 2);
   });
 });

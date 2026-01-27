@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { ASPECT_RATIO_LIST } from "./constants";
-import { toLogPosition, toPreciseAspectRatio } from "./helpers";
+import { toLogPosition } from "./helpers";
 import type { AspectRatio } from "./types";
 
 const THRESHOLD = 0.01;
@@ -17,7 +17,6 @@ export function useAspectRatioList(originalAspectRatioValue?: number) {
     const original: AspectRatio = {
       name: "original",
       value: originalAspectRatioValue,
-      preciseValue: toPreciseAspectRatio(originalAspectRatioValue),
       position: toLogPosition(originalAspectRatioValue, minValue, maxValue),
     };
 

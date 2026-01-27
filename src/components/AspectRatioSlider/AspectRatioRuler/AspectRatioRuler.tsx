@@ -37,17 +37,11 @@ const AspectRatioRulerLabel = styled.span`
 `;
 
 export function AspectRatioRuler({ ref, aspectRatioList, ...rest }: AspectRatioRulerProps) {
-  const min = aspectRatioList.at(0)?.preciseValue ?? 1;
-  const max = aspectRatioList.at(-1)?.preciseValue ?? 1;
-
   return (
     <AspectRatioRulerList ref={ref} {...rest}>
-      {aspectRatioList.map(({ name, preciseValue }) => {
+      {aspectRatioList.map(({ name, position }) => {
         return (
-          <AspectRatioRulerItem
-            key={name}
-            css={{ left: `${((preciseValue - min) / (max - min)) * 100}%` }}
-          >
+          <AspectRatioRulerItem key={name} css={{ left: `${position * 100}%` }}>
             <AspectRatioRulerLabel>{name}</AspectRatioRulerLabel>
           </AspectRatioRulerItem>
         );

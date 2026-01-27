@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import type { ChangeEvent } from "react";
 import { useCallback, useEffectEvent, useMemo } from "react";
-import { toAspectRatio, toAspectRatioMoo, toLogPosition, toPreciseAspectRatio } from "../helpers";
+import { toAspectRatio, toLogPosition } from "../helpers";
 import type { AspectRatioControlProps } from "./types";
 
 const Slider = styled.div`
@@ -31,8 +31,8 @@ const Slider = styled.div`
         transparent 0%,
         transparent 0.46875rem,
         #94a3b8 0.46875rem,
-        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--original-position)),
-        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--original-position)),
+        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
+        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
         #3b82f6 calc(100% - 0.46875rem),
         transparent calc(100% - 0.46875rem),
         transparent 100%
@@ -49,8 +49,8 @@ const Slider = styled.div`
         transparent 0%,
         transparent 0.46875rem,
         #94a3b8 0.46875rem,
-        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--original-position)),
-        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--original-position)),
+        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
+        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
         #3b82f6 calc(100% - 0.46875rem),
         transparent calc(100% - 0.46875rem),
         transparent 100%
@@ -119,70 +119,48 @@ export function AspectRatioControl({
 }: AspectRatioControlProps) {
   const minItem = aspectRatioList.at(0);
   const maxItem = aspectRatioList.at(-1);
-  const currentPreciseAspectRatio = toPreciseAspectRatio(aspectRatio ?? 1);
+  const minValue = minItem?.value ?? 0;
+  const maxValue = maxItem?.value ?? 1;
+  const minPosition = minItem?.position ?? 0;
+  const maxPosition = maxItem?.position ?? 1;
+
+  const initialPosition = useMemo(() => {
+    return aspectRatioList.find((item) => item.name === "original")?.position;
+  }, [aspectRatioList]);
+
+  const currentPosition = useMemo(() => {
+    return toLogPosition(aspectRatio ?? 1, minValue, maxValue);
+  }, [aspectRatio, minValue, maxValue]);
 
   const stableOnAspectRatioChange = useEffectEvent((aspectRatio: number) => {
     onAspectRatioChange?.(aspectRatio);
   });
 
-  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const preciseAspectRatio = parseInt(event.target.value, 10);
-    const aspectRatio = toAspectRatio(preciseAspectRatio);
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const currentPosition = parseFloat(event.target.value);
+      const aspectRatio = toAspectRatio(currentPosition, minValue, maxValue);
 
-    stableOnAspectRatioChange(aspectRatio);
-  }, []);
-
-  const originalPosition = useMemo(() => {
-    const min = minItem?.preciseValue ?? 1;
-    const max = maxItem?.preciseValue ?? 1;
-    const original = aspectRatioList.find((item) => item.name === "original");
-
-    if (!original) return 0;
-
-    return ((original.preciseValue - min) / (max - min)) * 100;
-  }, [aspectRatioList, minItem, maxItem]);
-
-  const nextOriginalPosition = useMemo(() => {
-    return aspectRatioList.find((item) => item.name === "original")?.position;
-  }, [aspectRatioList]);
-
-  const nextSelectedPosition = useMemo(() => {
-    return toLogPosition(aspectRatio ?? 1, minItem?.value ?? 1, maxItem?.value ?? 1);
-  }, [aspectRatio, minItem, maxItem]);
-
-  const nextSelectedAspectRatio = toAspectRatioMoo(
-    nextSelectedPosition,
-    minItem?.value ?? 1,
-    maxItem?.value ?? 1,
+      stableOnAspectRatioChange(aspectRatio);
+    },
+    [minValue, maxValue],
   );
 
-  console.log({
-    originalPosition,
-    min: minItem?.preciseValue,
-    max: maxItem?.preciseValue,
-    currentPreciseAspectRatio,
-    nextOriginalPosition,
-    nextMinPosition: minItem?.position,
-    nextMaxPosition: maxItem?.position,
-    nextSelectedPosition,
-    nextSelectedAspectRatio,
-  });
-
   return (
-    <Slider {...rest} css={{ "--original-position": originalPosition / 100 }}>
+    <Slider {...rest} css={{ "--initial-position": initialPosition }}>
       <input
         ref={ref}
         type="range"
-        step={1}
-        min={minItem?.preciseValue}
-        max={maxItem?.preciseValue}
-        value={currentPreciseAspectRatio}
+        step={0.001}
+        min={minPosition}
+        max={maxPosition}
+        value={currentPosition}
         onChange={handleChange}
         list="aspect-ratio"
       />
       <datalist id="aspect-ratio">
-        {aspectRatioList.map(({ preciseValue }) => (
-          <option key={preciseValue} value={preciseValue} />
+        {aspectRatioList.map(({ value }) => (
+          <option key={value} value={value} />
         ))}
       </datalist>
     </Slider>
