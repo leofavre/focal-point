@@ -16,6 +16,8 @@ import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
  *
  * ### Basic functionality
  *
+ * - Document functions, hooks and components
+ * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider
  * - Persist image and objectPosition locally (needs IndexedDB)
  * - Drag image to upload
  * - Implement arrow/tab keyboard interactions
