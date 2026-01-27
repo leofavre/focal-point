@@ -28,8 +28,8 @@ export function AspectRatioSlider({
         /** @todo Move inline static CSS into AspectRatioSlider > AspectRatioRuler */
         css={{
           position: "relative",
-          marginLeft: "7.5px",
-          marginRight: "8.5px",
+          marginLeft: "0.46875rem",
+          marginRight: "0.53125rem",
           marginTop: "-0.75rem",
           zIndex: 0,
         }}

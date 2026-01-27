@@ -8,7 +8,7 @@ const StyledToggleButton = styled.button`
   width: 2rem;
   height: 2rem;
   padding: 0;
-  border: 1px solid #9ca3af;
+  border: 0.0625rem solid #9ca3af;
   border-radius: 0.375rem;
   background-color: #fff;
   color: #374151;
@@ -34,6 +34,11 @@ const StyledToggleButton = styled.button`
       border-color: #2563eb;
       color: #1e40af;
     }
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 `;
 

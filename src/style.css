@@ -1,5 +1,6 @@
 html {
   font-family: system-ui, sans-serif;
+  font-size: 16px;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -15,8 +16,8 @@ body {
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr minmax(320px, 1200px) 1fr;
-  grid-template-rows: min-content 1fr 90px;
+  grid-template-columns: 1fr minmax(20rem, 75rem) 1fr;
+  grid-template-rows: min-content 1fr 5.625rem;
   gap: 1rem;
   margin: 1rem;
   width: calc(100dvw - 2rem);

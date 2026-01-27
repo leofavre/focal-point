@@ -11,7 +11,7 @@ const AspectRatioRulerList = styled.ul`
 `;
 
 const AspectRatioRulerItem = styled.li`
-  width: 1px;
+  width: 0.0625rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -29,7 +29,7 @@ const AspectRatioRulerLabel = styled.span`
     content: "";
     margin-bottom: 0.25rem;
     display: inline-block;
-    width: 1px;
+    width: 0.0625rem;
     height: 1.5rem;
     background-color: #94a3b8;
     vertical-align: middle;

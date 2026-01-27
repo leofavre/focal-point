@@ -29,7 +29,7 @@ const PointerMarkerWrapper = styled.div`
   }
 
   svg:nth-of-type(1) {
-    transform: translate(-1px, -1px);
+    transform: translate(-0.0625rem, -0.0625rem);
     opacity: 0.65;
     color: #fff;
   }

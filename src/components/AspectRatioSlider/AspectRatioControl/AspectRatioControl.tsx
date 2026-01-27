@@ -13,7 +13,7 @@ const Slider = styled.div`
 
   input {
     width: 100%;
-    height: 22px;
+    height: 1.375rem;
     background: transparent;
     border-radius: 0;
     appearance: none;
@@ -25,29 +25,37 @@ const Slider = styled.div`
     /* Track styling - WebKit (Chrome, Safari, Edge) */
     &::-webkit-slider-runnable-track {
       width: 100%;
-      height: 2px;
+      height: 0.125rem;
       background: linear-gradient(
         to right,
-        #94a3b8 0%,
-        #94a3b8 calc(8px + (100% - 16px) * var(--original-position)),
-        #3b82f6 calc(8px + (100% - 16px) * var(--original-position)),
-        #3b82f6 100%
+        transparent 0%,
+        transparent 0.46875rem,
+        #94a3b8 0.46875rem,
+        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--original-position)),
+        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--original-position)),
+        #3b82f6 calc(100% - 0.46875rem),
+        transparent calc(100% - 0.46875rem),
+        transparent 100%
       );
-      border-radius: 1px;
+      border-radius: 0.0625rem;
     }
 
     /* Track styling - Firefox */
     &::-moz-range-track {
       width: 100%;
-      height: 2px;
+      height: 0.125rem;
       background: linear-gradient(
         to right,
-        #94a3b8 0%,
-        #94a3b8 calc(8px + (100% - 16px) * var(--original-position)),
-        #3b82f6 calc(8px + (100% - 16px) * var(--original-position)),
-        #3b82f6 100%
+        transparent 0%,
+        transparent 0.46875rem,
+        #94a3b8 0.46875rem,
+        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--original-position)),
+        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--original-position)),
+        #3b82f6 calc(100% - 0.46875rem),
+        transparent calc(100% - 0.46875rem),
+        transparent 100%
       );
-      border-radius: 1px;
+      border-radius: 0.0625rem;
       border: none;
     }
 
@@ -55,25 +63,25 @@ const Slider = styled.div`
     &::-webkit-slider-thumb {
       appearance: none;
       -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
+      width: 1rem;
+      height: 1rem;
       background: rgba(255, 255, 255, 0.5);
-      border: 2px solid #3b82f6;
+      border: 0.125rem solid #3b82f6;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      margin-top: -7px;
+      box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.2);
+      margin-top: -0.4375rem;
     }
 
     /* Thumb styling - Firefox */
     &::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
+      width: 1rem;
+      height: 1rem;
       background: rgba(255, 255, 255, 0.5);
-      border: 2px solid #3b82f6;
+      border: 0.125rem solid #3b82f6;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.2);
       -moz-appearance: none;
     }
 
@@ -93,11 +101,11 @@ const Slider = styled.div`
     }
 
     &:focus::-webkit-slider-thumb {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 0 0.1875rem rgba(59, 130, 246, 0.2);
     }
 
     &:focus::-moz-range-thumb {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 0 0.1875rem rgba(59, 130, 246, 0.2);
     }
   }
 `;
