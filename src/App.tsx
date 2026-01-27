@@ -7,6 +7,7 @@ import { DEFAULT_OBJECT_POSITION } from "./components/FocusPointEditor/constants
 import { FocusPointEditor } from "./components/FocusPointEditor/FocusPointEditor";
 import { ImageUploader } from "./components/ImageUploader/ImageUploader";
 import { ToggleButton } from "./components/ToggleButton/ToggleButton";
+import { CodeSnippetToggleIcon } from "./icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "./icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
 
@@ -42,6 +43,7 @@ export default function App() {
   const [objectPosition, setObjectPosition] = useState(DEFAULT_OBJECT_POSITION);
   const [showPointMarker, setShowPointMarker] = useState(true);
   const [showGhostImage, setShowGhostImage] = useState(true);
+  const [showCodeSnippet, setShowCodeSnippet] = useState(false);
 
   const aspectRatioList = useAspectRatioList(naturalAspectRatio);
 
@@ -111,6 +113,13 @@ export default function App() {
           titleOff="Show ghost image"
           icon={<GhostImageToggleIcon />}
         />
+        <ToggleButton
+          toggled={showCodeSnippet}
+          onToggle={() => setShowCodeSnippet((prev) => !prev)}
+          titleOn="Hide code snippet"
+          titleOff="Show code snippet"
+          icon={<CodeSnippetToggleIcon />}
+        />
       </div>
       {imageUrl && (
         <>
@@ -135,13 +144,17 @@ export default function App() {
           <CodeSnippet
             src={imageFileName}
             objectPosition={objectPosition}
-            /** @todo Move inline static CSS into App > CodeSnippet */
             css={{
+              /** @todo Move inline static CSS into App > CodeSnippet */
               gridRow: "2",
               gridColumn: "2",
               margin: "auto",
               maxWidth: 550,
               zIndex: 2,
+              /** @todo Keep this style here */
+              opacity: showCodeSnippet ? 1 : 0,
+              transition: "opacity 0.15s ease",
+              pointerEvents: showCodeSnippet ? "auto" : "none",
             }}
           />
           <AspectRatioSlider
