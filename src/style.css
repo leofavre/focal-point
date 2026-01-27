@@ -15,8 +15,8 @@ body {
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr min-content 90px;
+  grid-template-columns: 1fr minmax(320px, 1200px) 1fr;
+  grid-template-rows: min-content 1fr 90px;
   gap: 1rem;
   margin: 1rem;
   width: calc(100vw - 2rem);

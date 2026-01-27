@@ -37,12 +37,6 @@ const Control = styled.input`
   }
 `;
 
-const HelpText = styled.p`
-  margin-top: 0.25rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-`;
-
 export function ImageUploader({ ref, onFormSubmit, onImageChange, ...rest }: ImageUploaderProps) {
   return (
     <ImageUploaderForm onSubmit={onFormSubmit} noValidate {...rest}>
@@ -55,7 +49,6 @@ export function ImageUploader({ ref, onFormSubmit, onImageChange, ...rest }: Ima
         onChange={onImageChange}
         required
       />
-      <HelpText>Only image files are allowed (e.g., PNG, JPEG, GIF, WebP)</HelpText>
     </ImageUploaderForm>
   );
 }

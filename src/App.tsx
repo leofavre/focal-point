@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import type { ChangeEvent, FormEvent, SyntheticEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AspectRatioSlider } from "./components/AspectRatioSlider/AspectRatioSlider";
@@ -10,19 +9,6 @@ import { ImageUploader } from "./components/ImageUploader/ImageUploader";
 import { ToggleButton } from "./components/ToggleButton/ToggleButton";
 import { GhostImageToggleIcon } from "./icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
-
-const AppTopRight = styled.div`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 10;
-  display: flex;
-  gap: 0.25rem;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  background: none;
-`;
 
 /**
  * @todo
@@ -98,34 +84,36 @@ export default function App() {
 
   return (
     <>
-      {!imageUrl ? (
-        <ImageUploader
-          onFormSubmit={handleFormSubmit}
-          onImageChange={handleFileChange}
-          /** @todo Move inline static CSS into App > ImageUploader */
-          css={{
-            gridRow: "span 3",
-            gridColumn: "span 2",
-          }}
+      <ImageUploader
+        onFormSubmit={handleFormSubmit}
+        onImageChange={handleFileChange}
+        css={{ gridRow: "1", gridColumn: "2", marginRight: "auto" }}
+      />
+      <div
+        css={[
+          /** @todo Move inline static CSS into App > Moo */
+          { gridRow: "1", gridColumn: "2", marginLeft: "auto" },
+          /** @todo Move inline static CSS into Moo */
+          { display: "flex", gap: "0.25rem" },
+        ]}
+      >
+        <ToggleButton
+          toggled={showPointMarker}
+          onToggle={() => setShowPointMarker((prev) => !prev)}
+          titleOn="Hide pointer marker"
+          titleOff="Show pointer marker"
+          icon={<PointMarkerToggleIcon />}
         />
-      ) : (
+        <ToggleButton
+          toggled={showGhostImage}
+          onToggle={() => setShowGhostImage((prev) => !prev)}
+          titleOn="Hide ghost image"
+          titleOff="Show ghost image"
+          icon={<GhostImageToggleIcon />}
+        />
+      </div>
+      {imageUrl && (
         <>
-          <AppTopRight>
-            <ToggleButton
-              toggled={showPointMarker}
-              onToggle={() => setShowPointMarker((prev) => !prev)}
-              titleOn="Hide pointer marker"
-              titleOff="Show pointer marker"
-              icon={<PointMarkerToggleIcon />}
-            />
-            <ToggleButton
-              toggled={showGhostImage}
-              onToggle={() => setShowGhostImage((prev) => !prev)}
-              titleOn="Hide ghost image"
-              titleOff="Show ghost image"
-              icon={<GhostImageToggleIcon />}
-            />
-          </AppTopRight>
           <FocusPointEditor
             ref={imageRef}
             imageUrl={imageUrl}
@@ -139,6 +127,8 @@ export default function App() {
             onImageError={handleImageError}
             /** @todo Move inline static CSS into App > FocusPointEditor */
             css={{
+              gridRow: "2",
+              gridColumn: "2",
               zIndex: 0,
             }}
           />
@@ -147,6 +137,8 @@ export default function App() {
             objectPosition={objectPosition}
             /** @todo Move inline static CSS into App > CodeSnippet */
             css={{
+              gridRow: "2",
+              gridColumn: "2",
               margin: "auto",
               maxWidth: 550,
               zIndex: 2,
@@ -158,6 +150,8 @@ export default function App() {
             onAspectRatioChange={setAspectRatio}
             /** @todo Move inline static CSS into App > AspectRatioSlider */
             css={{
+              gridRow: "3",
+              gridColumn: "2",
               marginLeft: "auto",
               marginRight: "auto",
               maxWidth: 1200,
