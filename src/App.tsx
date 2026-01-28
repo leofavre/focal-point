@@ -1,5 +1,6 @@
 import type { ChangeEvent, FormEvent, SyntheticEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import useDebouncedEffect from "use-debounced-effect";
 import { AspectRatioSlider } from "./components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "./components/AspectRatioSlider/hooks";
 import { CodeSnippet } from "./components/CodeSnippet/CodeSnippet";
@@ -10,6 +11,14 @@ import { ToggleButton } from "./components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "./icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "./icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
+import {
+  deleteAllImages,
+  getCurrentImage,
+  initDB,
+  saveImageToDB,
+  updateImageInDB,
+} from "./services/database";
+import type { StoredImage } from "./types";
 
 /**
  * @todo
@@ -17,7 +26,6 @@ import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
  * ### Basic functionality
  *
  * - Document functions, hooks and components
- * - Persist image and objectPosition locally (needs IndexedDB)
  * - Drag image to upload
  * - Implement keyboard shortcuts to show or hide point marker, ghost image and code snippet
  * - Implement arrow/tab keyboard interactions in AspectRatioSlider
@@ -45,34 +53,154 @@ export default function App() {
   const [showPointMarker, setShowPointMarker] = useState(true);
   const [showGhostImage, setShowGhostImage] = useState(true);
   const [showCodeSnippet, setShowCodeSnippet] = useState(false);
+  const [currentImageId, setCurrentImageId] = useState<string | null>(null);
+  const [isDBInitialized, setIsDBInitialized] = useState(false);
 
   const aspectRatioList = useAspectRatioList(naturalAspectRatio);
 
+  // Initialize database and load current image on mount
   useEffect(() => {
-    return () => {
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
+    let isMounted = true;
+
+    async function initializeApp() {
+      try {
+        await initDB();
+        if (!isMounted) return;
+
+        setIsDBInitialized(true);
+        const currentImage = await getCurrentImage();
+        if (!isMounted) return;
+
+        if (currentImage) {
+          setCurrentImageId(currentImage.id);
+          setImageFileName(currentImage.name);
+          setImageUrl(currentImage.data);
+
+          // Ensure objectPosition is always set (handle old images without this field)
+          const objectPosition = currentImage.objectPosition ?? DEFAULT_OBJECT_POSITION;
+          setObjectPosition(objectPosition);
+
+          // Calculate naturalAspectRatio from the image
+          const img = new Image();
+          img.src = currentImage.data;
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = reject;
+          });
+
+          const naturalAspectRatio = img.naturalWidth / img.naturalHeight;
+          setNaturalAspectRatio(naturalAspectRatio);
+
+          // Use stored aspectRatio or fall back to naturalAspectRatio
+          const aspectRatio = currentImage.aspectRatio ?? naturalAspectRatio;
+          setAspectRatio(aspectRatio);
+
+          // If objectPosition or aspectRatio was missing, update the database with defaults
+          if (currentImage.objectPosition == null || currentImage.aspectRatio == null) {
+            const updates: Partial<StoredImage> = {};
+            if (currentImage.objectPosition == null) {
+              updates.objectPosition = DEFAULT_OBJECT_POSITION;
+            }
+            if (currentImage.aspectRatio == null) {
+              updates.aspectRatio = naturalAspectRatio;
+            }
+            await updateImageInDB(currentImage.id, updates).catch((error) => {
+              console.error("Error updating image with defaults:", error);
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error initializing database:", error);
       }
-    };
-  }, [imageUrl]);
-
-  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (file?.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
-      setImageFileName(file.name);
-      setImageUrl(url);
     }
+
+    initializeApp();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const handleImageLoad = useCallback((event: SyntheticEvent<HTMLImageElement>) => {
-    const img = event.currentTarget;
-    const naturalAspectRatio = img.naturalWidth / img.naturalHeight;
-
-    setNaturalAspectRatio(naturalAspectRatio);
-    setAspectRatio(naturalAspectRatio);
+  // Convert file to base64
+  const fileToBase64 = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }, []);
+
+  const handleFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+
+      if (!file?.type.startsWith("image/")) return;
+
+      if (!isDBInitialized) {
+        console.error("Database not initialized");
+        return;
+      }
+
+      try {
+        // Convert file to base64
+        const base64 = await fileToBase64(file);
+
+        // Create image element to get natural dimensions
+        const img = new Image();
+        img.src = base64;
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = reject;
+        });
+
+        const naturalAspectRatio = img.naturalWidth / img.naturalHeight;
+
+        // Create StoredImage object
+        const imageData: StoredImage = {
+          id: Date.now() + "_" + Math.random().toString(36).substr(2, 9),
+          name: file.name,
+          data: base64,
+          size: file.size,
+          type: file.type,
+          timestamp: Date.now(),
+          aspectRatio: naturalAspectRatio,
+          objectPosition: DEFAULT_OBJECT_POSITION,
+        };
+
+        // Delete all existing images (keep only one image in database)
+        await deleteAllImages();
+
+        // Save new image to database
+        await saveImageToDB(imageData);
+
+        // Update React state
+        setCurrentImageId(imageData.id);
+        setImageFileName(imageData.name);
+        setImageUrl(imageData.data);
+        setAspectRatio(imageData.aspectRatio);
+        setNaturalAspectRatio(naturalAspectRatio);
+        setObjectPosition(imageData.objectPosition);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    },
+    [fileToBase64, isDBInitialized],
+  );
+
+  const handleImageLoad = useCallback(
+    (event: SyntheticEvent<HTMLImageElement>) => {
+      const img = event.currentTarget;
+      const naturalAspectRatio = img.naturalWidth / img.naturalHeight;
+
+      setNaturalAspectRatio(naturalAspectRatio);
+      // Only set aspectRatio if it's not already set (from database)
+      if (aspectRatio === undefined) {
+        setAspectRatio(naturalAspectRatio);
+      }
+    },
+    [aspectRatio],
+  );
 
   const handleImageError = useCallback(() => {
     if (imageUrl) {
@@ -84,6 +212,36 @@ export default function App() {
   const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   }, []);
+
+  // Debounced update for aspectRatio
+  useDebouncedEffect(
+    () => {
+      if (!isDBInitialized || !currentImageId || aspectRatio == null) {
+        return;
+      }
+
+      updateImageInDB(currentImageId, { aspectRatio }).catch((error) => {
+        console.error("Error updating aspectRatio in database:", error);
+      });
+    },
+    1000,
+    [aspectRatio, currentImageId, isDBInitialized],
+  );
+
+  // Debounced update for objectPosition
+  useDebouncedEffect(
+    () => {
+      if (!isDBInitialized || !currentImageId) {
+        return;
+      }
+
+      updateImageInDB(currentImageId, { objectPosition }).catch((error) => {
+        console.error("Error updating objectPosition in database:", error);
+      });
+    },
+    1000,
+    [objectPosition, currentImageId, isDBInitialized],
+  );
 
   return (
     <>

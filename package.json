@@ -34,7 +34,6 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@tailwindcss/vite": "^4.1.18",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
@@ -42,6 +41,6 @@
     "react": "^19.2.3",
     "react-code-block": "^1.1.3",
     "react-dom": "^19.2.3",
-    "tailwindcss": "^4.1.18"
+    "use-debounced-effect": "^2.0.1"
   }
 }
