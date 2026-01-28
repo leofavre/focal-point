@@ -9,12 +9,11 @@ let db: IDBDatabase | null = null;
 
 /**
  * Ensures the database is initialized and returns it.
- * If not initialized, rejects the promise and throws.
+ * If not initialized, throws an error which will reject the promise.
  */
-function assertDBInitialized(reject: (reason?: unknown) => void): IDBDatabase {
+function assertDBInitialized(): IDBDatabase {
   if (!db) {
-    reject(new Error("Database not initialized"));
-    throw new Error("Database not initialized"); // This never returns
+    throw new Error("Database not initialized");
   }
   return db;
 }
@@ -45,7 +44,7 @@ export function initDB(): Promise<IDBDatabase> {
 
 export function saveImageToDB(imageData: StoredImage): Promise<IDBValidKey> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([STORE_NAME], "readwrite");
     const store = transaction.objectStore(STORE_NAME);
@@ -58,7 +57,7 @@ export function saveImageToDB(imageData: StoredImage): Promise<IDBValidKey> {
 
 export function getAllImages(): Promise<StoredImage[]> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([STORE_NAME], "readonly");
     const store = transaction.objectStore(STORE_NAME);
@@ -71,7 +70,7 @@ export function getAllImages(): Promise<StoredImage[]> {
 
 export function deleteImageFromDB(id: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([STORE_NAME], "readwrite");
     const store = transaction.objectStore(STORE_NAME);
@@ -84,7 +83,7 @@ export function deleteImageFromDB(id: string): Promise<void> {
 
 export function deleteAllImages(): Promise<void> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([STORE_NAME], "readwrite");
     const store = transaction.objectStore(STORE_NAME);
@@ -97,7 +96,7 @@ export function deleteAllImages(): Promise<void> {
 
 export function getImageById(id: string): Promise<StoredImage | undefined> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([STORE_NAME], "readonly");
     const store = transaction.objectStore(STORE_NAME);
@@ -110,7 +109,7 @@ export function getImageById(id: string): Promise<StoredImage | undefined> {
 
 export function getCurrentImage(): Promise<StoredImage | null> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([STORE_NAME], "readonly");
     const store = transaction.objectStore(STORE_NAME);
@@ -131,7 +130,7 @@ export function getCurrentImage(): Promise<StoredImage | null> {
 
 export function updateImageInDB(id: string, updates: Partial<StoredImage>): Promise<void> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([STORE_NAME], "readwrite");
     const store = transaction.objectStore(STORE_NAME);
@@ -157,7 +156,7 @@ export function updateImageInDB(id: string, updates: Partial<StoredImage>): Prom
 
 export function getUIState(): Promise<StoredUI | null> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([UI_STORE_NAME], "readonly");
     const store = transaction.objectStore(UI_STORE_NAME);
@@ -172,7 +171,7 @@ export function getUIState(): Promise<StoredUI | null> {
 
 export function saveUIState(uiState: StoredUI): Promise<IDBValidKey> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([UI_STORE_NAME], "readwrite");
     const store = transaction.objectStore(UI_STORE_NAME);
@@ -185,7 +184,7 @@ export function saveUIState(uiState: StoredUI): Promise<IDBValidKey> {
 
 export function updateUIState(updates: Partial<StoredUI>): Promise<void> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([UI_STORE_NAME], "readwrite");
     const store = transaction.objectStore(UI_STORE_NAME);
@@ -218,7 +217,7 @@ export function updateUIState(updates: Partial<StoredUI>): Promise<void> {
 
 export function clearUIState(): Promise<void> {
   return new Promise((resolve, reject) => {
-    const database = assertDBInitialized(reject);
+    const database = assertDBInitialized();
 
     const transaction = database.transaction([UI_STORE_NAME], "readwrite");
     const store = transaction.objectStore(UI_STORE_NAME);
