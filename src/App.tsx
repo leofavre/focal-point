@@ -28,6 +28,8 @@ import type { StoredImage, StoredUI } from "./types";
  *
  * ### Basic functionality
  *
+ * - The app should not crash if the database is not available.
+ * - Different tabs should work independently.
  * - Document functions, hooks and components
  * - Drag image to upload
  * - Implement keyboard shortcuts to show or hide point marker, ghost image and code snippet
