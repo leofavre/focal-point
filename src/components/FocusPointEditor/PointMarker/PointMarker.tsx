@@ -114,14 +114,14 @@ function PointMarkerIcon() {
           cx="50"
           cy="50"
           r="38"
-          stroke-width="6"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-        <line x1="50" y1="6" x2="50" y2="26" stroke-width="6" stroke-linecap="round" />
-        <line x1="50" y1="74" x2="50" y2="94" stroke-width="6" stroke-linecap="round" />
-        <line x1="6" y1="50" x2="26" y2="50" stroke-width="6" stroke-linecap="round" />
-        <line x1="74" y1="50" x2="94" y2="50" stroke-width="6" stroke-linecap="round" />
+        <line x1="50" y1="6" x2="50" y2="26" strokeWidth="6" strokeLinecap="round" />
+        <line x1="50" y1="74" x2="50" y2="94" strokeWidth="6" strokeLinecap="round" />
+        <line x1="6" y1="50" x2="26" y2="50" strokeWidth="6" strokeLinecap="round" />
+        <line x1="74" y1="50" x2="94" y2="50" strokeWidth="6" strokeLinecap="round" />
       </g>
     </svg>
   );
