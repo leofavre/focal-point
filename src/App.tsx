@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent, SyntheticEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useCallback, useRef, useState } from "react";
 import { AspectRatioSlider } from "./components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "./components/AspectRatioSlider/hooks";
@@ -16,38 +16,39 @@ import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
  *
  * ### Basic functionality
  *
- * - Different tabs should work independently.
- * - Document functions, hooks and components
- * - Drag image to upload
- * - Implement keyboard shortcuts to show or hide point marker, ghost image and code snippet
- * - Implement arrow/tab keyboard interactions in AspectRatioSlider
- * - Make shure focus is visible, specially in AspectRatioSlider
- * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider
+ * - Plan state (and reducers?)
+ * - Maybe persist state in IndexedDB.
+ * - Document functions, hooks and components.
+ * - Drag image to upload.
+ * - Implement keyboard shortcuts to show or hide point marker, ghost image and code snippet.
+ * - Implement arrow/tab keyboard interactions in AspectRatioSlider.
+ * - Make shure focus is visible, specially in AspectRatioSlider.
+ * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider.
  * - CodeSnippet with copy button.
- * - Melhorize™ UI
+ * - Melhorize™ UI.
  *
  * ### Advanced functionality
  *
- * - Handle multiple images (needs routing)
- * - Breakpoints with container queries
- * - Undo/redo (needs state tracking)
- * - Maybe make a browser extension?
- * - Maybe make a React component?
- * - Maybe make a native custom element?
+ * - Handle multiple images (needs routing).
+ * - Breakpoints with container queries.
+ * - Undo/redo (needs state tracking).
+ * - Maybe make a browser extension?.
+ * - Maybe make a React component?.
+ * - Maybe make a native custom element?.
  */
 export default function App() {
   const imageRef = useRef<HTMLImageElement>(null);
   const [imageFileName, setImageFileName] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageAspectRatio, setImageAspectRatio] = useState<number>();
   const [objectPosition, setObjectPosition] = useState(DEFAULT_OBJECT_POSITION);
-  const [naturalAspectRatio, setNaturalAspectRatio] = useState<number>();
 
   const [aspectRatio, setAspectRatio] = useState<number>();
   const [showPointMarker, setShowPointMarker] = useState(true);
   const [showGhostImage, setShowGhostImage] = useState(true);
   const [showCodeSnippet, setShowCodeSnippet] = useState(false);
 
-  const aspectRatioList = useAspectRatioList(naturalAspectRatio);
+  const aspectRatioList = useAspectRatioList(imageAspectRatio);
 
   // Convert file to base64
   const fileToBase64 = useCallback((file: File): Promise<string> => {
@@ -72,17 +73,14 @@ export default function App() {
         // Create image element to get natural dimensions
         const img = new Image();
         img.src = base64;
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => resolve();
-          img.onerror = reject;
-        });
+        await Promise.resolve();
 
         const naturalAspectRatio = img.naturalWidth / img.naturalHeight;
 
         // Update React state
         setImageFileName(file.name);
         setImageUrl(base64);
-        setNaturalAspectRatio(naturalAspectRatio);
+        setImageAspectRatio(naturalAspectRatio);
         setObjectPosition(DEFAULT_OBJECT_POSITION);
         setAspectRatio(naturalAspectRatio);
       } catch (error) {
@@ -90,20 +88,6 @@ export default function App() {
       }
     },
     [fileToBase64],
-  );
-
-  const handleImageLoad = useCallback(
-    (event: SyntheticEvent<HTMLImageElement>) => {
-      const img = event.currentTarget;
-      const naturalAspectRatio = img.naturalWidth / img.naturalHeight;
-
-      setNaturalAspectRatio(naturalAspectRatio);
-      // Only set aspectRatio if it's not already set
-      if (aspectRatio === undefined) {
-        setAspectRatio(naturalAspectRatio);
-      }
-    },
-    [aspectRatio],
   );
 
   const handleImageError = useCallback(() => {
@@ -160,12 +144,11 @@ export default function App() {
             ref={imageRef}
             imageUrl={imageUrl}
             aspectRatio={aspectRatio}
-            naturalAspectRatio={naturalAspectRatio}
+            initialAspectRatio={imageAspectRatio}
             objectPosition={objectPosition}
             showPointMarker={showPointMarker}
             showGhostImage={showGhostImage}
             onObjectPositionChange={setObjectPosition}
-            onImageLoad={handleImageLoad}
             onImageError={handleImageError}
             /** @todo Move inline static CSS into App > FocusPointEditor */
             css={{

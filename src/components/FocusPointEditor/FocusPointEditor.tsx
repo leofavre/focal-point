@@ -18,7 +18,7 @@ export function FocusPointEditor({
   ref,
   imageUrl,
   aspectRatio,
-  naturalAspectRatio,
+  initialAspectRatio,
   objectPosition,
   showPointMarker,
   showGhostImage,
@@ -161,7 +161,7 @@ export function FocusPointEditor({
             ${(objectPositionX ?? 0) * ((imageDimensionDelta?.width.percent ?? 0) / -100)}%,
             ${(objectPositionY ?? 0) * ((imageDimensionDelta?.height.percent ?? 0) / -100)}%
           )`,
-          aspectRatio: naturalAspectRatio ?? "auto",
+          aspectRatio: initialAspectRatio ?? "auto",
           backgroundImage: `url(${imageUrl})`,
           opacity: showGhostImage ? 0.25 : 0,
           cursor,
