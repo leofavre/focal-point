@@ -64,6 +64,7 @@ export default function App() {
   const [aspectRatio, setAspectRatio] = usePersistedUIState({
     id: "aspectRatio",
     defaultValue: DEFAULT_ASPECT_RATIO,
+    debounceTimeout: 1000,
   });
 
   const [showPointMarker, setShowPointMarker] = usePersistedUIState({
