@@ -8,7 +8,7 @@ import { DEFAULT_OBJECT_POSITION } from "./components/FocusPointEditor/constants
 import { FocusPointEditor } from "./components/FocusPointEditor/FocusPointEditor";
 import { ImageUploader } from "./components/ImageUploader/ImageUploader";
 import { ToggleButton } from "./components/ToggleButton/ToggleButton";
-import { createKeyboardShortcutHandler } from "./helpers";
+import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedUIState } from "./hooks";
 import { CodeSnippetToggleIcon } from "./icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "./icons/GhostImageToggleIcon";

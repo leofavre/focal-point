@@ -1,6 +1,6 @@
 import type { PointerEvent } from "react";
 import { useCallback, useEffectEvent, useRef } from "react";
-import { clamp } from "../../../helpers";
+import { clamp } from "../helpers/clamp";
 import { cssObjectPositionObjectToString } from "../helpers/cssObjectPositionObjectToString";
 import { PointerMarkerWrapper } from "./PointMarker.styled";
 import type { PointMarkerProps } from "./types";
