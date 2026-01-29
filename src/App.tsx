@@ -7,17 +7,23 @@ import { DEFAULT_OBJECT_POSITION } from "./components/FocusPointEditor/constants
 import { FocusPointEditor } from "./components/FocusPointEditor/FocusPointEditor";
 import { ImageUploader } from "./components/ImageUploader/ImageUploader";
 import { ToggleButton } from "./components/ToggleButton/ToggleButton";
+import { usePersistedUIState } from "./hooks";
 import { CodeSnippetToggleIcon } from "./icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "./icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
+
+const DEFAULT_SHOW_POINT_MARKER = false;
+const DEFAULT_SHOW_GHOST_IMAGE = false;
+const DEFAULT_SHOW_CODE_SNIPPET = false;
+const DEFAULT_ASPECT_RATIO = 1;
 
 /**
  * @todo
  *
  * ### Basic functionality
  *
- * - Plan state (and reducers?)
- * - Maybe persist state in IndexedDB.
+ * - Loading states.
+ * - Persist images and their states in IndexedDB.
  * - Document functions, hooks and components.
  * - Drag image to upload.
  * - Implement keyboard shortcuts to show or hide point marker, ghost image and code snippet.
@@ -29,6 +35,7 @@ import { PointMarkerToggleIcon } from "./icons/PointMarkerToggleIcon";
  *
  * ### Advanced functionality
  *
+ * - Plan state (and reducers?)
  * - Handle multiple images (needs routing).
  * - Breakpoints with container queries.
  * - Undo/redo (needs state tracking).
@@ -43,10 +50,25 @@ export default function App() {
   const [imageAspectRatio, setImageAspectRatio] = useState<number>();
   const [objectPosition, setObjectPosition] = useState(DEFAULT_OBJECT_POSITION);
 
-  const [aspectRatio, setAspectRatio] = useState<number>();
-  const [showPointMarker, setShowPointMarker] = useState(true);
-  const [showGhostImage, setShowGhostImage] = useState(true);
-  const [showCodeSnippet, setShowCodeSnippet] = useState(false);
+  const [aspectRatio, setAspectRatio] = usePersistedUIState({
+    id: "aspectRatio",
+    defaultValue: DEFAULT_ASPECT_RATIO,
+  });
+
+  const [showPointMarker, setShowPointMarker] = usePersistedUIState({
+    id: "showPointMarker",
+    defaultValue: DEFAULT_SHOW_POINT_MARKER,
+  });
+
+  const [showGhostImage, setShowGhostImage] = usePersistedUIState({
+    id: "showGhostImage",
+    defaultValue: DEFAULT_SHOW_GHOST_IMAGE,
+  });
+
+  const [showCodeSnippet, setShowCodeSnippet] = usePersistedUIState({
+    id: "showCodeSnippet",
+    defaultValue: DEFAULT_SHOW_CODE_SNIPPET,
+  });
 
   const aspectRatioList = useAspectRatioList(imageAspectRatio);
 
@@ -82,7 +104,6 @@ export default function App() {
         setImageUrl(base64);
         setImageAspectRatio(naturalAspectRatio);
         setObjectPosition(DEFAULT_OBJECT_POSITION);
-        setAspectRatio(naturalAspectRatio);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
@@ -116,47 +137,55 @@ export default function App() {
           { display: "flex", gap: "0.25rem" },
         ]}
       >
-        <ToggleButton
-          toggled={showPointMarker}
-          onToggle={() => setShowPointMarker((prev) => !prev)}
-          titleOn="Hide pointer marker"
-          titleOff="Show pointer marker"
-          icon={<PointMarkerToggleIcon />}
-        />
-        <ToggleButton
-          toggled={showGhostImage}
-          onToggle={() => setShowGhostImage((prev) => !prev)}
-          titleOn="Hide ghost image"
-          titleOff="Show ghost image"
-          icon={<GhostImageToggleIcon />}
-        />
-        <ToggleButton
-          toggled={showCodeSnippet}
-          onToggle={() => setShowCodeSnippet((prev) => !prev)}
-          titleOn="Hide code snippet"
-          titleOff="Show code snippet"
-          icon={<CodeSnippetToggleIcon />}
-        />
+        {showPointMarker != null && (
+          <ToggleButton
+            toggled={showPointMarker}
+            onToggle={() => setShowPointMarker((prev) => !prev)}
+            titleOn="Hide pointer marker"
+            titleOff="Show pointer marker"
+            icon={<PointMarkerToggleIcon />}
+          />
+        )}
+        {showGhostImage != null && (
+          <ToggleButton
+            toggled={showGhostImage}
+            onToggle={() => setShowGhostImage((prev) => !prev)}
+            titleOn="Hide ghost image"
+            titleOff="Show ghost image"
+            icon={<GhostImageToggleIcon />}
+          />
+        )}
+        {showCodeSnippet != null && (
+          <ToggleButton
+            toggled={showCodeSnippet}
+            onToggle={() => setShowCodeSnippet((prev) => !prev)}
+            titleOn="Hide code snippet"
+            titleOff="Show code snippet"
+            icon={<CodeSnippetToggleIcon />}
+          />
+        )}
       </div>
       {imageUrl && (
         <>
-          <FocusPointEditor
-            ref={imageRef}
-            imageUrl={imageUrl}
-            aspectRatio={aspectRatio}
-            initialAspectRatio={imageAspectRatio}
-            objectPosition={objectPosition}
-            showPointMarker={showPointMarker}
-            showGhostImage={showGhostImage}
-            onObjectPositionChange={setObjectPosition}
-            onImageError={handleImageError}
-            /** @todo Move inline static CSS into App > FocusPointEditor */
-            css={{
-              gridRow: "2",
-              gridColumn: "2",
-              zIndex: 0,
-            }}
-          />
+          {aspectRatio != null && imageAspectRatio != null && (
+            <FocusPointEditor
+              ref={imageRef}
+              imageUrl={imageUrl}
+              aspectRatio={aspectRatio}
+              initialAspectRatio={imageAspectRatio}
+              objectPosition={objectPosition}
+              showPointMarker={showPointMarker ?? false}
+              showGhostImage={showGhostImage ?? false}
+              onObjectPositionChange={setObjectPosition}
+              onImageError={handleImageError}
+              /** @todo Move inline static CSS into App > FocusPointEditor */
+              css={{
+                gridRow: "2",
+                gridColumn: "2",
+                zIndex: 0,
+              }}
+            />
+          )}
           <CodeSnippet
             src={imageFileName}
             objectPosition={objectPosition}
@@ -173,20 +202,22 @@ export default function App() {
               pointerEvents: showCodeSnippet ? "auto" : "none",
             }}
           />
-          <AspectRatioSlider
-            aspectRatio={aspectRatio}
-            aspectRatioList={aspectRatioList}
-            onAspectRatioChange={setAspectRatio}
-            /** @todo Move inline static CSS into App > AspectRatioSlider */
-            css={{
-              gridRow: "3",
-              gridColumn: "2",
-              marginLeft: "auto",
-              marginRight: "auto",
-              maxWidth: 1200,
-              zIndex: 1,
-            }}
-          />
+          {aspectRatio != null && (
+            <AspectRatioSlider
+              aspectRatio={aspectRatio}
+              aspectRatioList={aspectRatioList}
+              onAspectRatioChange={setAspectRatio}
+              /** @todo Move inline static CSS into App > AspectRatioSlider */
+              css={{
+                gridRow: "3",
+                gridColumn: "2",
+                marginLeft: "auto",
+                marginRight: "auto",
+                maxWidth: 1200,
+                zIndex: 1,
+              }}
+            />
+          )}
         </>
       )}
     </>

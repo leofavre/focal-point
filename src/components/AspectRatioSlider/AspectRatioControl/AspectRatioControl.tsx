@@ -131,7 +131,7 @@ export function AspectRatioControl({
   }, [aspectRatioList]);
 
   const currentPosition = useMemo(() => {
-    return toLogPosition(aspectRatio ?? 1, minValue, maxValue);
+    return toLogPosition(aspectRatio, minValue, maxValue);
   }, [aspectRatio, minValue, maxValue]);
 
   const stableOnAspectRatioChange = useEffectEvent((aspectRatio: number) => {
@@ -142,7 +142,6 @@ export function AspectRatioControl({
     (event: ChangeEvent<HTMLInputElement>) => {
       const currentPosition = parseFloat(event.target.value) / PRECISION;
       const aspectRatio = toAspectRatio(currentPosition, minValue, maxValue);
-
       stableOnAspectRatioChange(aspectRatio);
     },
     [minValue, maxValue],
