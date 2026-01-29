@@ -157,8 +157,6 @@ export default function App() {
       },
     });
 
-    console.log("added listeners once");
-
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
