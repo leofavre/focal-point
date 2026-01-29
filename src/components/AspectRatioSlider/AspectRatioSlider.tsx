@@ -15,20 +15,9 @@ export function AspectRatioSlider({
         aspectRatio={aspectRatio}
         aspectRatioList={aspectRatioList}
         onAspectRatioChange={onAspectRatioChange}
-        /** @todo Move inline static CSS into AspectRatioSlider > AspectRatioRuler */
-        css={{ position: "relative", zIndex: 1 }}
+        data-component="AspectRatioControl"
       />
-      <AspectRatioRuler
-        aspectRatioList={aspectRatioList}
-        /** @todo Move inline static CSS into AspectRatioSlider > AspectRatioRuler */
-        css={{
-          position: "relative",
-          marginLeft: "0.46875rem",
-          marginRight: "0.53125rem",
-          marginTop: "-0.75rem",
-          zIndex: 0,
-        }}
-      />
+      <AspectRatioRuler aspectRatioList={aspectRatioList} data-component="AspectRatioRuler" />
     </AspectRatioSliderWrapper>
   );
 }
