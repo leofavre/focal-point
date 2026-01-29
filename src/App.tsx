@@ -22,7 +22,9 @@ const DEFAULT_ASPECT_RATIO = 1;
  *
  * ### Basic functionality
  *
- * - Loading states.
+ * - Handle loading.
+ * - Handle errors.
+ * - Reset aspectRatio when a new image is uploaded.
  * - Persist images and their states in IndexedDB.
  * - Document functions, hooks and components.
  * - Drag image to upload.
@@ -32,6 +34,11 @@ const DEFAULT_ASPECT_RATIO = 1;
  * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider.
  * - CodeSnippet with copy button.
  * - Melhorize™ UI.
+ *
+ * ### Landing page
+ * - Shows all uploaded images with masonry grid.
+ * - Explains the project.
+ * - Maybe an explainer Loom?
  *
  * ### Advanced functionality
  *

@@ -1,12 +1,7 @@
-import styled from "@emotion/styled";
 import { AspectRatioControl } from "./AspectRatioControl/AspectRatioControl";
 import type { AspectRatioControlProps } from "./AspectRatioControl/types";
 import { AspectRatioRuler } from "./AspectRatioRuler/AspectRatioRuler";
-
-const AspectRatioSliderWrapper = styled.div`
-  width: 100%;
-  box-sizing: border-box;
-`;
+import { AspectRatioSliderWrapper } from "./AspectRatioSlider.styled";
 
 export function AspectRatioSlider({
   aspectRatio,

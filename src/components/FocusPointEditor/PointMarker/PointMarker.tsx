@@ -1,43 +1,9 @@
-import styled from "@emotion/styled";
 import type { PointerEvent } from "react";
 import { useCallback, useEffectEvent, useRef } from "react";
 import { clamp } from "../../../helpers";
 import { cssObjectPositionObjectToString } from "../helpers/cssObjectPositionObjectToString";
+import { PointerMarkerWrapper } from "./PointMarker.styled";
 import type { PointMarkerProps } from "./types";
-
-const PointerMarkerWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2rem;
-  height: 2rem;
-  margin: -1rem 0 0 -1rem;
-  pointer-events: auto;
-  touch-action: none;
-  user-select: none;
-  transition: opacity 0.25s ease;
-  z-index: 2;
-  cursor: grab;
-
-  svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 2rem;
-    height: 2rem;
-    pointer-events: none;
-  }
-
-  svg:nth-of-type(1) {
-    transform: translate(-0.0625rem, -0.0625rem);
-    opacity: 0.65;
-    color: #fff;
-  }
-
-  svg:nth-of-type(2) {
-    color: #111827;
-  }
-`;
 
 export function PointMarker({ onObjectPositionChange, ...rest }: PointMarkerProps) {
   const isDraggingRef = useRef(false);

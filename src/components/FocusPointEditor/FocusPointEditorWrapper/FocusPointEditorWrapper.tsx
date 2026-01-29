@@ -1,20 +1,9 @@
-import styled from "@emotion/styled";
 import { detectProportionalImageHeight } from "../helpers/detectRelativeImageSize";
+import {
+  FocusPointEditorContainer,
+  FocusPointEditorContent,
+} from "./FocusPointEditorWrapper.styled";
 import type { FocusPointEditorWrapperProps } from "./types";
-
-const FocusPointEditorContainer = styled.div`
-  container-type: size;
-  isolation: isolate;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const FocusPointEditorContent = styled.div`
-  position: relative;
-  touch-action: none;
-  user-select: none;
-`;
 
 export function FocusPointEditorWrapper({
   aspectRatio,
