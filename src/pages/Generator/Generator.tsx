@@ -22,7 +22,7 @@ const DEFAULT_SHOW_GHOST_IMAGE = false;
 const DEFAULT_SHOW_CODE_SNIPPET = false;
 const DEFAULT_ASPECT_RATIO = 1;
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
-const OBJECT_POSITION_DEBOUNCE_MS = 500;
+const INTERACTION_DEBOUNCE_MS = 2000;
 
 function recordToImageState(record: ImageRecord, blobUrl: string): ImageState {
   return {
@@ -79,7 +79,7 @@ export default function Generator() {
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
-    { debounceTimeout: 1000 },
+    { debounceTimeout: INTERACTION_DEBOUNCE_MS },
   );
 
   const [showPointMarker, setShowPointMarker] = usePersistedUIRecord({
@@ -99,6 +99,11 @@ export default function Generator() {
 
   const aspectRatioList = useAspectRatioList(image?.naturalAspectRatio);
 
+  const revokeCurrentBlobUrl = useEffectEvent(() => {
+    if (blobUrlRef.current == null) return;
+    URL.revokeObjectURL(blobUrlRef.current);
+  });
+
   // Load last saved image on init (most recent by createdAt)
   useEffect(() => {
     if (images === undefined || images.length === 0 || hasLoadedInitialImageRef.current) {
@@ -108,17 +113,17 @@ export default function Generator() {
     const sorted = [...images].sort((a, b) => b.createdAt - a.createdAt);
     const lastRecord = sorted[0];
     if (!lastRecord) return;
-    revokeCurrentBlobUrl();
-    const blobUrl = URL.createObjectURL(lastRecord.file);
-    blobUrlRef.current = blobUrl;
-    currentImageIdRef.current = lastRecord.id;
-    setImage(recordToImageState(lastRecord, blobUrl));
+    try {
+      revokeCurrentBlobUrl();
+      const blobUrl = URL.createObjectURL(lastRecord.file);
+      blobUrlRef.current = blobUrl;
+      currentImageIdRef.current = lastRecord.id;
+      setImage(recordToImageState(lastRecord, blobUrl));
+    } catch (error) {
+      console.error("Error loading saved image:", error);
+      currentImageIdRef.current = null;
+    }
   }, [images]);
-
-  const revokeCurrentBlobUrl = useEffectEvent(() => {
-    if (blobUrlRef.current == null) return;
-    URL.revokeObjectURL(blobUrlRef.current);
-  });
 
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -126,33 +131,45 @@ export default function Generator() {
 
       if (!file?.type.startsWith("image/")) return;
 
+      let blobUrl: string;
+      let naturalAspectRatio: number;
+
       try {
         revokeCurrentBlobUrl();
 
-        const blobUrl = URL.createObjectURL(file);
+        blobUrl = URL.createObjectURL(file);
         blobUrlRef.current = blobUrl;
 
-        // Load image to get natural dimensions
-        const naturalAspectRatio = await new Promise<number>((resolve, reject) => {
+        naturalAspectRatio = await new Promise<number>((resolve, reject) => {
           const img = new Image();
           img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
           img.onerror = () => reject(new Error("Failed to load image"));
           img.src = blobUrl;
         });
+      } catch (error) {
+        console.error("Error loading image:", error);
+        revokeCurrentBlobUrl();
+        blobUrlRef.current = null;
+        setImage(null);
+        return;
+      }
 
-        const imageState: ImageState = {
-          name: file.name,
-          url: blobUrl,
-          type: file.type,
-          createdAt: Date.now(),
-          naturalAspectRatio,
-          breakpoints: [{ objectPosition: DEFAULT_OBJECT_POSITION }],
-        };
-        setImage(imageState);
+      const imageState: ImageState = {
+        name: file.name,
+        url: blobUrl,
+        type: file.type,
+        createdAt: Date.now(),
+        naturalAspectRatio,
+        breakpoints: [{ objectPosition: DEFAULT_OBJECT_POSITION }],
+      };
+      setImage(imageState);
+
+      try {
         const id = await addImage(imageState, file);
         currentImageIdRef.current = id;
       } catch (error) {
-        console.error("Error uploading image:", error);
+        console.error("Error saving image to database:", error);
+        currentImageIdRef.current = null;
       }
     },
     [addImage],
@@ -165,6 +182,15 @@ export default function Generator() {
     setImage(null);
     console.error("Error uploading image");
   }, []);
+
+  const handleObjectPositionChange = useCallback(
+    (objectPosition: ObjectPositionString) => {
+      setImage((prev) =>
+        prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null,
+      );
+    },
+    [],
+  );
 
   const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -217,10 +243,14 @@ export default function Generator() {
     () => {
       const id = currentImageIdRef.current;
       if (id != null && currentObjectPosition != null) {
-        updateImage(id, { breakpoints: [{ objectPosition: currentObjectPosition }] });
+        updateImage(id, {
+          breakpoints: [{ objectPosition: currentObjectPosition }],
+        }).catch((error) => {
+          console.error("Error saving position to database:", error);
+        });
       }
     },
-    { timeout: OBJECT_POSITION_DEBOUNCE_MS },
+    { timeout: INTERACTION_DEBOUNCE_MS },
     [currentObjectPosition, updateImage],
   );
 
@@ -272,11 +302,7 @@ export default function Generator() {
               objectPosition={currentObjectPosition}
               showPointMarker={showPointMarker ?? false}
               showGhostImage={showGhostImage ?? false}
-              onObjectPositionChange={(objectPosition) => {
-                setImage((prev) =>
-                  prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null,
-                );
-              }}
+              onObjectPositionChange={handleObjectPositionChange}
               onImageError={handleImageError}
               data-component="FocusPointEditor"
             />
