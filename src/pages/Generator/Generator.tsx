@@ -57,7 +57,6 @@ function recordToImageState(record: ImageRecord, blobUrl: string): ImageState {
  *
  * ### Advanced functionality
  *
- * - Plan state (and reducers?)
  * - Handle multiple images (needs routing).
  * - Breakpoints with container queries.
  * - Undo/redo (needs state tracking).
