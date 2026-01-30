@@ -42,8 +42,7 @@ function recordToImageState(record: ImageRecord, blobUrl: string): ImageState {
  *
  * - Handle loading.
  * - Handle errors.
- * - Reset aspectRatio when a new image is uploaded.
- * - Document functions, hooks and components.
+ * - Handle multiple tabs (current image id should be tied to current tab)
  * - Drag image to upload.
  * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider.
@@ -183,14 +182,9 @@ export default function Generator() {
     console.error("Error uploading image");
   }, []);
 
-  const handleObjectPositionChange = useCallback(
-    (objectPosition: ObjectPositionString) => {
-      setImage((prev) =>
-        prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null,
-      );
-    },
-    [],
-  );
+  const handleObjectPositionChange = useCallback((objectPosition: ObjectPositionString) => {
+    setImage((prev) => (prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null));
+  }, []);
 
   const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
