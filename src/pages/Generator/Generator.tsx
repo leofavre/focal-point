@@ -1,5 +1,6 @@
 import type { ChangeEvent, FormEvent } from "react";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
+import useDebouncedEffect from "use-debounced-effect";
 import { AspectRatioSlider } from "../../components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "../../components/AspectRatioSlider/hooks/useAspectRatioList";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
@@ -12,14 +13,27 @@ import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
 import type { ObjectPositionString } from "../../types";
 import { GeneratorGrid, ToggleBar } from "./Generator.styled";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
+import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
-import type { ImageState } from "./types";
+import type { ImageRecord, ImageState } from "./types";
 
 const DEFAULT_SHOW_POINT_MARKER = false;
 const DEFAULT_SHOW_GHOST_IMAGE = false;
 const DEFAULT_SHOW_CODE_SNIPPET = false;
 const DEFAULT_ASPECT_RATIO = 1;
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
+const OBJECT_POSITION_DEBOUNCE_MS = 500;
+
+function recordToImageState(record: ImageRecord, blobUrl: string): ImageState {
+  return {
+    name: record.name,
+    url: blobUrl,
+    type: record.type,
+    createdAt: record.createdAt,
+    naturalAspectRatio: record.naturalAspectRatio,
+    breakpoints: record.breakpoints ?? [{ objectPosition: DEFAULT_OBJECT_POSITION }],
+  };
+}
 
 /**
  * @todo
@@ -28,7 +42,6 @@ const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
  *
  * - Handle loading.
  * - Handle errors.
- * - Persist images and their states in IndexedDB.
  * - Reset aspectRatio when a new image is uploaded.
  * - Document functions, hooks and components.
  * - Drag image to upload.
@@ -56,9 +69,13 @@ const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
 export default function Generator() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const blobUrlRef = useRef<string | null>(null);
+  const currentImageIdRef = useRef<string | null>(null);
+  const hasLoadedInitialImageRef = useRef(false);
 
   const imageRef = useRef<HTMLImageElement>(null);
   const [image, setImage] = useState<ImageState | null>(null);
+
+  const { images, addImage, updateImage } = usePersistedImages();
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
@@ -82,54 +99,70 @@ export default function Generator() {
 
   const aspectRatioList = useAspectRatioList(image?.naturalAspectRatio);
 
+  // Load last saved image on init (most recent by createdAt)
+  useEffect(() => {
+    if (images === undefined || images.length === 0 || hasLoadedInitialImageRef.current) {
+      return;
+    }
+    hasLoadedInitialImageRef.current = true;
+    const sorted = [...images].sort((a, b) => b.createdAt - a.createdAt);
+    const lastRecord = sorted[0];
+    if (!lastRecord) return;
+    revokeCurrentBlobUrl();
+    const blobUrl = URL.createObjectURL(lastRecord.file);
+    blobUrlRef.current = blobUrl;
+    currentImageIdRef.current = lastRecord.id;
+    setImage(recordToImageState(lastRecord, blobUrl));
+  }, [images]);
+
   const revokeCurrentBlobUrl = useEffectEvent(() => {
     if (blobUrlRef.current == null) return;
     URL.revokeObjectURL(blobUrlRef.current);
   });
 
-  const handleFileChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
 
-    if (!file?.type.startsWith("image/")) return;
+      if (!file?.type.startsWith("image/")) return;
 
-    try {
-      revokeCurrentBlobUrl();
+      try {
+        revokeCurrentBlobUrl();
 
-      const blobUrl = URL.createObjectURL(file);
-      blobUrlRef.current = blobUrl;
+        const blobUrl = URL.createObjectURL(file);
+        blobUrlRef.current = blobUrl;
 
-      // Load image to get natural dimensions
-      const naturalAspectRatio = await new Promise<number>((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
-        img.onerror = () => reject(new Error("Failed to load image"));
-        img.src = blobUrl;
-      });
+        // Load image to get natural dimensions
+        const naturalAspectRatio = await new Promise<number>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
+          img.onerror = () => reject(new Error("Failed to load image"));
+          img.src = blobUrl;
+        });
 
-      setImage({
-        name: file.name,
-        url: blobUrl,
-        type: file.type,
-        createdAt: Date.now(),
-        naturalAspectRatio,
-        breakpoints: [{ objectPosition: DEFAULT_OBJECT_POSITION }],
-      });
-    } catch (error) {
-      revokeCurrentBlobUrl();
-      blobUrlRef.current = null;
-
-      setImage(null);
-
-      console.error("Error uploading image:", error);
-    }
-  }, []);
+        const imageState: ImageState = {
+          name: file.name,
+          url: blobUrl,
+          type: file.type,
+          createdAt: Date.now(),
+          naturalAspectRatio,
+          breakpoints: [{ objectPosition: DEFAULT_OBJECT_POSITION }],
+        };
+        setImage(imageState);
+        const id = await addImage(imageState, file);
+        currentImageIdRef.current = id;
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    },
+    [addImage],
+  );
 
   const handleImageError = useCallback(() => {
     revokeCurrentBlobUrl();
     blobUrlRef.current = null;
-
+    currentImageIdRef.current = null;
     setImage(null);
-
     console.error("Error uploading image");
   }, []);
 
@@ -179,6 +212,17 @@ export default function Generator() {
   }, [setShowCodeSnippet, setShowPointMarker, setShowGhostImage]);
 
   const currentObjectPosition = image?.breakpoints?.[0]?.objectPosition;
+
+  useDebouncedEffect(
+    () => {
+      const id = currentImageIdRef.current;
+      if (id != null && currentObjectPosition != null) {
+        updateImage(id, { breakpoints: [{ objectPosition: currentObjectPosition }] });
+      }
+    },
+    { timeout: OBJECT_POSITION_DEBOUNCE_MS },
+    [currentObjectPosition, updateImage],
+  );
 
   return (
     <GeneratorGrid>
