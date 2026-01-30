@@ -22,6 +22,7 @@ describe("useBlobUrl", () => {
 
     expect(result.current).toHaveProperty("createBlobUrl");
     expect(result.current).toHaveProperty("revokeBlobUrl");
+
     expect(typeof result.current.createBlobUrl).toBe("function");
     expect(typeof result.current.revokeBlobUrl).toBe("function");
   });
@@ -71,6 +72,7 @@ describe("useBlobUrl", () => {
   it("createBlobUrl overwrites previous URL; revokeBlobUrl revokes the latest", () => {
     const blob1 = new Blob(["a"], { type: "image/png" });
     const blob2 = new Blob(["b"], { type: "image/png" });
+
     mockCreateObjectURL
       .mockReturnValueOnce("blob:http://localhost/first")
       .mockReturnValueOnce("blob:http://localhost/second");
