@@ -30,8 +30,8 @@ export function usePersistedImages(): {
     try {
       const all = await getAll<ImageRecord>();
       setImages(all ?? []);
-    } catch {
-      setImages([]);
+    } catch (err) {
+      throw new Error("Failed to refresh images", { cause: err });
     }
   }, [getAll]);
 
@@ -56,11 +56,7 @@ export function usePersistedImages(): {
 
   const getImage = useCallback(
     async (id: string): Promise<ImageRecord | undefined> => {
-      try {
-        return (await getByID<ImageRecord>(id)) ?? undefined;
-      } catch {
-        return undefined;
-      }
+      return await getByID<ImageRecord>(id);
     },
     [getByID],
   );
