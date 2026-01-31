@@ -6,8 +6,8 @@ import { GhostImage } from "./GhostImage/GhostImage";
 import { clamp } from "./helpers/clamp";
 import { cssObjectPositionObjectToString } from "./helpers/cssObjectPositionObjectToString";
 import { cssObjectPositionStringToObject } from "./helpers/cssObjectPositionStringToObject";
+import { getImageDimensionDelta } from "./helpers/getImageDimensionDelta";
 import { getPointerCoordinatesFromEvent } from "./helpers/getPointerCoordinatesFromEvent";
-import { scaleDimensionsToContainRect } from "./helpers/scaleDimensionToContainRect";
 import { toPercentage } from "./helpers/toPercentage";
 import { PointMarker } from "./PointMarker/PointMarker";
 import type { Coordinates, FocusPointEditorProps, ImageDimensionDelta } from "./types";
@@ -16,8 +16,6 @@ const CURSOR_MAP = {
   width: "col-resize",
   height: "row-resize",
 } as const;
-
-const DELTA_DIMENSION_THRESHOLD_PX = 1;
 
 export function FocusPointEditor({
   imageUrl,
@@ -43,7 +41,7 @@ export function FocusPointEditor({
 
     const resizeObserver = new ResizeObserver(() => {
       const imageDimensionDelta = getImageDimensionDelta(imageRef.current);
-      if (imageDimensionDelta != null) return;
+      if (imageDimensionDelta == null) return;
       setImageDimensionDelta(imageDimensionDelta);
     });
 
@@ -174,34 +172,4 @@ export function FocusPointEditor({
       />
     </FocusPointEditorWrapper>
   );
-}
-
-function getImageDimensionDelta(imgElement: HTMLImageElement | null): ImageDimensionDelta | null {
-  if (imgElement == null) return null;
-
-  const source = {
-    width: imgElement.naturalWidth,
-    height: imgElement.naturalHeight,
-  };
-
-  const rect = imgElement.getBoundingClientRect();
-
-  const { width, height } = scaleDimensionsToContainRect({ source, rect });
-  const deltaWidthPx = width - rect.width;
-  const deltaHeightPx = height - rect.height;
-  const deltaWidthPercent = toPercentage(deltaWidthPx, width);
-  const deltaHeightPercent = toPercentage(deltaHeightPx, height);
-
-  const changedDimension =
-    deltaWidthPx > DELTA_DIMENSION_THRESHOLD_PX
-      ? "width"
-      : deltaHeightPx > DELTA_DIMENSION_THRESHOLD_PX
-        ? "height"
-        : undefined;
-
-  return {
-    width: { px: deltaWidthPx, percent: deltaWidthPercent },
-    height: { px: deltaHeightPx, percent: deltaHeightPercent },
-    changedDimension,
-  };
 }
