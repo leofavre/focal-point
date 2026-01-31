@@ -68,9 +68,7 @@ export default function Generator() {
   /** @todo This ref will be removed when this page takes an external id from the URL. */
   const hasLoadedInitialImageRef = useRef(false);
 
-  /** @todo Verify the necessity of the ref below. */
   const imageIdRef = useRef<string | null>(null);
-
   const [image, setImage] = useState<ImageState | null>(null);
   const { images, addImage, updateImage } = usePersistedImages();
 
