@@ -28,7 +28,6 @@ const INTERACTION_DEBOUNCE_MS = 2000;
  *
  * ### Basic functionality
  *
- * - Fix UI reset with back/forward navigation.
  * - Fix aspect ratio reset when a new image is uploaded.
  * - Handle loading.
  * - Handle errors.
