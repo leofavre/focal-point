@@ -80,7 +80,6 @@ export default function Generator() {
       const nextValue = typeof valueOrFn === "function" ? valueOrFn(prevValue) : valueOrFn;
 
       if (prevValue != null && prevValue.url !== nextValue?.url) {
-        console.log("Revoking previous blob URL:", prevValue.url);
         URL.revokeObjectURL(prevValue.url);
       }
 
