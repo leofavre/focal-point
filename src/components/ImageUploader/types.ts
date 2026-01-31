@@ -1,7 +1,7 @@
-import type { ChangeEvent, FormEvent, RefObject } from "react";
+import type { RefObject } from "react";
+import type { ImageState } from "../../types";
 
 export type ImageUploaderProps = {
   ref?: RefObject<HTMLInputElement | null>;
-  onFormSubmit?: (event: FormEvent<HTMLFormElement>) => void;
-  onImageChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  onImageUpload?: (imageState: ImageState | null, file: File | null) => void;
 };

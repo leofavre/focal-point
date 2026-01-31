@@ -1,20 +1,63 @@
+import { type ChangeEvent, type FormEvent, useCallback, useEffectEvent } from "react";
+import type { ImageState } from "../../types";
 import { Control, ImageUploaderForm } from "./ImageUploader.styled";
 import type { ImageUploaderProps } from "./types";
 
-export function ImageUploader({
-  ref,
-  onFormSubmit,
-  onImageChange,
-  ...rest
-}: ImageUploaderProps) {
+export function ImageUploader({ ref, onImageUpload, ...rest }: ImageUploaderProps) {
+  const stableOnImageUpload = useEffectEvent((imageState: ImageState | null, file: File | null) => {
+    onImageUpload?.(imageState, file);
+  }) satisfies typeof onImageUpload;
+
+  const handleFileChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file?.type.startsWith("image/")) {
+      stableOnImageUpload(null, file ?? null);
+      return;
+    }
+
+    const blobUrl = URL.createObjectURL(file);
+    let naturalAspectRatio: number;
+
+    try {
+      naturalAspectRatio = await new Promise<number>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
+        img.onerror = () => reject(new Error("Failed to load image"));
+        img.src = blobUrl;
+      });
+    } catch (error) {
+      console.error("Error loading image:", error);
+
+      URL.revokeObjectURL(blobUrl);
+      stableOnImageUpload(null, file);
+      return;
+    }
+
+    const imageState: ImageState = {
+      name: file.name,
+      url: blobUrl,
+      type: file.type,
+      createdAt: Date.now(),
+      naturalAspectRatio,
+      breakpoints: [{ objectPosition: "50% 50%" }],
+    };
+
+    stableOnImageUpload(imageState, file);
+  }, []);
+
+  const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  }, []);
+
   return (
-    <ImageUploaderForm onSubmit={onFormSubmit} noValidate {...rest}>
+    <ImageUploaderForm onSubmit={handleFormSubmit} noValidate {...rest}>
       <Control
         ref={ref}
         id="image-upload"
         type="file"
         accept="image/*"
-        onChange={onImageChange}
+        onChange={handleFileChange}
         required
       />
     </ImageUploaderForm>

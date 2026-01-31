@@ -1,4 +1,3 @@
-import type { ChangeEvent, FormEvent } from "react";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import useDebouncedEffect from "use-debounced-effect";
 import { AspectRatioSlider } from "../../components/AspectRatioSlider/AspectRatioSlider";
@@ -10,12 +9,11 @@ import { ToggleButton } from "../../components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../../icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
-import type { ObjectPositionString } from "../../types";
+import type { ImageRecord, ImageState, ObjectPositionString } from "../../types";
 import { GeneratorGrid, ToggleBar } from "./Generator.styled";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
-import type { ImageRecord, ImageState } from "./types";
 
 const DEFAULT_SHOW_POINT_MARKER = false;
 const DEFAULT_SHOW_GHOST_IMAGE = false;
@@ -111,39 +109,11 @@ export default function Generator() {
 
   const aspectRatioList = useAspectRatioList(image?.naturalAspectRatio);
 
-  const handleFileChange = useCallback(
-    async (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-
-      if (!file?.type.startsWith("image/")) return;
-
-      const blobUrl = URL.createObjectURL(file);
-      let naturalAspectRatio: number;
-
-      try {
-        naturalAspectRatio = await new Promise<number>((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
-          img.onerror = () => reject(new Error("Failed to load image"));
-          img.src = blobUrl;
-        });
-      } catch (error) {
-        console.error("Error loading image:", error);
-
-        URL.revokeObjectURL(blobUrl);
-        return;
-      }
-
-      const imageState: ImageState = {
-        name: file.name,
-        url: blobUrl,
-        type: file.type,
-        createdAt: Date.now(),
-        naturalAspectRatio,
-        breakpoints: [{ objectPosition: DEFAULT_OBJECT_POSITION }],
-      };
-
+  const handleImageUpload = useCallback(
+    async (imageState: ImageState | null, file: File | null) => {
       safeSetImage(imageState);
+
+      if (imageState == null || file == null) return;
 
       try {
         const id = await addImage(imageState, file);
@@ -163,10 +133,6 @@ export default function Generator() {
 
   const handleObjectPositionChange = useCallback((objectPosition: ObjectPositionString) => {
     safeSetImage((prev) => (prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null));
-  }, []);
-
-  const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
   }, []);
 
   // Load last saved image on init (most recent by createdAt)
@@ -250,8 +216,7 @@ export default function Generator() {
     <GeneratorGrid>
       <ImageUploader
         ref={fileInputRef}
-        onFormSubmit={handleFormSubmit}
-        onImageChange={handleFileChange}
+        onImageUpload={handleImageUpload}
         data-component="ImageUploader"
       />
       <ToggleBar data-component="ToggleBar">

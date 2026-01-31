@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useIndexedDB } from "react-indexed-db-hook";
-import type { ImageRecord, ImageState } from "../types";
+import type { ImageRecord, ImageState } from "../../../types";
 
 /**
  * Custom React hook for persisting image records in IndexedDB.
