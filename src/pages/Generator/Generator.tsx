@@ -28,6 +28,7 @@ const INTERACTION_DEBOUNCE_MS = 500;
  *
  * ### Basic functionality
  *
+ * - Fine-tune blobUrl because it's created twice, event though it's correctly revoked.
  * - Fix aspect ratio reset when a new image is uploaded.
  * - Handle loading.
  * - Handle errors.
