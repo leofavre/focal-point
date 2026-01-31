@@ -138,6 +138,7 @@ export default function Generator() {
     if (imageRecord == null) return;
 
     try {
+      /** @todo Move URL creation the safeSetImage and then remove prevImageIdRef */
       const blobUrl = URL.createObjectURL(imageRecord.file);
       console.log("created blob url", blobUrl);
 
