@@ -17,7 +17,7 @@ export type ImageState = {
   type: string;
   createdAt: number;
   naturalAspectRatio: number;
-  breakpoints?: (Breakpoint | AdvancedBreakpoint)[];
+  breakpoints: (Breakpoint | AdvancedBreakpoint)[];
 };
 
 export type ImageRecord = ImageState & {

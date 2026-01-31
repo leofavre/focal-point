@@ -40,7 +40,7 @@ export function ImageUploader({ ref, onImageUpload, ...rest }: ImageUploaderProp
       type: file.type,
       createdAt: Date.now(),
       naturalAspectRatio,
-      breakpoints: [{ objectPosition: "50% 50%" }],
+      breakpoints: [],
     };
 
     stableOnImageUpload(imageState, file);

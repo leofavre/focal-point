@@ -29,7 +29,7 @@ function recordToImageState(record: ImageRecord, blobUrl: string): ImageState {
     type: record.type,
     createdAt: record.createdAt,
     naturalAspectRatio: record.naturalAspectRatio,
-    breakpoints: record.breakpoints ?? [{ objectPosition: DEFAULT_OBJECT_POSITION }],
+    breakpoints: record.breakpoints,
   };
 }
 
@@ -248,7 +248,7 @@ export default function Generator() {
           />
         )}
       </ToggleBar>
-      {image && currentObjectPosition && (
+      {image && (
         <>
           {aspectRatio != null && image.naturalAspectRatio != null && (
             <FocusPointEditor
@@ -256,7 +256,7 @@ export default function Generator() {
               imageUrl={image.url}
               aspectRatio={aspectRatio}
               initialAspectRatio={image.naturalAspectRatio}
-              objectPosition={currentObjectPosition}
+              objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
               showPointMarker={showPointMarker ?? false}
               showGhostImage={showGhostImage ?? false}
               onObjectPositionChange={handleObjectPositionChange}
@@ -266,7 +266,7 @@ export default function Generator() {
           )}
           <CodeSnippet
             src={image.name}
-            objectPosition={currentObjectPosition}
+            objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
             data-component="CodeSnippet"
             css={{
               opacity: showCodeSnippet ? 1 : 0,
