@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
 import { AspectRatioSlider } from "../../components/AspectRatioSlider/AspectRatioSlider";
@@ -114,7 +114,9 @@ export default function Generator() {
 
       try {
         const nextImageId = await addImage(imageState, file);
-        navigate(`/${nextImageId}`);
+        console.log("uploaded image with id", nextImageId);
+        await navigate(`/${nextImageId}`);
+        console.log("navigated to", `/${nextImageId}`);
       } catch (error) {
         console.error("Error saving image to database:", error);
       }
@@ -131,21 +133,40 @@ export default function Generator() {
     safeSetImage((prev) => (prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null));
   }, []);
 
-  useEffect(() => {
-    if (images === undefined || images.length === 0 || imageId == null) return;
+  const prevImageIdRef = useRef("");
+  const prevImageCountRef = useRef(0);
 
-    const imageRecord = images.find((image) => image.id === imageId);
+  const stableImageRecordGetter = useEffectEvent((imageId: string) => {
+    return images?.find((image) => image.id === imageId);
+  });
+
+  useEffect(() => {
+    const imageCount = images?.length ?? 0;
+
+    if (
+      prevImageIdRef.current === imageId ||
+      prevImageCountRef.current === imageCount ||
+      imageCount === 0 ||
+      imageId == null
+    ) {
+      return;
+    }
+
+    const imageRecord = stableImageRecordGetter(imageId);
 
     if (imageRecord == null) return;
 
     try {
       const blobUrl = URL.createObjectURL(imageRecord.file);
       safeSetImage(recordToImageState(imageRecord, blobUrl));
+      console.log("loaded image with record", imageRecord);
+      prevImageIdRef.current = imageId;
+      prevImageCountRef.current = imageCount;
     } catch (error) {
       console.error("Error loading saved image:", error);
       safeSetImage(null);
     }
-  }, [images, imageId]);
+  }, [imageId, images?.length]);
 
   useEffect(() => {
     return () => {
