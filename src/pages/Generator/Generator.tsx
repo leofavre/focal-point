@@ -1,5 +1,5 @@
 import type { ChangeEvent, FormEvent } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import useDebouncedEffect from "use-debounced-effect";
 import { AspectRatioSlider } from "../../components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "../../components/AspectRatioSlider/hooks/useAspectRatioList";
@@ -13,7 +13,6 @@ import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
 import type { ObjectPositionString } from "../../types";
 import { GeneratorGrid, ToggleBar } from "./Generator.styled";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
-import { useBlobUrl } from "./hooks/useBlobUrl";
 import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
 import type { ImageRecord, ImageState } from "./types";
@@ -72,8 +71,23 @@ export default function Generator() {
 
   const imageRef = useRef<HTMLImageElement>(null);
   const [image, setImage] = useState<ImageState | null>(null);
-
   const { images, addImage, updateImage } = usePersistedImages();
+
+  /**
+   * Safe set image state. Revokes the previous blob URL if the new URL is different.
+   */
+  const safeSetImage: typeof setImage = useEffectEvent((valueOrFn) => {
+    setImage((prevValue) => {
+      const nextValue = typeof valueOrFn === "function" ? valueOrFn(prevValue) : valueOrFn;
+
+      if (prevValue != null && prevValue.url !== nextValue?.url) {
+        console.log("Revoking previous blob URL:", prevValue.url);
+        URL.revokeObjectURL(prevValue.url);
+      }
+
+      return nextValue;
+    });
+  });
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
@@ -97,41 +111,16 @@ export default function Generator() {
 
   const aspectRatioList = useAspectRatioList(image?.naturalAspectRatio);
 
-  const { createBlobUrl, revokeBlobUrl } = useBlobUrl();
-
-  // Load last saved image on init (most recent by createdAt)
-  useEffect(() => {
-    if (images === undefined || images.length === 0 || hasLoadedInitialImageRef.current) {
-      return;
-    }
-    hasLoadedInitialImageRef.current = true;
-    const sorted = [...images].sort((a, b) => b.createdAt - a.createdAt);
-    const lastRecord = sorted[0];
-    if (!lastRecord) return;
-    try {
-      revokeBlobUrl();
-      const blobUrl = createBlobUrl(lastRecord.file);
-      setImage(recordToImageState(lastRecord, blobUrl));
-      currentImageIdRef.current = lastRecord.id;
-    } catch (error) {
-      console.error("Error loading saved image:", error);
-      currentImageIdRef.current = null;
-    }
-  }, [images, createBlobUrl, revokeBlobUrl]);
-
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
 
       if (!file?.type.startsWith("image/")) return;
 
-      let blobUrl: string;
+      const blobUrl = URL.createObjectURL(file);
       let naturalAspectRatio: number;
 
       try {
-        revokeBlobUrl();
-        blobUrl = createBlobUrl(file);
-
         naturalAspectRatio = await new Promise<number>((resolve, reject) => {
           const img = new Image();
           img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
@@ -140,8 +129,8 @@ export default function Generator() {
         });
       } catch (error) {
         console.error("Error loading image:", error);
-        revokeBlobUrl();
-        setImage(null);
+
+        URL.revokeObjectURL(blobUrl);
         return;
       }
 
@@ -153,7 +142,8 @@ export default function Generator() {
         naturalAspectRatio,
         breakpoints: [{ objectPosition: DEFAULT_OBJECT_POSITION }],
       };
-      setImage(imageState);
+
+      safeSetImage(imageState);
 
       try {
         const id = await addImage(imageState, file);
@@ -163,28 +153,49 @@ export default function Generator() {
         currentImageIdRef.current = null;
       }
     },
-    [addImage, createBlobUrl, revokeBlobUrl],
+    [addImage],
   );
 
   const handleImageError = useCallback(() => {
-    revokeBlobUrl();
-    setImage(null);
     console.error("Error uploading image");
-  }, [revokeBlobUrl]);
+    safeSetImage(null);
+  }, []);
 
   const handleObjectPositionChange = useCallback((objectPosition: ObjectPositionString) => {
-    setImage((prev) => (prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null));
+    safeSetImage((prev) => (prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null));
   }, []);
 
   const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   }, []);
 
+  // Load last saved image on init (most recent by createdAt)
+  useEffect(() => {
+    if (images === undefined || images.length === 0 || hasLoadedInitialImageRef.current) {
+      return;
+    }
+
+    hasLoadedInitialImageRef.current = true;
+    const [lastRecord] = [...images].sort((a, b) => b.createdAt - a.createdAt);
+
+    if (!lastRecord) return;
+
+    try {
+      const blobUrl = URL.createObjectURL(lastRecord.file);
+      safeSetImage(recordToImageState(lastRecord, blobUrl));
+      currentImageIdRef.current = lastRecord.id;
+    } catch (error) {
+      console.error("Error loading saved image:", error);
+      safeSetImage(null);
+      currentImageIdRef.current = null;
+    }
+  }, [images]);
+
   useEffect(() => {
     return () => {
-      revokeBlobUrl();
+      safeSetImage(null);
     };
-  }, [revokeBlobUrl]);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = createKeyboardShortcutHandler({
