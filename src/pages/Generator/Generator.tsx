@@ -21,7 +21,9 @@ const DEFAULT_SHOW_GHOST_IMAGE = false;
 const DEFAULT_SHOW_CODE_SNIPPET = false;
 const DEFAULT_ASPECT_RATIO = 1;
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
+
 const INTERACTION_DEBOUNCE_MS = 500;
+const IMAGE_LOAD_DEBOUNCE_MS = 50;
 
 /**
  * @todo
@@ -52,8 +54,9 @@ const INTERACTION_DEBOUNCE_MS = 500;
  * - Maybe make a native custom element?.
  */
 export default function Generator() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  /** @todo This ref is used for debug only and can be removed in the future. */
   const blobUrlRefs = useRef(new Set<string>());
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { imageId } = useParams<{ imageId: string }>();
   const [image, setImage] = useState<ImageState | null>(null);
@@ -125,45 +128,6 @@ export default function Generator() {
     safeSetImage((prev) => (prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null));
   }, []);
 
-  const imageCount = images?.length ?? 0;
-
-  const stableImageRecordGetter = useEffectEvent((imageId: string) => {
-    return images?.find((image) => image.id === imageId);
-  });
-
-  useEffect(() => {
-    if (imageCount === 0) return;
-
-    if (imageId == null) {
-      safeSetImage(null);
-      return;
-    }
-
-    const imageRecord = stableImageRecordGetter(imageId);
-
-    if (imageRecord == null) return;
-
-    try {
-      const blobUrl = URL.createObjectURL(imageRecord.file);
-      blobUrlRefs.current.add(blobUrl);
-      console.log("added blobUrl", blobUrlRefs.current);
-
-      safeSetImage({
-        name: imageRecord.name,
-        url: blobUrl,
-        type: imageRecord.type,
-        createdAt: imageRecord.createdAt,
-        naturalAspectRatio: imageRecord.naturalAspectRatio,
-        breakpoints: imageRecord.breakpoints,
-      });
-
-      console.log("loaded image from record", imageRecord);
-    } catch (error) {
-      safeSetImage(null);
-      console.error("Error loading saved image:", error);
-    }
-  }, [imageId, imageCount]);
-
   useEffect(() => {
     return () => {
       safeSetImage(null);
@@ -221,6 +185,49 @@ export default function Generator() {
     },
     { timeout: INTERACTION_DEBOUNCE_MS },
     [imageId, currentObjectPosition, updateImage],
+  );
+
+  const imageCount = images?.length ?? 0;
+
+  const stableImageRecordGetter = useEffectEvent((imageId: string) => {
+    return images?.find((image) => image.id === imageId);
+  });
+
+  useDebouncedEffect(
+    () => {
+      if (imageCount === 0) return;
+
+      if (imageId == null) {
+        safeSetImage(null);
+        return;
+      }
+
+      const imageRecord = stableImageRecordGetter(imageId);
+
+      if (imageRecord == null) return;
+
+      try {
+        const blobUrl = URL.createObjectURL(imageRecord.file);
+        blobUrlRefs.current.add(blobUrl);
+        console.log("added blobUrl", blobUrlRefs.current);
+
+        safeSetImage({
+          name: imageRecord.name,
+          url: blobUrl,
+          type: imageRecord.type,
+          createdAt: imageRecord.createdAt,
+          naturalAspectRatio: imageRecord.naturalAspectRatio,
+          breakpoints: imageRecord.breakpoints,
+        });
+
+        console.log("loaded image from record", imageRecord);
+      } catch (error) {
+        safeSetImage(null);
+        console.error("Error loading saved image:", error);
+      }
+    },
+    { timeout: IMAGE_LOAD_DEBOUNCE_MS },
+    [imageId, imageCount],
   );
 
   return (
