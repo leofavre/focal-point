@@ -221,6 +221,9 @@ export default function Generator() {
         });
 
         console.log("loaded image from record", imageRecord);
+
+        /** @todo early return if the user has refreshed the page. how to detect? */
+        setAspectRatio(imageRecord.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
       } catch (error) {
         safeSetImage(null);
         console.error("Error loading saved image:", error);
