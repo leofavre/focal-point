@@ -1,3 +1,4 @@
+import { omit } from "lodash";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
@@ -206,20 +207,12 @@ export default function Generator() {
       if (imageRecord == null) return;
 
       try {
-        const blobUrl = URL.createObjectURL(imageRecord.file);
-        blobUrlRefs.current.add(blobUrl);
+        const loadedImage: ImageState = omit(imageRecord, ["file", "id"]);
+        blobUrlRefs.current.add(loadedImage.url);
         console.log("added blobUrl", blobUrlRefs.current);
 
-        safeSetImage({
-          name: imageRecord.name,
-          url: blobUrl,
-          type: imageRecord.type,
-          createdAt: imageRecord.createdAt,
-          naturalAspectRatio: imageRecord.naturalAspectRatio,
-          breakpoints: imageRecord.breakpoints,
-        });
-
-        console.log("loaded image from record", imageRecord);
+        safeSetImage(loadedImage);
+        console.log("loaded image", loadedImage);
 
         /** @todo early return if the user has refreshed the page. how to detect? */
         setAspectRatio(imageRecord.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
