@@ -10,10 +10,10 @@ import { ToggleButton } from "../../components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../../icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
-import type { ImageDraftState, ImageRecord, ImageState, ObjectPositionString } from "../../types";
+import type { ImageDraftState, ImageState, ObjectPositionString } from "../../types";
 import { GeneratorGrid, ToggleBar } from "./Generator.styled";
+import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
-import { getNaturalAspectRatioFromImageSrc } from "./helpers/getNaturalAspectRatioFromImageSrc";
 import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
 
@@ -40,6 +40,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider.
  * - CodeSnippet with copy button.
  * - Melhorize™ UI.
+ * - Add integration tests (which tool to use?).
  *
  * ### Landing page
  * - Shows all uploaded images with masonry grid.
@@ -315,28 +316,4 @@ export default function Generator() {
       />
     </GeneratorGrid>
   );
-}
-
-async function createImageStateFromImageRecord(imageRecord: ImageRecord): Promise<ImageState> {
-  let blobUrl: string | undefined;
-
-  try {
-    blobUrl = URL.createObjectURL(imageRecord.file);
-    const naturalAspectRatio = await getNaturalAspectRatioFromImageSrc(blobUrl);
-
-    return {
-      name: imageRecord.name,
-      url: blobUrl,
-      type: imageRecord.type,
-      createdAt: imageRecord.createdAt,
-      naturalAspectRatio: naturalAspectRatio,
-      breakpoints: imageRecord.breakpoints,
-    };
-  } catch (error) {
-    if (blobUrl) {
-      URL.revokeObjectURL(blobUrl);
-    }
-
-    throw error;
-  }
 }
