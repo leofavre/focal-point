@@ -207,6 +207,30 @@ describe("usePersistedImages", () => {
     expect(mockGetAll).toHaveBeenCalledTimes(1); // only initial load
   });
 
+  it("updateImage returns undefined and skips update when current and updated are deeply equal", async () => {
+    const existing = createImageRecord(
+      "update-id",
+      createImageState({ name: "same.png", createdAt: 1000 }),
+      testFile,
+    );
+    mockGetByID.mockResolvedValue(existing);
+    mockGetAll.mockResolvedValue([]);
+
+    const { result } = renderHook(() => usePersistedImages());
+
+    await waitFor(() => {
+      expect(result.current.images).toBeDefined();
+    });
+
+    const returnValue = await act(async () =>
+      result.current.updateImage("update-id", {}),
+    );
+
+    expect(returnValue).toBeUndefined();
+    expect(mockUpdate).not.toHaveBeenCalled();
+    expect(mockGetAll).toHaveBeenCalledTimes(1); // only initial load
+  });
+
   it("deleteImage calls deleteRecord and refreshImages", async () => {
     mockGetAll.mockResolvedValue([]);
 

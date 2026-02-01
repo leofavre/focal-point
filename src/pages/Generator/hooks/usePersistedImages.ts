@@ -1,3 +1,4 @@
+import isEqual from "lodash/isequalWith";
 import { useCallback, useEffect, useState } from "react";
 import { useIndexedDB } from "react-indexed-db-hook";
 import type { ImageRecord, ImageState } from "../../../types";
@@ -19,8 +20,8 @@ export function usePersistedImages(): {
   images: ImageRecord[] | undefined;
   addImage: (imageState: ImageState, file: Blob) => Promise<string>;
   getImage: (id: string) => Promise<ImageRecord | undefined>;
-  updateImage: (id: string, updates: Partial<ImageState>) => Promise<void>;
-  deleteImage: (id: string) => Promise<void>;
+  updateImage: (id: string, updates: Partial<ImageState>) => Promise<string | undefined>;
+  deleteImage: (id: string) => Promise<string | undefined>;
   refreshImages: () => Promise<void>;
 } {
   const { add, getByID, getAll, update, deleteRecord } = useIndexedDB("images");
@@ -40,13 +41,15 @@ export function usePersistedImages(): {
   }, [refreshImages]);
 
   const addImage = useCallback(
-    async (imageState: ImageState, file: Blob): Promise<string> => {
+    async (imageState: ImageState, file: Blob) => {
       const id = crypto.randomUUID();
+
       const record: ImageRecord = {
         id,
         ...imageState,
         file,
       };
+
       await add(record);
       await refreshImages();
       return id;
@@ -55,32 +58,39 @@ export function usePersistedImages(): {
   );
 
   const getImage = useCallback(
-    async (id: string): Promise<ImageRecord | undefined> => {
+    async (id: string) => {
       return await getByID<ImageRecord>(id);
     },
     [getByID],
   );
 
   const updateImage = useCallback(
-    async (id: string, updates: Partial<ImageState>): Promise<void> => {
+    async (id: string, updates: Partial<ImageState>) => {
       const current = await getByID<ImageRecord>(id);
+
       if (current == null) return;
+
       const updated: ImageRecord = {
         ...current,
         ...updates,
         id,
         file: current.file,
       };
+
+      if (isEqual(current, updated)) return;
+
       await update(updated);
       await refreshImages();
+      return id;
     },
     [getByID, update, refreshImages],
   );
 
   const deleteImage = useCallback(
-    async (id: string): Promise<void> => {
+    async (id: string) => {
       await deleteRecord(id);
       await refreshImages();
+      return id;
     },
     [deleteRecord, refreshImages],
   );
