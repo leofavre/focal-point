@@ -30,7 +30,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### Basic functionality
  *
- * - Fix aspect ratio reset when a new image is uploaded.
  * - Handle loading.
  * - Handle errors.
  * - Drag image to upload.
