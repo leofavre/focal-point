@@ -5,7 +5,7 @@ export const ToggleBar = styled.div`
   gap: 0.25rem;
 `;
 
-export const GeneratorGrid = styled.div`
+export const EditorGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr minmax(20rem, 75rem) 1fr;
   grid-template-rows: min-content 1fr 5.625rem;

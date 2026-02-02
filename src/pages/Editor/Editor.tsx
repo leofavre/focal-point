@@ -11,7 +11,7 @@ import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../../icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
 import type { ImageDraftState, ImageState, ObjectPositionString } from "../../types";
-import { GeneratorGrid, ToggleBar } from "./Generator.styled";
+import { EditorGrid, ToggleBar } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedImages } from "./hooks/usePersistedImages";
@@ -53,7 +53,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Maybe make a React component?.
  * - Maybe make a native custom element?.
  */
-export default function Generator() {
+export default function Editor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { imageId } = useParams<{ imageId: string }>();
@@ -245,7 +245,7 @@ export default function Generator() {
   );
 
   return (
-    <GeneratorGrid>
+    <EditorGrid>
       <ImageUploader
         ref={fileInputRef}
         onImageUpload={handleImageUpload}
@@ -312,6 +312,6 @@ export default function Generator() {
         onAspectRatioChange={setAspectRatio}
         data-component="AspectRatioSlider"
       />
-    </GeneratorGrid>
+    </EditorGrid>
   );
 }

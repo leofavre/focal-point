@@ -1,12 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Generator from "./pages/Generator/Generator";
+import Editor from "./pages/Editor/Editor";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Generator />} />
-        <Route path="/:imageId" element={<Generator />} />
+        <Route path="/" element={<Editor />} />
+        <Route path="/:imageId" element={<Editor />} />
       </Routes>
     </BrowserRouter>
   );
