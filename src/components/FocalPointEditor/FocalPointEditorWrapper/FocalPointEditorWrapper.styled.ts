@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-export const FocusPointEditorContainer = styled.div`
+export const FocalPointEditorContainer = styled.div`
   container-type: size;
   isolation: isolate;
   display: flex;
@@ -8,7 +8,7 @@ export const FocusPointEditorContainer = styled.div`
   justify-content: center;
 `;
 
-export const FocusPointEditorContent = styled.div`
+export const FocalPointEditorContent = styled.div`
   position: relative;
   touch-action: none;
   user-select: none;

@@ -1,8 +1,8 @@
 {
-  "name": "focus-point",
+  "name": "focal-point",
   "type": "module",
   "version": "0.1.0",
-  "description": "Tool for masking responsive images while keeping a focus point",
+  "description": "Tool for masking responsive images while keeping a focal point",
   "author": "Leonardo Favre",
   "license": "MIT",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "@leofavre/focus-point"
+    "url": "@leofavre/focal-point"
   },
   "volta": {
     "node": "24.13.0",

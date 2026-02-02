@@ -1,6 +1,6 @@
 export const DBConfig = {
-  name: "FocusPointDB",
-  version: 2,
+  name: "FocalPointDB",
+  version: 1,
   objectStoresMeta: [
     {
       store: "ui",

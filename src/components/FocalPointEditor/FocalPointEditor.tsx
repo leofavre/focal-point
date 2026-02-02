@@ -1,7 +1,7 @@
 import type { PointerEvent, SyntheticEvent } from "react";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { ClippedImage } from "./ClippedImage/ClippedImage";
-import { FocusPointEditorWrapper } from "./FocusPointEditorWrapper/FocusPointEditorWrapper";
+import { FocalPointEditorWrapper } from "./FocalPointEditorWrapper/FocalPointEditorWrapper";
 import { GhostImage } from "./GhostImage/GhostImage";
 import { clamp } from "./helpers/clamp";
 import { cssObjectPositionObjectToString } from "./helpers/cssObjectPositionObjectToString";
@@ -10,14 +10,14 @@ import { getImageDimensionDelta } from "./helpers/getImageDimensionDelta";
 import { getPointerCoordinatesFromEvent } from "./helpers/getPointerCoordinatesFromEvent";
 import { toPercentage } from "./helpers/toPercentage";
 import { PointMarker } from "./PointMarker/PointMarker";
-import type { Coordinates, FocusPointEditorProps, ImageDimensionDelta } from "./types";
+import type { Coordinates, FocalPointEditorProps, ImageDimensionDelta } from "./types";
 
 const CURSOR_MAP = {
   width: "col-resize",
   height: "row-resize",
 } as const;
 
-export function FocusPointEditor({
+export function FocalPointEditor({
   imageUrl,
   aspectRatio,
   initialAspectRatio,
@@ -28,7 +28,7 @@ export function FocusPointEditor({
   onImageLoad,
   onImageError,
   ...rest
-}: FocusPointEditorProps) {
+}: FocalPointEditorProps) {
   const imageRef = useRef<HTMLImageElement>(null);
   const isDraggingRef = useRef(false);
   const objectPositionStartRef = useRef(objectPosition);
@@ -126,7 +126,7 @@ export function FocusPointEditor({
     cssObjectPositionStringToObject(objectPosition);
 
   return (
-    <FocusPointEditorWrapper
+    <FocalPointEditorWrapper
       aspectRatio={aspectRatio}
       cursor={cursor}
       onPointerDown={handlePointerDown}
@@ -166,6 +166,6 @@ export function FocusPointEditor({
         aria-hidden={!showPointMarker}
         onObjectPositionChange={stableOnObjectPositionChange}
       />
-    </FocusPointEditorWrapper>
+    </FocalPointEditorWrapper>
   );
 }

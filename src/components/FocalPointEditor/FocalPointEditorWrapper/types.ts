@@ -1,6 +1,6 @@
 import type { PointerEvent, ReactNode } from "react";
 
-export type FocusPointEditorWrapperProps = {
+export type FocalPointEditorWrapperProps = {
   aspectRatio?: number;
   cursor: string;
   onPointerDown: (event: PointerEvent<HTMLDivElement>) => void;

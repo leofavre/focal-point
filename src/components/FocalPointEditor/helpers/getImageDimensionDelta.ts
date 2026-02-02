@@ -10,7 +10,7 @@ const DELTA_DIMENSION_THRESHOLD_PX = 1;
  * have when scaled with `object-fit: contain` inside its current bounding rect.
  *
  * Used to detect whether the image is constrained by width or height in its
- * container, so the focus-point editor can map pointer movement to the correct
+ * container, so the focal-point editor can map pointer movement to the correct
  * axis (e.g. horizontal drag when width is constrained).
  *
  * @returns An {@link ImageDimensionDelta} with width/height deltas in px and %,

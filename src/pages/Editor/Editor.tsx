@@ -4,7 +4,7 @@ import useDebouncedEffect from "use-debounced-effect";
 import { AspectRatioSlider } from "../../components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "../../components/AspectRatioSlider/hooks/useAspectRatioList";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
-import { FocusPointEditor } from "../../components/FocusPointEditor/FocusPointEditor";
+import { FocalPointEditor } from "../../components/FocalPointEditor/FocalPointEditor";
 import { ImageUploader } from "../../components/ImageUploader/ImageUploader";
 import { ToggleButton } from "../../components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
@@ -28,6 +28,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
 
 /**
  * @todo
+ * ### MELHORIZE™ UI.
  *
  * ### Basic functionality
  *
@@ -38,12 +39,12 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider.
  * - CodeSnippet with copy button.
- * - Melhorize™ UI.
  * - Add integration tests (which tool to use?).
  *
  * ### Landing page
- * - Shows all uploaded images with masonry grid.
- * - Explains the project.
+ *
+ * - Random square, horizontal, vertical.
+ * - Sort by reversed date.
  * - Maybe an explainer Loom?
  *
  * ### Advanced functionality
@@ -186,7 +187,7 @@ export default function Editor() {
 
   /**
    * Update the object position of the image in the database when the user interacts with it,
-   * either by dragging the focus point or the image itself.
+   * either by dragging the focal point or the image itself.
    */
   useDebouncedEffect(
     () => {
@@ -311,7 +312,7 @@ export default function Editor() {
       {image && (
         <>
           {aspectRatio != null && image.naturalAspectRatio != null && (
-            <FocusPointEditor
+            <FocalPointEditor
               imageUrl={image.url}
               aspectRatio={aspectRatio}
               initialAspectRatio={image.naturalAspectRatio}
@@ -320,7 +321,7 @@ export default function Editor() {
               showGhostImage={showGhostImage ?? false}
               onObjectPositionChange={handleObjectPositionChange}
               onImageError={handleImageError}
-              data-component="FocusPointEditor"
+              data-component="FocalPointEditor"
             />
           )}
           <CodeSnippet

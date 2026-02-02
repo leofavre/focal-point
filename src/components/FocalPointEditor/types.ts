@@ -38,7 +38,7 @@ export type ImageDimensionDelta = {
   changedDimension: "width" | "height" | undefined;
 };
 
-export type FocusPointEditorProps = {
+export type FocalPointEditorProps = {
   imageUrl: string;
   aspectRatio: number;
   initialAspectRatio: number;

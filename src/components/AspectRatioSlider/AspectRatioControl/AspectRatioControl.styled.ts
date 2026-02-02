@@ -95,7 +95,6 @@ export const Slider = styled.div`
       background: rgba(255, 255, 255, 0.5);
     }
 
-    /* Focus styles */
     &:focus {
       outline: none;
     }

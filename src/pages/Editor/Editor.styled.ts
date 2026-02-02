@@ -41,7 +41,7 @@ export const EditorGrid = styled.main`
     z-index: 1;
   }
 
-  [data-component="FocusPointEditor"] {
+  [data-component="FocalPointEditor"] {
     grid-row: 1 / 3;
     grid-column: 2;
     z-index: 0;

@@ -17,9 +17,9 @@ export default function Landing() {
 
   return (
     <LandingGrid>
-      <Title data-component="Title">Focus Point Manager</Title>
+      <Title data-component="Title">Focal Point Manager</Title>
       <Description data-component="Description">
-        Upload images and set a focus point for each. The editor lets you preview how the image
+        Upload images and set a focal point for each. The editor lets you preview how the image
         crops at different aspect ratios and gives you the CSS <code>object-position</code> value so
         your important subject stays in frame.
       </Description>
