@@ -11,7 +11,7 @@ import { ToggleButton } from "../../components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../../icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
-import type { ImageDraftState, ImageState, ObjectPositionString } from "../../types";
+import type { ImageState, ObjectPositionString } from "../../types";
 import { EditorGrid, ToggleBar } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
@@ -64,7 +64,7 @@ export default function Editor() {
   /**
    * Safely set image state. Revokes the previous blob URL if the new blob URL is different.
    */
-  const safeSetImage: typeof setImage = useEffectEvent((valueOrFn) => {
+  const safeSetImage = useEffectEvent((valueOrFn) => {
     setImage((prevValue) => {
       const nextValue = typeof valueOrFn === "function" ? valueOrFn(prevValue) : valueOrFn;
 
@@ -74,7 +74,7 @@ export default function Editor() {
 
       return nextValue;
     });
-  });
+  }) satisfies typeof setImage;
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
