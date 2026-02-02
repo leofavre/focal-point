@@ -1,7 +1,12 @@
 import type { RefObject } from "react";
 import type { ImageDraftState } from "../../types";
 
+export type ImageDraftStateAndFile = {
+  imageDraftState: ImageDraftState;
+  file: File;
+};
+
 export type ImageUploaderProps = {
   ref?: RefObject<HTMLInputElement | null>;
-  onImageUpload?: (imageDraftState: ImageDraftState | null, file: File | null) => void;
+  onImageUpload?: (event: ImageDraftStateAndFile[]) => void;
 };

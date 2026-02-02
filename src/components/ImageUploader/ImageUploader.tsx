@@ -1,31 +1,28 @@
 import { type ChangeEvent, type FormEvent, useCallback, useEffectEvent } from "react";
 import type { ImageDraftState } from "../../types";
 import { Control, ImageUploaderForm } from "./ImageUploader.styled";
-import type { ImageUploaderProps } from "./types";
+import type { ImageDraftStateAndFile, ImageUploaderProps } from "./types";
 
 export function ImageUploader({ ref, onImageUpload, ...rest }: ImageUploaderProps) {
-  const stableOnImageUpload = useEffectEvent(
-    (imageDraftState: ImageDraftState | null, file: File | null) => {
-      onImageUpload?.(imageDraftState, file);
-    },
-  ) satisfies typeof onImageUpload;
+  const stableOnImageUpload = useEffectEvent((event: ImageDraftStateAndFile[]) => {
+    onImageUpload?.(event);
+  }) satisfies typeof onImageUpload;
 
   const handleFileChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0];
+    stableOnImageUpload(
+      Array.from(event.currentTarget.files ?? [])
+        .filter((file) => file.type.startsWith("image/"))
+        .map((file) => {
+          const imageDraftState: ImageDraftState = {
+            name: file.name,
+            type: file.type,
+            createdAt: Date.now(),
+            breakpoints: [],
+          };
 
-    if (!file?.type.startsWith("image/")) {
-      stableOnImageUpload(null, null);
-      return;
-    }
-
-    const imageDraftState: ImageDraftState = {
-      name: file.name,
-      type: file.type,
-      createdAt: Date.now(),
-      breakpoints: [],
-    };
-
-    stableOnImageUpload(imageDraftState, file);
+          return { imageDraftState, file };
+        }),
+    );
   }, []);
 
   const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {

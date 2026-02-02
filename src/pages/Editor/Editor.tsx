@@ -6,6 +6,7 @@ import { useAspectRatioList } from "../../components/AspectRatioSlider/hooks/use
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
 import { FocusPointEditor } from "../../components/FocusPointEditor/FocusPointEditor";
 import { ImageUploader } from "../../components/ImageUploader/ImageUploader";
+import type { ImageDraftStateAndFile } from "../../components/ImageUploader/types";
 import { ToggleButton } from "../../components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../../icons/GhostImageToggleIcon";
@@ -100,7 +101,9 @@ export default function Editor() {
   const navigate = useNavigate();
 
   const handleImageUpload = useCallback(
-    async (imageDraftState: ImageDraftState | null, file: File | null) => {
+    async (event: ImageDraftStateAndFile[]) => {
+      const { imageDraftState, file } = event[0];
+
       if (imageDraftState == null || file == null) return;
 
       try {
