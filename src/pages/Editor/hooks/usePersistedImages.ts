@@ -1,7 +1,7 @@
 import isEqual from "lodash/isequalWith";
 import { useCallback, useEffect, useState } from "react";
 import { useIndexedDB } from "react-indexed-db-hook";
-import type { ImageDraftState, ImageRecord } from "../../../types";
+import type { ImageDraftStateAndFile, ImageRecord } from "../../../types";
 
 /**
  * Custom React hook for persisting image records in IndexedDB.
@@ -19,10 +19,8 @@ import type { ImageDraftState, ImageRecord } from "../../../types";
  */
 export function usePersistedImages(): {
   images: ImageRecord[] | undefined;
-  addImage: (imageDraftState: ImageDraftState, file: Blob) => Promise<string>;
-  addImages: (
-    draftsAndFiles: Array<{ imageDraft: ImageDraftState; file: Blob }>,
-  ) => Promise<string[]>;
+  addImage: (draftAndFile: ImageDraftStateAndFile) => Promise<string>;
+  addImages: (draftsAndFiles: ImageDraftStateAndFile[]) => Promise<string[]>;
   getImage: (id: string) => Promise<ImageRecord | undefined>;
   updateImage: (id: string, updates: Partial<ImageRecord>) => Promise<string | undefined>;
   deleteImage: (id: string) => Promise<string | undefined>;
@@ -45,9 +43,7 @@ export function usePersistedImages(): {
   }, [refreshImages]);
 
   const addImages = useCallback(
-    async (
-      draftsAndFiles: Array<{ imageDraft: ImageDraftState; file: Blob }>,
-    ): Promise<string[]> => {
+    async (draftsAndFiles: ImageDraftStateAndFile[]): Promise<string[]> => {
       const ids: string[] = [];
       for (const { imageDraft, file } of draftsAndFiles) {
         try {
@@ -74,8 +70,8 @@ export function usePersistedImages(): {
   );
 
   const addImage = useCallback(
-    async (imageDraftState: ImageDraftState, file: Blob): Promise<string> => {
-      const ids = await addImages([{ imageDraft: imageDraftState, file }]);
+    async (draftAndFile: ImageDraftStateAndFile): Promise<string> => {
+      const ids = await addImages([draftAndFile]);
       const id = ids[0];
       if (id == null) {
         throw new Error("Failed to add image");

@@ -109,7 +109,7 @@ export default function Editor() {
       let nextImageId: string | undefined;
 
       try {
-        nextImageId = await addImage(imageDraft, file);
+        nextImageId = await addImage({ imageDraft, file });
         console.log("uploaded image with id", nextImageId);
       } catch (error) {
         console.error("Error saving image to database:", error);

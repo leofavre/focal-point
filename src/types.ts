@@ -21,7 +21,7 @@ export type ImageDraftState = {
 
 export type ImageDraftStateAndFile = {
   imageDraft: ImageDraftState;
-  file: File;
+  file: Blob;
 };
 
 export type ImageState = Simplify<

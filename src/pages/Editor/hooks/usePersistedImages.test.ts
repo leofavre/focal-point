@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createMockImageRecord, createMockImageState } from "../../../test-utils/mocks";
+import { createMockImageDraftState, createMockImageRecord } from "../../../test-utils/mocks";
 import type { ImageRecord } from "../../../types";
 import { usePersistedImages } from "./usePersistedImages";
 
@@ -60,7 +60,7 @@ describe("usePersistedImages", () => {
   it("returns persisted images when getAll resolves with data", async () => {
     const record = createMockImageRecord({
       id: "saved-id",
-      ...createMockImageState({ name: "saved.png" }),
+      ...createMockImageDraftState({ name: "saved.png" }),
       file: testFile,
     });
 
@@ -86,18 +86,18 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toEqual([]);
     });
 
-    const imageState = createMockImageState({ name: "new.png" });
+    const imageDraft = createMockImageDraftState({ name: "new.png" });
 
     let returnedId: string | undefined;
     await act(async () => {
-      returnedId = await result.current.addImage(imageState, testFile);
+      returnedId = await result.current.addImage({ imageDraft, file: testFile });
     });
 
     expect(mockRandomUUID).toHaveBeenCalled();
     expect(returnedId).toBe("test-uuid-123");
     expect(mockAdd).toHaveBeenCalledWith({
       id: "test-uuid-123",
-      ...imageState,
+      ...imageDraft,
       file: testFile,
     });
     expect(mockGetAll).toHaveBeenCalledTimes(2); // initial load + refresh after add
@@ -106,7 +106,7 @@ describe("usePersistedImages", () => {
   it("getImage returns record when getByID resolves", async () => {
     const record = createMockImageRecord({
       id: "lookup-id",
-      ...createMockImageState({ name: "lookup.png" }),
+      ...createMockImageDraftState({ name: "lookup.png" }),
       file: testFile,
     });
 
@@ -149,7 +149,7 @@ describe("usePersistedImages", () => {
   it("updateImage merges updates and calls update and refreshImages", async () => {
     const existing = createMockImageRecord({
       id: "update-id",
-      ...createMockImageState({ name: "old.png", createdAt: 1000 }),
+      ...createMockImageDraftState({ name: "old.png", createdAt: 1000 }),
       file: testFile,
     });
 
@@ -201,7 +201,7 @@ describe("usePersistedImages", () => {
   it("updateImage returns undefined and skips update when current and updated are deeply equal", async () => {
     const existing = createMockImageRecord({
       id: "update-id",
-      ...createMockImageState({ name: "same.png", createdAt: 1000 }),
+      ...createMockImageDraftState({ name: "same.png", createdAt: 1000 }),
       file: testFile,
     });
 
@@ -249,7 +249,7 @@ describe("usePersistedImages", () => {
 
     const record = createMockImageRecord({
       id: "refreshed-id",
-      ...createMockImageState({ name: "refreshed.png" }),
+      ...createMockImageDraftState({ name: "refreshed.png" }),
       file: testFile,
     });
 
@@ -296,11 +296,11 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toBeDefined();
     });
 
-    const imageState = createMockImageState();
+    const imageDraft = createMockImageDraftState();
 
     await expect(
       act(async () => {
-        await result.current.addImage(imageState, testFile);
+        await result.current.addImage({ imageDraft, file: testFile });
       }),
     ).rejects.toThrow("Failed to add image");
   });
@@ -325,7 +325,7 @@ describe("usePersistedImages", () => {
   it("propagates errors when updateImage fails", async () => {
     const existing = createMockImageRecord({
       id: "update-id",
-      ...createMockImageState(),
+      ...createMockImageDraftState(),
       file: testFile,
     });
 
