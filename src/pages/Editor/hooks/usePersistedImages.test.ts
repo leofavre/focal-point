@@ -287,6 +287,8 @@ describe("usePersistedImages", () => {
   });
 
   it("propagates errors when addImage fails", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
     mockGetAll.mockResolvedValue([]);
     mockAdd.mockRejectedValue(new Error("IndexedDB write failed"));
 
@@ -303,6 +305,8 @@ describe("usePersistedImages", () => {
         await result.current.addImage({ imageDraft, file: testFile });
       }),
     ).rejects.toThrow("Failed to add image");
+
+    consoleErrorSpy.mockRestore();
   });
 
   it("propagates errors when getImage fails", async () => {
