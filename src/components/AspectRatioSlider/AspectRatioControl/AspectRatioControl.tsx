@@ -91,7 +91,11 @@ export function AspectRatioControl({
         step={1}
         min={Math.round(minPosition * PRECISION)}
         max={Math.round(maxPosition * PRECISION)}
-        value={currentPosition != null ? Math.round(currentPosition * PRECISION) : undefined}
+        value={
+          currentPosition != null && Number.isNaN(currentPosition) === false
+            ? Math.round(currentPosition * PRECISION)
+            : undefined
+        }
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         list="aspect-ratio"

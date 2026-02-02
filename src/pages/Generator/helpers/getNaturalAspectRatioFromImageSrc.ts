@@ -8,7 +8,7 @@
  * @returns A promise that resolves with the aspect ratio (naturalWidth / naturalHeight).
  * @throws Rejects with an error if the image fails to load.
  */
-export function getNaturalAspectRatioFromImageSrc(url: string): Promise<number> {
+export function getNaturalAspectRatioFromImageSrc(url: string) {
   return new Promise<number>((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img.naturalWidth / img.naturalHeight);

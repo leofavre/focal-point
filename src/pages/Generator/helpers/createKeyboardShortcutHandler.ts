@@ -5,23 +5,7 @@
  * and if so, calls the corresponding callback. The handler prevents default behavior
  * when a matching key is found.
  *
- * @param keyMap - An object mapping key strings (case-insensitive) to callback functions.
- *   Multiple keys can map to the same callback.
  * @returns A keyboard event handler function.
- *
- * @example
- * ```ts
- * const handler = createKeyboardShortcutHandler({
- *   u: () => console.log("Upload triggered"),
- *   c: () => toggleCode(),
- *   d: () => toggleCode(), // Same action as 'c'
- * });
- *
- * // Use in JSX:
- * <div onKeyDown={handler} tabIndex={0}>
- *   ...
- * </div>
- * ```
  */
 export function createKeyboardShortcutHandler(
   keyMap: Record<string, () => void>,

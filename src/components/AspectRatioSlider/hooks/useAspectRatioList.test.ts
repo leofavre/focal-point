@@ -101,6 +101,38 @@ describe("useAspectRatioList", () => {
     expect(list[list.length - 1].value).toBe(veryLandscape);
   });
 
+  it("when originalAspectRatio is less than 9:16, includes original and places it at the minimum (portrait) end", () => {
+    const nineSixteenths = 9 / 16;
+    const lessThanNineSixteen = nineSixteenths - 0.1; // e.g. ~0.4625
+    const { result } = renderHook(() => useAspectRatioList(lessThanNineSixteen));
+
+    const list = result.current;
+    const original = list.find((r) => r.name === "original");
+    expect(original).toBeDefined();
+    expect(original?.value).toBe(lessThanNineSixteen);
+    expect(lessThanNineSixteen).toBeLessThan(nineSixteenths);
+    expect(list[0].value).toBe(lessThanNineSixteen);
+    for (let i = 1; i < list.length; i++) {
+      expect(list[i].value).toBeGreaterThanOrEqual(list[i - 1].value);
+    }
+  });
+
+  it("when originalAspectRatio is more than 4:1, includes original and places it at the maximum (landscape) end", () => {
+    const fourToOne = 4 / 1;
+    const moreThanFourToOne = fourToOne + 1; // 5:1
+    const { result } = renderHook(() => useAspectRatioList(moreThanFourToOne));
+
+    const list = result.current;
+    const original = list.find((r) => r.name === "original");
+    expect(original).toBeDefined();
+    expect(original?.value).toBe(moreThanFourToOne);
+    expect(moreThanFourToOne).toBeGreaterThan(fourToOne);
+    expect(list[list.length - 1].value).toBe(moreThanFourToOne);
+    for (let i = 1; i < list.length; i++) {
+      expect(list[i].value).toBeGreaterThanOrEqual(list[i - 1].value);
+    }
+  });
+
   it("memoizes: same dependency returns same array reference", () => {
     const { result, rerender } = renderHook(() => useAspectRatioList(4 / 3));
 
