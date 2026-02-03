@@ -1,4 +1,4 @@
-import isEqual from "lodash/isequalWith";
+import { isEqual } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { useIndexedDB } from "react-indexed-db-hook";
 import type { ImageDraftStateAndFile, ImageRecord } from "../../types";
