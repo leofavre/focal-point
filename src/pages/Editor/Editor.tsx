@@ -12,7 +12,6 @@ import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../../icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
 import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../../types";
-import { Vignette } from "./components/Vignette";
 import { EditorGrid, ToggleBar } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
@@ -40,7 +39,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Handle loading.
  * - Handle errors in a consistent way. Review all try/catch blocks.
  * - Make shure focus is visible, specially in AspectRatioSlider.
- * - Make shure to use CSS variable for values used in calculations, specially in AspectRatioSlider.
  * - Add integration tests (which tool to use?).
  * - Make sure website works with Google translation.
  * - Think about animations and transitions.
@@ -332,19 +330,16 @@ export default function Editor() {
       {image && (
         <>
           {aspectRatio != null && image.naturalAspectRatio != null && (
-            <>
-              <FocalPointEditor
-                imageUrl={image.url}
-                aspectRatio={aspectRatio}
-                initialAspectRatio={image.naturalAspectRatio}
-                objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-                showPointMarker={showPointMarker ?? false}
-                showGhostImage={showGhostImage ?? false}
-                onObjectPositionChange={handleObjectPositionChange}
-                onImageError={handleImageError}
-              />
-              <Vignette />
-            </>
+            <FocalPointEditor
+              imageUrl={image.url}
+              aspectRatio={aspectRatio}
+              initialAspectRatio={image.naturalAspectRatio}
+              objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+              showPointMarker={showPointMarker ?? false}
+              showGhostImage={showGhostImage ?? false}
+              onObjectPositionChange={handleObjectPositionChange}
+              onImageError={handleImageError}
+            />
           )}
           <CodeSnippet
             src={image.name}

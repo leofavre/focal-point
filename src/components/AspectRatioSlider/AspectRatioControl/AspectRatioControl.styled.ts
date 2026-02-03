@@ -6,12 +6,12 @@ export const Slider = styled.div`
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  /* Compensation so that the ruler snaps to the grid lines */
-  margin-top: -12px;
 
   input {
+    margin: 0;
+    padding: 0;
     width: 100%;
-    height: 1.375rem;
+    height: calc(var(--thumb-external-diameter));
     background: transparent;
     border-radius: 0;
     appearance: none;
@@ -23,61 +23,59 @@ export const Slider = styled.div`
     /* Track styling - WebKit (Chrome, Safari, Edge) */
     &::-webkit-slider-runnable-track {
       width: 100%;
-      height: 0.125rem;
+      height: var(--runner-thickness);
       background: linear-gradient(
         to right,
         transparent 0%,
-        transparent 0.46875rem,
-        #94a3b8 0.46875rem,
-        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
-        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
-        #3b82f6 calc(100% - 0.46875rem),
-        transparent calc(100% - 0.46875rem),
+        transparent calc(var(--thumb-radius)),
+        #94a3b8 calc(var(--thumb-radius)),
+        #94a3b8 calc(var(--thumb-radius) + (100% - var(--thumb-diameter)) * var(--initial-position)),
+        #3b82f6 calc(var(--thumb-radius) + (100% - var(--thumb-diameter)) * var(--initial-position)),
+        #3b82f6 calc(100% - var(--thumb-radius)),
+        transparent calc(100% - var(--thumb-radius)),
         transparent 100%
       );
-      border-radius: 0.0625rem;
+
     }
 
     /* Track styling - Firefox */
     &::-moz-range-track {
       width: 100%;
-      height: 0.125rem;
+      height: var(--runner-thickness);
       background: linear-gradient(
         to right,
         transparent 0%,
-        transparent 0.46875rem,
-        #94a3b8 0.46875rem,
-        #94a3b8 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
-        #3b82f6 calc(0.5rem + (100% - 1rem) * var(--initial-position)),
-        #3b82f6 calc(100% - 0.46875rem),
-        transparent calc(100% - 0.46875rem),
+        transparent calc(var(--thumb-radius)),
+        #94a3b8 calc(var(--thumb-radius)),
+        #94a3b8 calc(var(--thumb-radius) + (100% - var(--thumb-diameter)) * var(--initial-position)),
+        #3b82f6 calc(var(--thumb-radius) + (100% - var(--thumb-diameter)) * var(--initial-position)),
+        #3b82f6 calc(100% - var(--thumb-radius)),
+        transparent calc(100% - var(--thumb-radius)),
         transparent 100%
       );
-      border-radius: 0.0625rem;
-      border: none;
     }
 
     /* Thumb styling - WebKit (Chrome, Safari, Edge) */
     &::-webkit-slider-thumb {
       appearance: none;
       -webkit-appearance: none;
-      width: 1rem;
-      height: 1rem;
+      width: var(--thumb-diameter);
+      height: var(--thumb-diameter);
       background: rgba(255, 255, 255, 0.5);
-      border: 0.125rem solid #3b82f6;
+      border: var(--thumb-border) solid #3b82f6;
       border-radius: 50%;
       cursor: pointer;
       box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.2);
-      margin-top: -0.4375rem;
+      margin-top: calc((var(--thumb-diameter) - var(--runner-thickness)) / -2);
       visibility: var(--thumb-visibility, hidden);
     }
 
     /* Thumb styling - Firefox */
     &::-moz-range-thumb {
-      width: 1rem;
-      height: 1rem;
+      width: calc(var(--thumb-diameter) - var(--runner-thickness));
+      height: calc(var(--thumb-diameter) - var(--runner-thickness));
       background: rgba(255, 255, 255, 0.5);
-      border: 0.125rem solid #3b82f6;
+      border: var(--thumb-border) solid #3b82f6;
       border-radius: 50%;
       cursor: pointer;
       box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.2);

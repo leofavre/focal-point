@@ -1,6 +1,12 @@
 import styled from "@emotion/styled";
 
 export const AspectRatioSliderWrapper = styled.div`
+  --thumb-radius: 1rem;
+  --thumb-diameter: calc(2 * var(--thumb-radius));
+  --thumb-border: 2px;
+  --thumb-external-diameter: calc(var(--thumb-diameter) + 2 * var(--thumb-border));
+  --runner-thickness: 4px;
+
   width: 100%;
   box-sizing: border-box;
 
@@ -11,9 +17,9 @@ export const AspectRatioSliderWrapper = styled.div`
 
   [data-component="AspectRatioRuler"] {
     position: relative;
-    margin-left: 0.46875rem;
-    margin-right: 0.53125rem;
-    margin-top: -0.75rem;
+    margin-left: calc(var(--thumb-radius));
+    margin-right: calc(var(--thumb-radius) + 1px);
+    margin-top: calc(var(--thumb-external-diameter) / -2);
     z-index: 0;
   }
 `;

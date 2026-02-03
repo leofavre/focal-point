@@ -20,6 +20,7 @@ export const EditorGrid = styled.main`
     grid-row: 3;
     grid-column: 1;
     margin-left: auto;
+    margin-bottom: auto;
     min-width: 15ch;
 
     &:nth-child(1):nth-last-child(1) {
@@ -46,12 +47,6 @@ export const EditorGrid = styled.main`
     grid-row: 1 / 3;
     grid-column: 1 / -1;
     overflow: hidden;
-    z-index: 0;
-  }
-
-  [data-component="Vignette"] {
-    grid-row: 1 / 3;
-    grid-column: 1 / -1;
     z-index: 0;
   }
 
