@@ -11,7 +11,7 @@ import { CodeSnippetToggleIcon } from "../../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../../icons/GhostImageToggleIcon";
 import { PointMarkerToggleIcon } from "../../icons/PointMarkerToggleIcon";
 import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../../types";
-import { Shadow } from "./components/Shadow";
+import { Vignette } from "./components/Vignette";
 import { EditorGrid, ToggleBar } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
@@ -316,7 +316,7 @@ export default function Editor() {
                 onObjectPositionChange={handleObjectPositionChange}
                 onImageError={handleImageError}
               />
-              <Shadow />
+              <Vignette />
             </>
           )}
           <CodeSnippet

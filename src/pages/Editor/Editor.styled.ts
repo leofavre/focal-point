@@ -49,7 +49,7 @@ export const EditorGrid = styled.main`
     z-index: 0;
   }
 
-  [data-component="Shadow"] {
+  [data-component="Vignette"] {
     grid-row: 1 / 3;
     grid-column: 1 / -1;
     z-index: 0;
