@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CodeBlock } from "react-code-block";
 import { Code, CodeWrapper, CopyButton, Line, LineContent, LineNumber } from "./CodeSnippet.styled";
+import { normalizeWhitespaceInQuotes } from "./helpers/normalizeWhitespaceInQuotes";
 import type { CodeSnippetProps } from "./types";
 
 const getCodeSnippet = ({ src, objectPosition }: CodeSnippetProps) => `<img
@@ -30,9 +31,21 @@ export function CodeSnippet({
     setCopied(copiedProp);
   }, [copiedProp]);
 
+  const handleCopyCapture = (event: React.ClipboardEvent) => {
+    const { clipboardData } = event;
+    if (clipboardData == null) return;
+    const selection = window.getSelection();
+    const selectedText = selection?.toString() ?? "";
+    if (selectedText.length === 0) return;
+    event.preventDefault();
+
+    clipboardData.setData("text/plain", normalizeWhitespaceInQuotes(selectedText));
+  };
+
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(codeSnippet);
+      const textToCopy = normalizeWhitespaceInQuotes(codeSnippet);
+      await navigator.clipboard.writeText(textToCopy);
       if (copyResetTimeoutRef.current) {
         clearTimeout(copyResetTimeoutRef.current);
       }
@@ -50,7 +63,7 @@ export function CodeSnippet({
   };
 
   return (
-    <CodeWrapper data-component="CodeSnippet" {...rest}>
+    <CodeWrapper data-component="CodeSnippet" onCopy={handleCopyCapture} {...rest}>
       <CopyButton type="button" onClick={handleCopy}>
         {copied ? "Copied!" : "Copy"}
       </CopyButton>
