@@ -7,6 +7,7 @@ import { useAspectRatioList } from "../components/AspectRatioSlider/hooks/useAsp
 import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
 import { ImageUploader } from "../components/ImageUploader/ImageUploader";
+import { Markdown } from "../components/Markdown/Markdown";
 import { ToggleBar } from "../components/ToggleBar/ToggleBar";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "../icons/CodeSnippetToggleIcon";
@@ -283,8 +284,10 @@ export default function Editor() {
   if (!imageId) {
     return (
       <LandingGrid>
-        <ReadmeContent />
         <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload} />
+        <Markdown>
+          <ReadmeContent />
+        </Markdown>
       </LandingGrid>
     );
   }
@@ -292,8 +295,10 @@ export default function Editor() {
   if (imageId && !image) {
     return (
       <LandingGrid>
-        <ReadmeContent />
         <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload} />
+        <Markdown>
+          <ReadmeContent />
+        </Markdown>
       </LandingGrid>
     );
   }
