@@ -9,7 +9,6 @@ const mockGetByID = vi.fn();
 const mockGetAll = vi.fn();
 const mockUpdate = vi.fn();
 const mockDeleteRecord = vi.fn();
-const mockRandomUUID = vi.fn();
 
 vi.mock("react-indexed-db-hook", () => ({
   useIndexedDB: vi.fn(() => ({
@@ -25,11 +24,6 @@ describe("usePersistedImages", () => {
   const testFile = new Blob(["test"], { type: "image/png" });
 
   beforeEach(() => {
-    vi.stubGlobal("crypto", {
-      randomUUID: mockRandomUUID,
-    });
-
-    mockRandomUUID.mockReturnValue("test-uuid-123");
     mockGetAll.mockResolvedValue([]);
     mockAdd.mockResolvedValue(undefined);
     mockGetByID.mockResolvedValue(undefined);
@@ -38,7 +32,6 @@ describe("usePersistedImages", () => {
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
     vi.clearAllMocks();
   });
 
@@ -77,7 +70,7 @@ describe("usePersistedImages", () => {
     });
   });
 
-  it("addImage generates id, adds record, refreshes, and returns id", async () => {
+  it("addImage generates friendly id from filename, adds record, refreshes, and returns id", async () => {
     mockGetAll.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
@@ -93,14 +86,42 @@ describe("usePersistedImages", () => {
       returnedId = await result.current.addImage({ imageDraft, file: testFile });
     });
 
-    expect(mockRandomUUID).toHaveBeenCalled();
-    expect(returnedId).toBe("test-uuid-123");
+    expect(returnedId).toBe("new.png");
     expect(mockAdd).toHaveBeenCalledWith({
-      id: "test-uuid-123",
+      id: "new.png",
       ...imageDraft,
       file: testFile,
     });
-    expect(mockGetAll).toHaveBeenCalledTimes(2); // initial load + refresh after add
+    expect(mockGetAll).toHaveBeenCalledTimes(3); // initial load + getAll for id + refresh after add
+  });
+
+  it("addImage uses collision suffix when filename already exists", async () => {
+    const existingRecord = createMockImageRecord({
+      id: "my-photo.jpg",
+      ...createMockImageDraftState({ name: "My Photo.jpg" }),
+      file: testFile,
+    });
+    mockGetAll.mockResolvedValue([existingRecord]);
+
+    const { result } = renderHook(() => usePersistedImages());
+
+    await waitFor(() => {
+      expect(result.current.images).toHaveLength(1);
+    });
+
+    const imageDraft = createMockImageDraftState({ name: "My Photo.jpg" });
+    let returnedId: string | undefined;
+    await act(async () => {
+      returnedId = await result.current.addImage({ imageDraft, file: testFile });
+    });
+
+    expect(returnedId).toBe("my-photo-2.jpg");
+    expect(mockAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "my-photo-2.jpg",
+        name: "My Photo.jpg",
+      }),
+    );
   });
 
   it("getImage returns record when getByID resolves", async () => {

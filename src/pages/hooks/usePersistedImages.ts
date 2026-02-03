@@ -2,11 +2,12 @@ import isEqual from "lodash/isequalWith";
 import { useCallback, useEffect, useState } from "react";
 import { useIndexedDB } from "react-indexed-db-hook";
 import type { ImageDraftStateAndFile, ImageRecord } from "../../types";
+import { createImageId } from "../helpers/createImageId";
 
 /**
  * Custom React hook for persisting image records in IndexedDB.
  * Unlike usePersistedUIRecord (one entry per id), this store holds many images
- * each identified by a generated random ID.
+ * each identified by a human-friendly ID derived from the filename (with collision suffix).
  *
  * @returns Object with:
  * - `images`: all persisted image records (undefined until loaded).
@@ -44,10 +45,13 @@ export function usePersistedImages(): {
 
   const addImages = useCallback(
     async (draftsAndFiles: ImageDraftStateAndFile[]): Promise<string[]> => {
+      const existing = await getAll<ImageRecord>();
+      const usedIds = new Set((existing ?? []).map((r) => r.id));
+
       const ids: string[] = [];
       for (const { imageDraft, file } of draftsAndFiles) {
         try {
-          const id = crypto.randomUUID();
+          const id = createImageId(imageDraft.name, usedIds);
 
           const record: ImageRecord = {
             id,
@@ -66,7 +70,7 @@ export function usePersistedImages(): {
       }
       return ids;
     },
-    [add, refreshImages],
+    [add, getAll, refreshImages],
   );
 
   const addImage = useCallback(
