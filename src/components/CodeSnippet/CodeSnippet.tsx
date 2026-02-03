@@ -104,6 +104,7 @@ export function CodeSnippet({
           role="tab"
           aria-selected={language === "html"}
           onClick={() => onLanguageChange?.("html")}
+          className="notranslate"
         >
           CSS
         </TabButton>
@@ -112,6 +113,7 @@ export function CodeSnippet({
           role="tab"
           aria-selected={language === "tailwind"}
           onClick={() => onLanguageChange?.("tailwind")}
+          className="notranslate"
         >
           Tailwind
         </TabButton>
@@ -120,7 +122,7 @@ export function CodeSnippet({
         {copied ? "Copied!" : "Copy"}
       </CopyButton>
       <CodeBlock code={codeSnippet} language="html">
-        <Code ref={ref}>
+        <Code ref={ref} className="notranslate">
           <Line>
             <LineNumber />
             <LineContent>
