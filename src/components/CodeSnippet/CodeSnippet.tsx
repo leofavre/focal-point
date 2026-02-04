@@ -1,3 +1,4 @@
+import copy from "copy-to-clipboard";
 import { type ClipboardEvent, useEffect, useRef, useState } from "react";
 import { CodeBlock } from "react-code-block";
 import {
@@ -75,15 +76,14 @@ export function CodeSnippet({
     clipboardData.setData("text/plain", normalizeWhitespaceInQuotes(selectedText));
   };
 
-  const handleCopy = async () => {
-    try {
-      const textToCopy = normalizeWhitespaceInQuotes(codeSnippet);
-      await navigator.clipboard.writeText(textToCopy);
+  const handleCopy = () => {
+    const textToCopy = normalizeWhitespaceInQuotes(codeSnippet);
+    const success = copy(textToCopy, { format: "text/plain" });
 
+    if (success) {
       if (copyResetTimeoutRef.current) {
         clearTimeout(copyResetTimeoutRef.current);
       }
-
       setCopied(true);
       onCopiedChange?.(true);
 
@@ -92,7 +92,12 @@ export function CodeSnippet({
         onCopiedChange?.(false);
         copyResetTimeoutRef.current = null;
       }, COPY_RESET_MS);
-    } catch {
+    } else {
+      /**
+       * @todo
+       *
+       * Handle copy error.
+       */
       setCopied(false);
       onCopiedChange?.(false);
     }

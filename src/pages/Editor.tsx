@@ -35,6 +35,8 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### MELHORIZE™ UI.
  *
+ * - Fix app not working in Incognito mode on mobile Chrome.
+ * - Fix mobile not working.
  * - Better typography.
  * - Better icons.
  * - Make shure focus is visible, specially in AspectRatioSlider.
@@ -54,6 +56,8 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * - Remove console logs on build. Keep console errors for now.
  * - Set-up changelogs in the project.
+ * - Set-up app versioning.
+ * - Control cache invalidation, given it's a PWA.
  * - Add integration tests (which tool to use?).
  * - Add Storybook tests (to see how it works?).
  *
