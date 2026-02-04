@@ -33,6 +33,10 @@ jobs:
         with:
           node-version: ${{ needs.setup.outputs.node-version }}
           yarn-version: ${{ needs.setup.outputs.yarn-version }}
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: yarn-deps-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable
       - name: Run typecheck
@@ -48,6 +52,10 @@ jobs:
         with:
           node-version: ${{ needs.setup.outputs.node-version }}
           yarn-version: ${{ needs.setup.outputs.yarn-version }}
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: yarn-deps-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable
       - name: Run tests
@@ -59,18 +67,18 @@ jobs:
     needs: [setup, typecheck, test]
     steps:
       - uses: actions/checkout@v4
-
       - uses: volta-cli/action@v4
         with:
           node-version: ${{ needs.setup.outputs.node-version }}
           yarn-version: ${{ needs.setup.outputs.yarn-version }}
-
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: yarn-deps-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable
-
       - name: Build
         run: yarn build
-
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
         with:
