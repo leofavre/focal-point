@@ -25,13 +25,15 @@ export const Wrapper = styled.div`
     z-index: 0;
 
     @container aspect-ratio-slider (width < 37.5rem) {
-      [data-name="original"]:not(:first-child):not(:last-child) { display: none; }
-      [data-name="3:4"] { display: none; }
-      [data-name="3:5"] { display: none; }
-      [data-name="4:3"] { display: none; }
-      [data-name="5:3"] { display: none; }
-      [data-name="5:7"] { display: none; }
-      [data-name="7:5"] { display: none; }
+      [data-name="original"]:not(:first-of-type):not(:last-of-type),
+      [data-name="3:4"],
+      [data-name="3:5"],
+      [data-name="4:3"],
+      [data-name="5:3"],
+      [data-name="5:7"],
+      [data-name="7:5"] {
+        display: none;
+      }
     }
   }
 `;
