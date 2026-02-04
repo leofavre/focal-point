@@ -4,7 +4,10 @@ import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vitest/config";
 
 /** @see https://vite.dev/config/ */
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  esbuild: {
+    pure: mode === "production" ? ["console.log"] : [],
+  },
   plugins: [
     mdPlugin({ mode: [Mode.REACT] }),
     react({
@@ -22,4 +25,4 @@ export default defineConfig({
     environment: "jsdom",
     mockReset: true,
   },
-});
+}));
