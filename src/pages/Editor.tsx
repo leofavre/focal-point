@@ -39,7 +39,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Add integration tests (which tool to use?).
  * - Think about animations and transitions.
- * - Fix CI integration.
  *
  * ### Basic functionality
  *
@@ -48,6 +47,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### Advanced functionality
  *
+ * - Set-up changelogs in the project.
  * - Breakpoints with container queries.
  * - Maybe make a browser extension?
  * - Maybe make a React component?
