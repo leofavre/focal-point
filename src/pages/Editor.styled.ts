@@ -54,5 +54,6 @@ export const EditorGrid = styled.main`
   [data-component="ImageUploader"] {
     grid-row: 3;
     grid-column: 5;
+    margin-bottom: auto;
   }
 `;

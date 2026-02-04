@@ -25,6 +25,7 @@ export const Wrapper = styled.div`
     z-index: 0;
 
     @container aspect-ratio-slider (width < 37.5rem) {
+      [data-name="original"]:not(:first-child):not(:last-child) { display: none; }
       [data-name="3:4"] { display: none; }
       [data-name="3:5"] { display: none; }
       [data-name="4:3"] { display: none; }
