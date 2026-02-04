@@ -49,6 +49,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Handle loading.
  * - Handle errors in a consistent way. Review try/catch blocks.
  * - Support HTML, Tailwind, React, React + Tailwind.
+ * - Copy button not working on iOS.
  *
  * ### DevOps
  *
