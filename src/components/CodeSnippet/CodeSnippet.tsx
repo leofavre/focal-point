@@ -17,7 +17,8 @@ function getCodeSnippetHtml(src: string, objectPosition: string): string {
   return `<img
   src="${src}"
   style="
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     object-position: ${objectPosition};
   "
@@ -29,7 +30,8 @@ function getCodeSnippetTailwind(src: string, objectPosition: string): string {
   return `<img
   src="${src}"
   class="
-    w-full h-full
+    w-full
+    h-full
     object-cover
     object-[${objectPositionClass}]
   "

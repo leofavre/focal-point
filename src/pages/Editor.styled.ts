@@ -1,42 +1,16 @@
 import styled from "@emotion/styled";
 
 export const EditorGrid = styled.main`
+  --external-margin: 0rem;
   display: grid;
-  grid-template-columns: 1fr minmax(20rem, 75rem) 1fr;
+  grid-template-columns: 1fr 2rem 2rem minmax(0, 75rem) 2rem 2rem 1fr;
   grid-template-rows: min-content 1fr 5.625rem;
-  gap: 1rem;
-  margin: 0;
-  width: calc(100dvw);
-  height: calc(100dvh - 2rem);
   overflow: hidden;
   isolation: isolate;
-
-  [data-component="ImageUploader"] {
-    grid-row: 3;
-    grid-column: 1;
-    margin-left: auto;
-    margin-bottom: auto;
-    min-width: 15ch;
-
-    &:nth-child(1):nth-last-child(1) {
-      grid-row: 1 / 4;
-      grid-column: 2;
-      margin: auto;
-      width: 100%;
-      height: 100%;
-      max-width: 60rem;
-      max-height: 40rem;
-    }
-
-    z-index: 1;
-  }
-
-  [data-component="ToggleBar"] {
-    grid-row: 3;
-    grid-column: 3;
-    margin-right: auto;
-    z-index: 1;
-  }
+  gap: 0.5rem;
+  margin: 0;
+  width: 100dvw;
+  height: 100dvh;
 
   [data-component="FocalPointEditor"] {
     grid-row: 1 / 3;
@@ -46,19 +20,39 @@ export const EditorGrid = styled.main`
   }
 
   [data-component="CodeSnippet"] {
-    grid-row: 2;
-    grid-column: 1 / 4;
-    margin: auto 0 auto auto;
-    max-width: 45ch;
+    grid-row: 2 / 4;
+    grid-column: 3 / -3;
+    margin: auto auto 0 auto;
+    max-width: 40rem;
     z-index: 2;
   }
 
   [data-component="AspectRatioSlider"] {
     grid-row: 3;
-    grid-column: 2;
+    grid-column: 4;
     margin-left: auto;
     margin-right: auto;
     max-width: 1200px;
     z-index: 1;
+  }
+
+  [data-component="PointerMarkerButton"] {
+    grid-row: 3;
+    grid-column: 2;
+  }
+
+  [data-component="GhostImageButton"] {
+    grid-row: 3;
+    grid-column: 3;
+  }
+
+  [data-component="CodeSnippetButton"] {
+    grid-row: 3;
+    grid-column: 6;
+  }
+
+  [data-component="ImageUploader"] {
+    grid-row: 3;
+    grid-column: 5;
   }
 `;

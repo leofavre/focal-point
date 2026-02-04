@@ -1,10 +1,5 @@
 import styled from "@emotion/styled";
 
-export const Container = styled.div`
-  container-type: size;
-  container-name: image-uploader;
-`;
-
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -31,8 +26,12 @@ export const Form = styled.form`
     border-color: #cbd5e0;
   }
 
-  @container image-uploader (max-inline-size: 40rem) {
+  &[data-variant="small"] {
+    display: block;
     padding: 0;
+    border: none;
+    background: none;
+    height: auto;
   }
 `;
 
@@ -50,10 +49,6 @@ export const IconWrapper = styled.span`
   align-items: center;
   justify-content: center;
   color: #a0aec0;
-
-  @container image-uploader (max-inline-size: 40rem) {
-    display: none;
-  }
 `;
 
 export const InstructionText = styled.span`
@@ -61,35 +56,26 @@ export const InstructionText = styled.span`
   font-weight: 500;
   color: #4a5568;
   text-align: center;
-
-  @container image-uploader (max-inline-size: 40rem) {
-    display: none;
-  }
 `;
 
 export const OrDivider = styled.span`
   font-size: 0.875rem;
   font-weight: 600;
   color: #4a5568;
-
-  @container image-uploader (max-inline-size: 40rem) {
-    display: none;
-  }
 `;
 
 export const BrowseButton = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
+  padding: 0.5rem;
+  font-size: 1rem;
   font-weight: 600;
   color: white;
   background-color: #4285f4;
   border: none;
   border-radius: 0.375rem;
   transition: background-color 0.15s ease;
-  width: 12ch;
 
   &:hover {
     background-color: #3367d6;

@@ -4,7 +4,9 @@ import { CodeBlock } from "react-code-block";
 export const Wrapper = styled.div`
   position: relative;
   width: 100%;
-  transition: all 0.15s ease;
+  transition: transform 0.15s ease;
+  display: flex;
+  flex-flow: column;
 `;
 
 export const TabBar = styled.div`
@@ -45,14 +47,15 @@ export const Code = styled(CodeBlock.Code)`
   box-sizing: border-box;
   background-color: #111827;
   padding: 1.5rem;
-  border-radius: 0 0rem 0rem 0.75rem;
+  border-radius: 0 0.75rem 0 0;
   overflow: auto;
   transition: opacity 0.15s ease;
-  `;
+  flex-grow: 1;
+`;
 
 export const Line = styled.div`
   display: table-row;
-  `;
+`;
 
 export const LineNumber = styled(CodeBlock.LineNumber)`
   display: table-cell;
@@ -61,18 +64,18 @@ export const LineNumber = styled(CodeBlock.LineNumber)`
   color: #6b7280;
   text-align: right;
   user-select: none;
-  `;
+`;
 
 export const LineContent = styled(CodeBlock.LineContent)`
   display: table-cell;
-  `;
+`;
 
 export const CopyButton = styled.button`
   position: absolute;
   top: 2.5rem;
-  right: 0.75rem;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.8125rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
   font-family: inherit;
   color: #9ca3af;
   background-color: #1f2937;

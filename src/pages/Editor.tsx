@@ -8,7 +8,6 @@ import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
 import { ImageUploader } from "../components/ImageUploader/ImageUploader";
 import { Markdown } from "../components/Markdown/Markdown";
-import { ToggleBar } from "../components/ToggleBar/ToggleBar";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
 import { CodeSnippetToggleIcon } from "../icons/CodeSnippetToggleIcon";
 import { GhostImageToggleIcon } from "../icons/GhostImageToggleIcon";
@@ -36,6 +35,8 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### MELHORIZE™ UI.
  *
+ * - Better typography.
+ * - Better icons.
  * - Adjust container query for ImageUploader when rendered on mobile pages.
  * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Verify accessibility.
@@ -47,6 +48,8 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * - Handle loading.
  * - Handle errors in a consistent way. Review try/catch blocks.
+ * - Fix mobile version.
+ * - Support HTML, Tailwind, React, React + Tailwind.
  *
  * ### DevOps
  *
@@ -200,15 +203,32 @@ export default function Editor() {
 
   const currentObjectPosition = image?.breakpoints?.[0]?.objectPosition;
 
+  /**
+   * Reset the code snippet copied state when the object position changes.
+   */
   useEffect(() => {
     void currentObjectPosition;
     setCodeSnippetCopied(false);
   }, [currentObjectPosition]);
 
+  /**
+   * Reset the code snippet copied state when the code snippet language changes.
+   */
   useEffect(() => {
     void codeSnippetLanguage;
     setCodeSnippetCopied(false);
   }, [codeSnippetLanguage]);
+
+  /**
+   * Inject `overflow: hidden` to the body element when the editor is rendered.
+   */
+  useEffect(() => {
+    document.body.style.overflow = image && imageId ? "hidden" : "auto";
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [image, imageId]);
 
   /**
    * Update the object position of the image in the database when the user interacts with it
@@ -295,7 +315,7 @@ export default function Editor() {
   if (!imageId) {
     return (
       <LandingGrid>
-        <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload} />
+        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
         <Markdown>
           <ReadmeContent />
         </Markdown>
@@ -306,7 +326,7 @@ export default function Editor() {
   if (imageId && !image) {
     return (
       <LandingGrid>
-        <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload} />
+        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
         <Markdown>
           <ReadmeContent />
         </Markdown>
@@ -316,36 +336,37 @@ export default function Editor() {
 
   return (
     <EditorGrid>
-      <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload} />
-      <ToggleBar>
-        {showPointMarker != null && (
-          <ToggleButton
-            toggled={showPointMarker}
-            onToggle={() => setShowPointMarker((prev) => !prev)}
-            titleOn="Hide pointer marker"
-            titleOff="Show pointer marker"
-            icon={<PointMarkerToggleIcon />}
-          />
-        )}
-        {showGhostImage != null && (
-          <ToggleButton
-            toggled={showGhostImage}
-            onToggle={() => setShowGhostImage((prev) => !prev)}
-            titleOn="Hide ghost image"
-            titleOff="Show ghost image"
-            icon={<GhostImageToggleIcon />}
-          />
-        )}
-        {showCodeSnippet != null && (
-          <ToggleButton
-            toggled={showCodeSnippet}
-            onToggle={() => setShowCodeSnippet((prev) => !prev)}
-            titleOn="Hide code snippet"
-            titleOff="Show code snippet"
-            icon={<CodeSnippetToggleIcon />}
-          />
-        )}
-      </ToggleBar>
+      {showPointMarker != null && (
+        <ToggleButton
+          data-component="PointerMarkerButton"
+          toggled={showPointMarker}
+          onToggle={() => setShowPointMarker((prev) => !prev)}
+          titleOn="Hide pointer marker"
+          titleOff="Show pointer marker"
+          icon={<PointMarkerToggleIcon />}
+        />
+      )}
+      {showGhostImage != null && (
+        <ToggleButton
+          data-component="GhostImageButton"
+          toggled={showGhostImage}
+          onToggle={() => setShowGhostImage((prev) => !prev)}
+          titleOn="Hide ghost image"
+          titleOff="Show ghost image"
+          icon={<GhostImageToggleIcon />}
+        />
+      )}
+      {showCodeSnippet != null && (
+        <ToggleButton
+          data-component="CodeSnippetButton"
+          toggled={showCodeSnippet}
+          onToggle={() => setShowCodeSnippet((prev) => !prev)}
+          titleOn="Hide code snippet"
+          titleOff="Show code snippet"
+          icon={<CodeSnippetToggleIcon />}
+        />
+      )}
+      <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />
       {image && (
         <>
           {aspectRatio != null && image.naturalAspectRatio != null && (
@@ -368,7 +389,7 @@ export default function Editor() {
             copied={codeSnippetCopied}
             onCopiedChange={setCodeSnippetCopied}
             css={{
-              opacity: showCodeSnippet ? 1 : 0,
+              transform: showCodeSnippet ? "translateY(0)" : "translateY(100%)",
               pointerEvents: showCodeSnippet ? "auto" : "none",
             }}
           />

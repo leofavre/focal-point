@@ -1,10 +1,9 @@
 import styled from "@emotion/styled";
 
 export const Wrapper = styled.div`
-  --thumb-radius: 1rem;
+  --thumb-radius: 0.75rem;
   --thumb-diameter: calc(2 * var(--thumb-radius));
   --thumb-border: 2px;
-  --thumb-external-diameter: calc(var(--thumb-diameter) + 2 * var(--thumb-border));
   --runner-thickness: 4px;
 
   width: 100%;
@@ -19,7 +18,7 @@ export const Wrapper = styled.div`
     position: relative;
     margin-left: calc(var(--thumb-radius));
     margin-right: calc(var(--thumb-radius) + 1px);
-    margin-top: calc(var(--thumb-external-diameter) / -2);
+    margin-top: calc(var(--thumb-diameter) / -2);
     z-index: 0;
   }
 `;

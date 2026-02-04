@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 export const LandingGrid = styled.main`
   display: grid;
-  grid-template-columns: 1fr minmax(20rem, 60rem) 1fr;
+  grid-template-columns: 1fr minmax(0, 60rem) 1fr;
   grid-auto-rows: min-content;
   gap: 0;
   margin: 1rem;

@@ -1,15 +1,16 @@
 import styled from "@emotion/styled";
 
-export const Button = styled.button`
+export const SmallButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: calc(2rem);
+  height: calc(2rem);
   padding: 0;
-  border: 0.0625rem solid #9ca3af;
-  border-radius: 0.375rem;
+  border: 1px solid #9ca3af;
+  border-radius: 20%;
   background-color: #fff;
+  box-sizing: border-box;
   color: #374151;
   cursor: pointer;
   transition:

@@ -9,10 +9,10 @@ import {
 import { parseBooleanDataAttribute } from "../../helpers/parseBooleanDataAttribute";
 import { CloudUploadIcon } from "../../icons/CloudUploadIcon";
 import type { ImageDraftStateAndFile } from "../../types";
+import { SmallButton } from "../SmallButton";
 import { processImageFiles } from "./helpers/processImageFiles";
 import {
   BrowseButton,
-  Container,
   DropZone,
   Form,
   HiddenControl,
@@ -22,7 +22,13 @@ import {
 } from "./ImageUploader.styled";
 import type { ImageUploaderProps } from "./types";
 
-export function ImageUploader({ ref, onImageUpload, onImagesUpload, ...rest }: ImageUploaderProps) {
+export function ImageUploader({
+  ref,
+  onImageUpload,
+  onImagesUpload,
+  variant,
+  ...rest
+}: ImageUploaderProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const stableOnImageUpload = useEffectEvent((draftAndFile: ImageDraftStateAndFile | undefined) => {
@@ -66,23 +72,26 @@ export function ImageUploader({ ref, onImageUpload, onImagesUpload, ...rest }: I
   }, []);
 
   return (
-    <Container data-component="ImageUploader" {...rest}>
-      <Form
-        onSubmit={handleFormSubmit}
-        noValidate
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        data-drag-over={parseBooleanDataAttribute(isDragOver)}
-      >
-        <HiddenControl
-          ref={ref}
-          id="image-upload"
-          type="file"
-          accept="image/*"
-          multiple={onImagesUpload != null}
-          onChange={handleFileChange}
-        />
+    <Form
+      data-component="ImageUploader"
+      data-variant={variant}
+      onSubmit={handleFormSubmit}
+      noValidate
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      data-drag-over={parseBooleanDataAttribute(isDragOver)}
+      {...rest}
+    >
+      <HiddenControl
+        ref={ref}
+        id="image-upload"
+        type="file"
+        accept="image/*"
+        multiple={onImagesUpload != null}
+        onChange={handleFileChange}
+      />
+      {variant === "large" ? (
         <DropZone htmlFor="image-upload">
           <IconWrapper>
             <CloudUploadIcon />
@@ -91,7 +100,11 @@ export function ImageUploader({ ref, onImageUpload, onImagesUpload, ...rest }: I
           <OrDivider>Or</OrDivider>
           <BrowseButton>Browse images</BrowseButton>
         </DropZone>
-      </Form>
-    </Container>
+      ) : (
+        <SmallButton as="label">
+          <CloudUploadIcon />
+        </SmallButton>
+      )}
+    </Form>
   );
 }
