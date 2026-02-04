@@ -39,6 +39,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Add integration tests (which tool to use?).
  * - Think about animations and transitions.
+ * - Fix CI integration.
  *
  * ### Basic functionality
  *
