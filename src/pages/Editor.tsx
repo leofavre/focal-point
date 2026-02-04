@@ -35,8 +35,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### MELHORIZE™ UI.
  *
- * - Fix app not working in Incognito mode on mobile Chrome.
- * - Fix mobile not working.
  * - Better typography.
  * - Better icons.
  * - Make shure focus is visible, specially in AspectRatioSlider.
@@ -49,17 +47,20 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * - Handle loading.
  * - Handle errors in a consistent way. Review try/catch blocks.
- * - Support HTML, Tailwind, React, React + Tailwind.
- * - Copy button not working on iOS.
+ * - Fix app not working in Incognito mode on mobile Chrome.
  *
  * ### DevOps
  *
- * - Remove console logs on build. Keep console errors for now.
- * - Set-up changelogs in the project.
- * - Set-up app versioning.
+ * - Set up changelogs in the project.
+ * - Set up app versioning.
  * - Control cache invalidation, given it's a PWA.
  * - Add integration tests (which tool to use?).
  * - Add Storybook tests (to see how it works?).
+ *
+ * ### Backend
+ *
+ * - Add an abstraction layer so that we can switch from using IndexedDB, to SessionStorage
+ * or LocalStorage, or even a custom backend.
  *
  * ### Advanced functionality
  *

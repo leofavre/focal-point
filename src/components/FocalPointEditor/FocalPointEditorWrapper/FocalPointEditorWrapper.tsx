@@ -9,12 +9,14 @@ export function FocalPointEditorWrapper({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
+  contentRef,
   children,
   ...rest
 }: FocalPointEditorWrapperProps) {
   return (
     <Container {...rest}>
       <Content
+        ref={contentRef}
         css={{
           aspectRatio: aspectRatio ?? "auto",
           height: `${detectProportionalImageHeight({ aspectRatio }) ?? 0}cqmin`,

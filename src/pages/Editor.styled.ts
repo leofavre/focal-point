@@ -21,7 +21,7 @@ export const EditorGrid = styled.main`
 
   [data-component="CodeSnippet"] {
     grid-row: 2 / 4;
-    grid-column: 3 / -3;
+    grid-column: 2 / -2;
     margin: auto auto 0 auto;
     max-width: 40rem;
     z-index: 2;

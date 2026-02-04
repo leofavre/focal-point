@@ -11,11 +11,11 @@ export const Wrapper = styled.div`
 
 export const TabBar = styled.div`
   display: flex;
-  gap: 0;
+  gap: 0.25rem;
 `;
 
 export const TabButton = styled.button`
-  padding: 0.375rem 0.75rem;
+  padding: 0.25rem 0.5rem;
   font-size: 0.8125rem;
   font-family: inherit;
   color: #9ca3af;

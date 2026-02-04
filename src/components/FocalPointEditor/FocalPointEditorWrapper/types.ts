@@ -8,4 +8,6 @@ export type FocalPointEditorWrapperProps = {
   onPointerUp: (event: PointerEvent<HTMLDivElement>) => void;
   onPointerCancel?: (event: PointerEvent<HTMLDivElement>) => void;
   children: ReactNode;
+  /** Ref forwarded to the content div that receives pointer events. Used for non-passive listeners on mobile. */
+  contentRef?: React.RefObject<HTMLDivElement | null>;
 };

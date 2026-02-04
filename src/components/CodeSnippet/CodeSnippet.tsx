@@ -26,6 +26,18 @@ function getCodeSnippetHtml(src: string, objectPosition: string): string {
 />`;
 }
 
+function getCodeSnippetReact(src: string, objectPosition: string): string {
+  return `<img
+  src="${src}"
+  style={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: '${objectPosition}',
+  }}
+/>`;
+}
+
 function getCodeSnippetTailwind(src: string, objectPosition: string): string {
   const objectPositionClass = objectPosition.replace(/ /g, "_");
   return `<img
@@ -37,6 +49,40 @@ function getCodeSnippetTailwind(src: string, objectPosition: string): string {
     object-[${objectPositionClass}]
   "
 />`;
+}
+
+function getCodeSnippetReactTailwind(
+  src: string,
+  objectPosition: string
+): string {
+  const objectPositionClass = objectPosition.replace(/ /g, "_");
+  return `<img
+  src="${src}"
+  className="
+    w-full
+    h-full
+    object-cover
+    object-[${objectPositionClass}]
+  "
+/>`;
+}
+
+function getCodeSnippet(
+  language: CodeSnippetProps["language"],
+  src: string,
+  objectPosition: string
+): string {
+  switch (language) {
+    case "tailwind":
+      return getCodeSnippetTailwind(src, objectPosition);
+    case "react":
+      return getCodeSnippetReact(src, objectPosition);
+    case "react-tailwind":
+      return getCodeSnippetReactTailwind(src, objectPosition);
+    case "html":
+    default:
+      return getCodeSnippetHtml(src, objectPosition);
+  }
 }
 
 const COPY_RESET_MS = 2_000;
@@ -51,10 +97,9 @@ export function CodeSnippet({
   onCopiedChange,
   ...rest
 }: CodeSnippetProps) {
-  const codeSnippet =
-    language === "tailwind"
-      ? getCodeSnippetTailwind(src, objectPosition)
-      : getCodeSnippetHtml(src, objectPosition);
+  const codeSnippet = getCodeSnippet(language, src, objectPosition);
+  const codeBlockLanguage =
+    language === "react" || language === "react-tailwind" ? "jsx" : "html";
 
   const [copied, setCopied] = useState(copiedProp);
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -113,7 +158,7 @@ export function CodeSnippet({
           onClick={() => onLanguageChange?.("html")}
           className="notranslate"
         >
-          CSS
+          HTML
         </TabButton>
         <TabButton
           type="button"
@@ -124,11 +169,29 @@ export function CodeSnippet({
         >
           Tailwind
         </TabButton>
+        <TabButton
+          type="button"
+          role="tab"
+          aria-selected={language === "react"}
+          onClick={() => onLanguageChange?.("react")}
+          className="notranslate"
+        >
+          React
+        </TabButton>
+        <TabButton
+          type="button"
+          role="tab"
+          aria-selected={language === "react-tailwind"}
+          onClick={() => onLanguageChange?.("react-tailwind")}
+          className="notranslate"
+        >
+          React + Tailwind
+        </TabButton>
       </TabBar>
       <CopyButton type="button" onClick={handleCopy}>
         {copied ? "Copied!" : "Copy"}
       </CopyButton>
-      <CodeBlock code={codeSnippet} language="html">
+      <CodeBlock code={codeSnippet} language={codeBlockLanguage}>
         <Code ref={ref} className="notranslate">
           <Line>
             <LineNumber />

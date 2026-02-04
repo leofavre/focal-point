@@ -30,6 +30,7 @@ export function FocalPointEditor({
   ...rest
 }: FocalPointEditorProps) {
   const imageRef = useRef<HTMLImageElement>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef(false);
   const objectPositionStartRef = useRef(objectPosition);
   const pointerCoordinatesStartRef = useRef<Coordinates | null>(null);
@@ -53,6 +54,35 @@ export function FocalPointEditor({
       resizeObserver.disconnect();
     };
   }, [imageUrl]);
+
+  /**
+   * Fix a bug where the image and the focal point icon are not draggable
+   * on mobile devices because the page-scroll event is triggered instead.
+   *
+   * Using the native `{ passive: false }` option guarantees that the page-scroll
+   * event can be prevented. If we the React event handler, `{ passive: true}` is
+   * the default and cannot be changed.
+   */
+  useEffect(() => {
+    const el = contentRef.current;
+    if (el == null) return;
+
+    const onPointerDown = (e: globalThis.PointerEvent) => {
+      e.preventDefault();
+    };
+
+    const onPointerMove = (e: globalThis.PointerEvent) => {
+      if (isDraggingRef.current) e.preventDefault();
+    };
+
+    el.addEventListener("pointerdown", onPointerDown, { passive: false });
+    el.addEventListener("pointermove", onPointerMove, { passive: false });
+
+    return () => {
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("pointermove", onPointerMove);
+    };
+  }, []);
 
   const handleImageLoad = useEffectEvent((event: SyntheticEvent<HTMLImageElement>) => {
     onImageLoad?.(event);
@@ -139,6 +169,7 @@ export function FocalPointEditor({
       data-component="FocalPointEditor"
       aspectRatio={aspectRatio}
       cursor={cursor}
+      contentRef={contentRef}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
