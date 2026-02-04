@@ -1,6 +1,6 @@
 import { isEqual } from "lodash";
 import { useCallback, useEffect, useState } from "react";
-import { useIndexedDB } from "react-indexed-db-hook";
+import { getIndexedDBService } from "../../services/indexedDBService";
 import type { ImageDraftStateAndFile, ImageRecord } from "../../types";
 import { createImageId } from "../helpers/createImageId";
 
@@ -27,17 +27,19 @@ export function usePersistedImages(): {
   deleteImage: (id: string) => Promise<string | undefined>;
   refreshImages: () => Promise<void>;
 } {
-  const { add, getByID, getAll, update, deleteRecord } = useIndexedDB("images");
+  const { addRecord, getRecord, getAllRecords, updateRecord, deleteRecord } =
+    getIndexedDBService("images");
+
   const [images, setImages] = useState<ImageRecord[] | undefined>(undefined);
 
   const refreshImages = useCallback(async () => {
     try {
-      const all = await getAll<ImageRecord>();
+      const all = await getAllRecords<ImageRecord>();
       setImages(all ?? []);
     } catch (err) {
       throw new Error("Failed to refresh images", { cause: err });
     }
-  }, [getAll]);
+  }, [getAllRecords]);
 
   useEffect(() => {
     refreshImages();
@@ -45,7 +47,7 @@ export function usePersistedImages(): {
 
   const addImages = useCallback(
     async (draftsAndFiles: ImageDraftStateAndFile[]): Promise<string[]> => {
-      const existing = await getAll<ImageRecord>();
+      const existing = await getAllRecords<ImageRecord>();
       const usedIds = new Set((existing ?? []).map((r) => r.id));
 
       const ids: string[] = [];
@@ -59,7 +61,7 @@ export function usePersistedImages(): {
             file,
           };
 
-          await add(record);
+          await addRecord(record);
           ids.push(id);
         } catch (err) {
           console.error("Error saving image to database:", err);
@@ -70,16 +72,18 @@ export function usePersistedImages(): {
       }
       return ids;
     },
-    [add, getAll, refreshImages],
+    [addRecord, getAllRecords, refreshImages],
   );
 
   const addImage = useCallback(
     async (draftAndFile: ImageDraftStateAndFile): Promise<string> => {
       const ids = await addImages([draftAndFile]);
       const id = ids[0];
+
       if (id == null) {
         throw new Error("Failed to add image");
       }
+
       return id;
     },
     [addImages],
@@ -87,14 +91,14 @@ export function usePersistedImages(): {
 
   const getImage = useCallback(
     async (id: string) => {
-      return await getByID<ImageRecord>(id);
+      return await getRecord<ImageRecord>(id);
     },
-    [getByID],
+    [getRecord],
   );
 
   const updateImage = useCallback(
     async (id: string, updates: Partial<ImageRecord>) => {
-      const current = await getByID<ImageRecord>(id);
+      const current = await getRecord<ImageRecord>(id);
 
       if (current == null) return;
 
@@ -107,11 +111,11 @@ export function usePersistedImages(): {
 
       if (isEqual(current, updated)) return;
 
-      await update(updated);
+      await updateRecord(updated);
       await refreshImages();
       return id;
     },
-    [getByID, update, refreshImages],
+    [getRecord, updateRecord, refreshImages],
   );
 
   const deleteImage = useCallback(

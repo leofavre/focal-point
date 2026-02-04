@@ -3,20 +3,24 @@ import { describe, expect, it, vi } from "vitest";
 import type { UIRecord, UIState } from "../../types";
 import { usePersistedUIRecord } from "./usePersistedUIRecord";
 
-const mockGetByID = vi.fn();
-const mockUpdate = vi.fn();
+const { mockGetRecord, mockUpdateRecord } = vi.hoisted(() => ({
+  mockGetRecord: vi.fn(),
+  mockUpdateRecord: vi.fn(),
+}));
 
-// Mock react-indexed-db-hook
-vi.mock("react-indexed-db-hook", () => ({
-  useIndexedDB: vi.fn(() => ({
-    getByID: mockGetByID,
-    update: mockUpdate,
+vi.mock("../../services/indexedDBService", () => ({
+  getIndexedDBService: vi.fn(() => ({
+    addRecord: vi.fn(),
+    getRecord: mockGetRecord,
+    getAllRecords: vi.fn(),
+    updateRecord: mockUpdateRecord,
+    deleteRecord: vi.fn(),
   })),
 }));
 
 describe("usePersistedUIRecord", () => {
   it("returns undefined initially, then value when no persisted value exists", async () => {
-    mockGetByID.mockResolvedValue(null);
+    mockGetRecord.mockResolvedValue(null);
 
     const { result } = renderHook(() =>
       usePersistedUIRecord({
@@ -33,12 +37,12 @@ describe("usePersistedUIRecord", () => {
       expect(result.current[0]).toBe(false);
     });
 
-    expect(mockGetByID).toHaveBeenCalledWith("showGhostImage");
+    expect(mockGetRecord).toHaveBeenCalledWith("showGhostImage");
   });
 
   it("returns undefined initially, then persisted value when it exists", async () => {
     const persistedValue = true;
-    mockGetByID.mockResolvedValue({ id: "showGhostImage", value: persistedValue });
+    mockGetRecord.mockResolvedValue({ id: "showGhostImage", value: persistedValue });
 
     const { result } = renderHook(() =>
       usePersistedUIRecord({
@@ -55,11 +59,11 @@ describe("usePersistedUIRecord", () => {
       expect(result.current[0]).toBe(persistedValue);
     });
 
-    expect(mockGetByID).toHaveBeenCalledWith("showGhostImage");
+    expect(mockGetRecord).toHaveBeenCalledWith("showGhostImage");
   });
 
   it("falls back to value when IndexedDB getByID fails", async () => {
-    mockGetByID.mockRejectedValue(new Error("IndexedDB error"));
+    mockGetRecord.mockRejectedValue(new Error("IndexedDB error"));
 
     const { result } = renderHook(() =>
       usePersistedUIRecord({
@@ -78,8 +82,8 @@ describe("usePersistedUIRecord", () => {
   });
 
   it("persists state changes to IndexedDB", async () => {
-    mockGetByID.mockResolvedValue(null);
-    mockUpdate.mockResolvedValue(undefined);
+    mockGetRecord.mockResolvedValue(null);
+    mockUpdateRecord.mockResolvedValue(undefined);
 
     const { result } = renderHook(() =>
       usePersistedUIRecord({
@@ -101,13 +105,13 @@ describe("usePersistedUIRecord", () => {
     // Wait for state update and persistence
     await waitFor(() => {
       expect(result.current[0]).toBe(4 / 5);
-      expect(mockUpdate).toHaveBeenCalledWith({ id: "aspectRatio", value: 4 / 5 });
+      expect(mockUpdateRecord).toHaveBeenCalledWith({ id: "aspectRatio", value: 4 / 5 });
     });
   });
 
   it("handles function updater pattern", async () => {
-    mockGetByID.mockResolvedValue(null);
-    mockUpdate.mockResolvedValue(undefined);
+    mockGetRecord.mockResolvedValue(null);
+    mockUpdateRecord.mockResolvedValue(undefined);
 
     const { result } = renderHook(() =>
       usePersistedUIRecord({
@@ -129,13 +133,13 @@ describe("usePersistedUIRecord", () => {
     // Wait for state update and persistence
     await waitFor(() => {
       expect(result.current[0]).toBe((1 / 2) * 5);
-      expect(mockUpdate).toHaveBeenCalledWith({ id: "aspectRatio", value: (1 / 2) * 5 });
+      expect(mockUpdateRecord).toHaveBeenCalledWith({ id: "aspectRatio", value: (1 / 2) * 5 });
     });
   });
 
   it("does not persist when value is set to null or undefined", async () => {
-    mockGetByID.mockResolvedValue({ id: "aspectRatio", value: 2 / 3 });
-    mockUpdate.mockResolvedValue(undefined);
+    mockGetRecord.mockResolvedValue({ id: "aspectRatio", value: 2 / 3 });
+    mockUpdateRecord.mockResolvedValue(undefined);
 
     const { result } = renderHook(() =>
       usePersistedUIRecord({
@@ -151,7 +155,7 @@ describe("usePersistedUIRecord", () => {
 
     // Wait for initial persistence to complete
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith({ id: "aspectRatio", value: 2 / 3 });
+      expect(mockUpdateRecord).toHaveBeenCalledWith({ id: "aspectRatio", value: 2 / 3 });
     });
 
     // Set to undefined (should not persist)
@@ -174,13 +178,13 @@ describe("usePersistedUIRecord", () => {
       expect(result.current[0]).toBe(4 / 5);
     });
 
-    expect(mockUpdate).toHaveBeenCalledTimes(2);
-    expect(mockUpdate).toHaveBeenLastCalledWith({ id: "aspectRatio", value: 4 / 5 });
+    expect(mockUpdateRecord).toHaveBeenCalledTimes(2);
+    expect(mockUpdateRecord).toHaveBeenLastCalledWith({ id: "aspectRatio", value: 4 / 5 });
   });
 
   it("handles multiple instances with different IDs independently", async () => {
     // Mock getByID to return different values based on the ID
-    mockGetByID.mockImplementation((id: string) => {
+    mockGetRecord.mockImplementation((id: string) => {
       if (id === "aspectRatio") {
         return Promise.resolve({ id: "aspectRatio", value: 3 / 4 });
       }
@@ -212,13 +216,13 @@ describe("usePersistedUIRecord", () => {
       expect(result2.current[0]).toBe(true);
     });
 
-    expect(mockGetByID).toHaveBeenCalledWith("aspectRatio");
-    expect(mockGetByID).toHaveBeenCalledWith("showGhostImage");
+    expect(mockGetRecord).toHaveBeenCalledWith("aspectRatio");
+    expect(mockGetRecord).toHaveBeenCalledWith("showGhostImage");
   });
 
   it("treats id and value as stable so does not reload when they change", async () => {
     // Mock getByID to return different values based on the ID
-    mockGetByID.mockImplementation((id: string) => {
+    mockGetRecord.mockImplementation((id: string) => {
       if (id === "aspectRatio") {
         return Promise.resolve({ id: "aspectRatio", value: 3 / 4 });
       }
@@ -251,7 +255,7 @@ describe("usePersistedUIRecord", () => {
       expect(result.current[0]).toBe(3 / 4);
     });
 
-    expect(mockGetByID).toHaveBeenCalledTimes(1);
-    expect(mockGetByID).toHaveBeenLastCalledWith("aspectRatio");
+    expect(mockGetRecord).toHaveBeenCalledTimes(1);
+    expect(mockGetRecord).toHaveBeenLastCalledWith("aspectRatio");
   });
 });

@@ -4,18 +4,21 @@ import { createMockImageDraftState, createMockImageRecord } from "../../test-uti
 import type { ImageRecord } from "../../types";
 import { usePersistedImages } from "./usePersistedImages";
 
-const mockAdd = vi.fn();
-const mockGetByID = vi.fn();
-const mockGetAll = vi.fn();
-const mockUpdate = vi.fn();
-const mockDeleteRecord = vi.fn();
+const { mockAddRecord, mockGetRecord, mockGetAllRecords, mockUpdateRecord, mockDeleteRecord } =
+  vi.hoisted(() => ({
+    mockAddRecord: vi.fn(),
+    mockGetRecord: vi.fn(),
+    mockGetAllRecords: vi.fn(),
+    mockUpdateRecord: vi.fn(),
+    mockDeleteRecord: vi.fn(),
+  }));
 
-vi.mock("react-indexed-db-hook", () => ({
-  useIndexedDB: vi.fn(() => ({
-    add: mockAdd,
-    getByID: mockGetByID,
-    getAll: mockGetAll,
-    update: mockUpdate,
+vi.mock("../../services/indexedDBService", () => ({
+  getIndexedDBService: vi.fn(() => ({
+    addRecord: mockAddRecord,
+    getRecord: mockGetRecord,
+    getAllRecords: mockGetAllRecords,
+    updateRecord: mockUpdateRecord,
     deleteRecord: mockDeleteRecord,
   })),
 }));
@@ -24,10 +27,10 @@ describe("usePersistedImages", () => {
   const testFile = new Blob(["test"], { type: "image/png" });
 
   beforeEach(() => {
-    mockGetAll.mockResolvedValue([]);
-    mockAdd.mockResolvedValue(undefined);
-    mockGetByID.mockResolvedValue(undefined);
-    mockUpdate.mockResolvedValue(undefined);
+    mockGetAllRecords.mockResolvedValue([]);
+    mockAddRecord.mockResolvedValue(undefined);
+    mockGetRecord.mockResolvedValue(undefined);
+    mockUpdateRecord.mockResolvedValue(undefined);
     mockDeleteRecord.mockResolvedValue(undefined);
   });
 
@@ -37,7 +40,7 @@ describe("usePersistedImages", () => {
 
   it("returns images undefined initially, then loaded list after getAll resolves", async () => {
     const persisted: ImageRecord[] = [];
-    mockGetAll.mockResolvedValue(persisted);
+    mockGetAllRecords.mockResolvedValue(persisted);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -47,7 +50,7 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toEqual([]);
     });
 
-    expect(mockGetAll).toHaveBeenCalled();
+    expect(mockGetAllRecords).toHaveBeenCalled();
   });
 
   it("returns persisted images when getAll resolves with data", async () => {
@@ -57,7 +60,7 @@ describe("usePersistedImages", () => {
       file: testFile,
     });
 
-    mockGetAll.mockResolvedValue([record]);
+    mockGetAllRecords.mockResolvedValue([record]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -71,7 +74,7 @@ describe("usePersistedImages", () => {
   });
 
   it("addImage generates friendly id from filename, adds record, refreshes, and returns id", async () => {
-    mockGetAll.mockResolvedValue([]);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -87,12 +90,12 @@ describe("usePersistedImages", () => {
     });
 
     expect(returnedId).toBe("new");
-    expect(mockAdd).toHaveBeenCalledWith({
+    expect(mockAddRecord).toHaveBeenCalledWith({
       id: "new",
       ...imageDraft,
       file: testFile,
     });
-    expect(mockGetAll).toHaveBeenCalledTimes(3); // initial load + getAll for id + refresh after add
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(3); // initial load + getAll for id + refresh after add
   });
 
   it("addImage uses collision suffix when filename already exists", async () => {
@@ -101,7 +104,7 @@ describe("usePersistedImages", () => {
       ...createMockImageDraftState({ name: "My Photo.jpg" }),
       file: testFile,
     });
-    mockGetAll.mockResolvedValue([existingRecord]);
+    mockGetAllRecords.mockResolvedValue([existingRecord]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -116,7 +119,7 @@ describe("usePersistedImages", () => {
     });
 
     expect(returnedId).toBe("my-photo-2");
-    expect(mockAdd).toHaveBeenCalledWith(
+    expect(mockAddRecord).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "my-photo-2",
         name: "My Photo.jpg",
@@ -131,8 +134,8 @@ describe("usePersistedImages", () => {
       file: testFile,
     });
 
-    mockGetByID.mockResolvedValue(record);
-    mockGetAll.mockResolvedValue([]);
+    mockGetRecord.mockResolvedValue(record);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -145,13 +148,13 @@ describe("usePersistedImages", () => {
       fetched = await result.current.getImage("lookup-id");
     });
 
-    expect(mockGetByID).toHaveBeenCalledWith("lookup-id");
+    expect(mockGetRecord).toHaveBeenCalledWith("lookup-id");
     expect(fetched).toMatchObject({ id: "lookup-id", name: "lookup.png" });
   });
 
   it("getImage returns undefined when getByID resolves with null/undefined", async () => {
-    mockGetByID.mockResolvedValue(undefined);
-    mockGetAll.mockResolvedValue([]);
+    mockGetRecord.mockResolvedValue(undefined);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -174,8 +177,8 @@ describe("usePersistedImages", () => {
       file: testFile,
     });
 
-    mockGetByID.mockResolvedValue(existing);
-    mockGetAll.mockResolvedValue([]);
+    mockGetRecord.mockResolvedValue(existing);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -190,20 +193,20 @@ describe("usePersistedImages", () => {
       });
     });
 
-    expect(mockGetByID).toHaveBeenCalledWith("update-id");
-    expect(mockUpdate).toHaveBeenCalledWith({
+    expect(mockGetRecord).toHaveBeenCalledWith("update-id");
+    expect(mockUpdateRecord).toHaveBeenCalledWith({
       ...existing,
       id: "update-id",
       name: "new.png",
       breakpoints: [{ objectPosition: "25% 75%" }],
       file: existing.file,
     });
-    expect(mockGetAll).toHaveBeenCalledTimes(2);
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(2);
   });
 
   it("updateImage does nothing when record is not found", async () => {
-    mockGetByID.mockResolvedValue(undefined);
-    mockGetAll.mockResolvedValue([]);
+    mockGetRecord.mockResolvedValue(undefined);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -215,8 +218,8 @@ describe("usePersistedImages", () => {
       await result.current.updateImage("missing-id", { name: "ignored.png" });
     });
 
-    expect(mockUpdate).not.toHaveBeenCalled();
-    expect(mockGetAll).toHaveBeenCalledTimes(1); // only initial load
+    expect(mockUpdateRecord).not.toHaveBeenCalled();
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(1); // only initial load
   });
 
   it("updateImage returns undefined and skips update when current and updated are deeply equal", async () => {
@@ -226,8 +229,8 @@ describe("usePersistedImages", () => {
       file: testFile,
     });
 
-    mockGetByID.mockResolvedValue(existing);
-    mockGetAll.mockResolvedValue([]);
+    mockGetRecord.mockResolvedValue(existing);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -238,12 +241,12 @@ describe("usePersistedImages", () => {
     const returnValue = await act(async () => result.current.updateImage("update-id", {}));
 
     expect(returnValue).toBeUndefined();
-    expect(mockUpdate).not.toHaveBeenCalled();
-    expect(mockGetAll).toHaveBeenCalledTimes(1); // only initial load
+    expect(mockUpdateRecord).not.toHaveBeenCalled();
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(1); // only initial load
   });
 
   it("deleteImage calls deleteRecord and refreshImages", async () => {
-    mockGetAll.mockResolvedValue([]);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -256,11 +259,11 @@ describe("usePersistedImages", () => {
     });
 
     expect(mockDeleteRecord).toHaveBeenCalledWith("delete-id");
-    expect(mockGetAll).toHaveBeenCalledTimes(2);
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(2);
   });
 
   it("refreshImages reloads images from getAll", async () => {
-    mockGetAll.mockResolvedValue([]);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -274,7 +277,7 @@ describe("usePersistedImages", () => {
       file: testFile,
     });
 
-    mockGetAll.mockResolvedValue([record]);
+    mockGetAllRecords.mockResolvedValue([record]);
 
     await act(async () => {
       await result.current.refreshImages();
@@ -285,11 +288,11 @@ describe("usePersistedImages", () => {
       id: "refreshed-id",
       name: "refreshed.png",
     });
-    expect(mockGetAll).toHaveBeenCalledTimes(2);
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(2);
   });
 
   it("propagates errors when refreshImages (getAll) fails", async () => {
-    mockGetAll.mockResolvedValue([]);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -298,7 +301,7 @@ describe("usePersistedImages", () => {
     });
 
     const dbError = new Error("IndexedDB unavailable");
-    mockGetAll.mockRejectedValue(dbError);
+    mockGetAllRecords.mockRejectedValue(dbError);
 
     await expect(
       act(async () => {
@@ -310,8 +313,8 @@ describe("usePersistedImages", () => {
   it("propagates errors when addImage fails", async () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    mockGetAll.mockResolvedValue([]);
-    mockAdd.mockRejectedValue(new Error("IndexedDB write failed"));
+    mockGetAllRecords.mockResolvedValue([]);
+    mockAddRecord.mockRejectedValue(new Error("IndexedDB write failed"));
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -331,8 +334,8 @@ describe("usePersistedImages", () => {
   });
 
   it("propagates errors when getImage fails", async () => {
-    mockGetByID.mockRejectedValue(new Error("IndexedDB read failed"));
-    mockGetAll.mockResolvedValue([]);
+    mockGetRecord.mockRejectedValue(new Error("IndexedDB read failed"));
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -354,9 +357,9 @@ describe("usePersistedImages", () => {
       file: testFile,
     });
 
-    mockGetByID.mockResolvedValue(existing);
-    mockUpdate.mockRejectedValue(new Error("IndexedDB update failed"));
-    mockGetAll.mockResolvedValue([]);
+    mockGetRecord.mockResolvedValue(existing);
+    mockUpdateRecord.mockRejectedValue(new Error("IndexedDB update failed"));
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -373,7 +376,7 @@ describe("usePersistedImages", () => {
 
   it("propagates errors when deleteImage fails", async () => {
     mockDeleteRecord.mockRejectedValue(new Error("IndexedDB delete failed"));
-    mockGetAll.mockResolvedValue([]);
+    mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
 

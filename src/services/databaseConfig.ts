@@ -1,5 +1,5 @@
 export const DBConfig = {
-  name: "FocalPointDB",
+  name: "FocalPointEditor",
   version: 1,
   objectStoresMeta: [
     {

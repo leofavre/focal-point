@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction, useEffect, useEffectEvent, useState } from "react";
-import { useIndexedDB } from "react-indexed-db-hook";
 import useDebouncedEffect from "use-debounced-effect";
+import { getIndexedDBService } from "../../services/indexedDBService";
 import type { UIRecord, UIState } from "../../types";
 
 /**
@@ -15,14 +15,14 @@ export function usePersistedUIRecord<T extends keyof UIState>(
   { id, value: defaultValue }: UIRecord<T>,
   { debounceTimeout = 0 } = {},
 ): [UIState[T] | undefined, Dispatch<SetStateAction<UIState[T] | undefined>>] {
-  const { getByID, update } = useIndexedDB("ui");
+  const { getRecord, updateRecord } = getIndexedDBService("ui");
   const [value, setter] = useState<UIState[T]>();
 
   // All stable so updating them does not trigger a re-render nor database update.
   const stableIdGetter = useEffectEvent(() => id);
   const stableDefaultValueGetter = useEffectEvent(() => defaultValue);
-  const stableGetById = useEffectEvent(getByID);
-  const stableUpdate = useEffectEvent(update);
+  const stableGetById = useEffectEvent(getRecord);
+  const stableUpdate = useEffectEvent(updateRecord);
 
   // Initial load.
   useEffect(() => {
