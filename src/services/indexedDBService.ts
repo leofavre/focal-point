@@ -4,13 +4,13 @@ import type { DatabaseKey, DatabaseService } from "./types";
 
 let databaseInitialized = false;
 
-export function getIndexedDBService<T, K extends DatabaseKey>(databaseId: string) {
+export function getIndexedDBService<T, K extends DatabaseKey>(tableName: string) {
   if (databaseInitialized === false) {
     initDB(DBConfig);
     databaseInitialized = true;
   }
 
-  const indexedDB = useIndexedDB(databaseId);
+  const indexedDB = useIndexedDB(tableName);
 
   return {
     async addRecord(value: T, key?: K) {
