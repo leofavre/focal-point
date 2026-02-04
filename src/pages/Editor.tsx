@@ -53,7 +53,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### DevOps
  *
- * - Set up changelogs in the project.
  * - Set up app versioning.
  * - Control cache invalidation, given it's a PWA.
  * - Add integration tests (which tool to use?).
