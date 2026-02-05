@@ -35,6 +35,8 @@ jobs:
     permissions:
       contents: write
       deployments: write
+      issues: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: volta-cli/action@v4
