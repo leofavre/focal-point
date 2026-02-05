@@ -3609,9 +3609,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focal-point@workspace:.":
+"focal-point-editor@workspace:.":
   version: 0.0.0-use.local
-  resolution: "focal-point@workspace:."
+  resolution: "focal-point-editor@workspace:."
   dependencies:
     "@babel/core": "npm:^7.29.0"
     "@babel/preset-react": "npm:^7.28.5"

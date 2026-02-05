@@ -1,8 +1,8 @@
 {
-  "name": "focal-point",
+  "name": "focal-point-editor",
   "type": "module",
   "version": "0.1.0",
-  "description": "Tool for masking responsive images while keeping a focal point",
+  "description": "Mask images in responsive layouts without losing what matters most",
   "author": "Leonardo Favre",
   "license": "MIT",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "@leofavre/focal-point"
+    "url": "@leofavre/focal-point-editor"
   },
   "volta": {
     "node": "24.13.0",
