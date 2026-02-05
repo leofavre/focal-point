@@ -20,7 +20,8 @@ jobs:
           YARN_VERSION=$(jq -r '.volta.yarn' package.json)
           echo "node-version=$NODE_VERSION" >> $GITHUB_OUTPUT
           echo "yarn-version=$YARN_VERSION" >> $GITHUB_OUTPUT
-          echo ${{ github.event.head_commit.message }}
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+          echo "${{ startsWith(github.event.head_commit.message, 'chore(main):') }}"
 
   typecheck:
     name: Type Check
