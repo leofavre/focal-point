@@ -1,12 +1,18 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "focal-point-editor-v*"
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
 
 jobs:
+  
   setup:
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.title, 'chore(main): release') == true
     name: Setup
     runs-on: ubuntu-latest
     outputs:
@@ -62,9 +68,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: './dist'
-          production-branch: release
+          production-branch: main
           production-deploy: true
-          deploy-message: "${{ format('Release: {0}', github.ref_name) }}"
+          deploy-message: "${{ format('Release: #{0} — {1}', github.event.pull_request.id, github.event.pull_request.merge_commit_sha) }}"
           enable-pull-request-comment: true
           enable-commit-comment: false
           enable-commit-status: false
