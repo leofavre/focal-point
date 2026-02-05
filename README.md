@@ -2,8 +2,6 @@
 
 Mask images in responsive layouts without losing what matters most.
 
-Images stay on your device — no uploads. The app runs as a PWA.
-
 ## How it works
 
 1. **Choose an image**

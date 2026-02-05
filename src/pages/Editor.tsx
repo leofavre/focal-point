@@ -89,28 +89,28 @@ export default function Editor() {
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
-    { debounceTimeout: INTERACTION_DEBOUNCE_MS },
+    { service: "sessionStorage", debounceTimeout: INTERACTION_DEBOUNCE_MS },
   );
 
-  const [showPointMarker, setShowPointMarker] = usePersistedUIRecord({
-    id: "showPointMarker",
-    value: DEFAULT_SHOW_POINT_MARKER,
-  });
+  const [showPointMarker, setShowPointMarker] = usePersistedUIRecord(
+    { id: "showPointMarker", value: DEFAULT_SHOW_POINT_MARKER },
+    { service: "sessionStorage" },
+  );
 
-  const [showGhostImage, setShowGhostImage] = usePersistedUIRecord({
-    id: "showGhostImage",
-    value: DEFAULT_SHOW_GHOST_IMAGE,
-  });
+  const [showGhostImage, setShowGhostImage] = usePersistedUIRecord(
+    { id: "showGhostImage", value: DEFAULT_SHOW_GHOST_IMAGE },
+    { service: "sessionStorage" },
+  );
 
-  const [showCodeSnippet, setShowCodeSnippet] = usePersistedUIRecord({
-    id: "showCodeSnippet",
-    value: DEFAULT_SHOW_CODE_SNIPPET,
-  });
+  const [showCodeSnippet, setShowCodeSnippet] = usePersistedUIRecord(
+    { id: "showCodeSnippet", value: DEFAULT_SHOW_CODE_SNIPPET },
+    { service: "sessionStorage" },
+  );
 
-  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord({
-    id: "codeSnippetLanguage",
-    value: DEFAULT_CODE_SNIPPET_LANGUAGE,
-  });
+  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord(
+    { id: "codeSnippetLanguage", value: DEFAULT_CODE_SNIPPET_LANGUAGE },
+    { service: "sessionStorage" },
+  );
 
   const [codeSnippetCopied, setCodeSnippetCopied] = useState(false);
 
