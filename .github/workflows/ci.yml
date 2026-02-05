@@ -84,7 +84,7 @@ jobs:
         with:
           publish-dir: './dist'
           production-branch: main
-          production-deploy: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+          production-deploy: ${{ github.event_name == 'pull_request' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: ${{ github.event_name == 'pull_request' && format('PR {0}', github.event.pull_request.number) || 'Deploy from GitHub Actions' }}
         env:
