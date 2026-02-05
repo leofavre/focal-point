@@ -1,10 +1,8 @@
-name: CI
+name: Commit
 
 on:
   pull_request:
     branches: ['**']
-  push:
-    branches: [main]
 
 jobs:
   setup:
@@ -23,12 +21,13 @@ jobs:
           YARN_VERSION=$(jq -r '.volta.yarn' package.json)
           echo "node-version=$NODE_VERSION" >> $GITHUB_OUTPUT
           echo "yarn-version=$YARN_VERSION" >> $GITHUB_OUTPUT
+          echo ${{ github.event.pull_request.title }}
+          echo "${{ startsWith(github.event.pull_request.title, 'chore(main): release') }}"
 
   typecheck:
     name: Type Check
     runs-on: ubuntu-latest
     needs: setup
-    if: "github.event_name != 'pull_request' || !startsWith(github.event.pull_request.title, 'chore(main): release')"
     steps:
       - uses: actions/checkout@v4
       - uses: volta-cli/action@v4
@@ -48,7 +47,6 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     needs: setup
-    if: "github.event_name != 'pull_request' || !startsWith(github.event.pull_request.title, 'chore(main): release')"
     steps:
       - uses: actions/checkout@v4
       - uses: volta-cli/action@v4
@@ -64,30 +62,10 @@ jobs:
       - name: Run tests
         run: yarn test:run
 
-  release:
-    name: Release Please
-    runs-on: ubuntu-latest
-    needs: [setup, typecheck, test]
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Release Please
-        if: github.event_name == 'push'
-        uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          config-file: .release-please-config.json
-      - name: Skip release on PR
-        if: github.event_name == 'pull_request'
-        run: echo "Skipped"
-
   deploy:
     name: Deploy to Netlify
     runs-on: ubuntu-latest
-    needs: [setup, typecheck, test, release]
-    if: "github.event_name != 'pull_request' || !startsWith(github.event.pull_request.title, 'chore(main): release')"
+    needs: [setup, typecheck, test]
     permissions:
       contents: read
       pull-requests: write
@@ -109,11 +87,11 @@ jobs:
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: './dist'
           production-branch: main
-          production-deploy: ${{ github.event_name == 'push' }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "${{ github.event_name == 'pull_request' && format('PR {0}{1} – {2}', '#', github.event.pull_request.number, github.event.pull_request.title) || format('Push to main: {0}', github.event.head_commit.message) }}"
+          production-deploy: false
+          deploy-message: "${{ format('PR {0}{1} – {2}', '#', github.event.pull_request.number, github.event.pull_request.title) }}"
           enable-pull-request-comment: true
           enable-commit-comment: false
           enable-commit-status: false
