@@ -45,8 +45,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### Basic functionality
  *
- * - Handle loading.
- * - Handle errors in a consistent way. Review try/catch blocks.
+ * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  * - Fix app not working in Incognito mode on mobile Chrome.
  * - Make sure app works without any database (single image direct to React state on upload?).
  *
@@ -60,6 +59,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * - Support external image sources.
  * - Breakpoints with container queries.
+ * - Can I make the loading immediate on refresh?
  * - Maybe make a browser extension?
  * - Maybe make a React component?
  * - Maybe make a native custom element?
@@ -67,12 +67,15 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
 export default function Editor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isFirstImageLoadInSessionRef = useRef(true);
+
   const { imageId } = useParams<{ imageId: string }>();
   const [image, setImage] = useState<ImageState | null>(null);
   const { images, addImage, updateImage } = usePersistedImages();
 
+  const [isLoading, setIsLoading] = useState(imageId != null);
+
   /**
-   * Safely set image state. Revokes the previous blob URL if the new blob URL is different.
+   * Safely sets the image state revoking the previous blob URL if the new one is different.
    */
   const safeSetImage = useEffectEvent((valueOrFn) => {
     setImage((prevValue) => {
@@ -143,6 +146,7 @@ export default function Editor() {
   const handleImageError = useCallback(() => {
     console.error("Error uploading image");
     safeSetImage(null);
+    setIsLoading(false);
   }, []);
 
   const handleObjectPositionChange = useCallback((objectPosition: ObjectPositionString) => {
@@ -159,7 +163,7 @@ export default function Editor() {
   }, []);
 
   /**
-   * Handle all keyboard shortcuts:
+   * Handles all keyboard shortcuts:
    * - 'u' opens the file input to upload a new image.
    * - 'a' or 'p' toggles the point marker.
    * - 's' or 'l' toggles the ghost image.
@@ -203,7 +207,7 @@ export default function Editor() {
   const currentObjectPosition = image?.breakpoints?.[0]?.objectPosition;
 
   /**
-   * Reset the code snippet copied state when the object position changes.
+   * Resets the code snippet copied state when the object position changes.
    */
   useEffect(() => {
     void currentObjectPosition;
@@ -211,7 +215,7 @@ export default function Editor() {
   }, [currentObjectPosition]);
 
   /**
-   * Reset the code snippet copied state when the code snippet language changes.
+   * Resets the code snippet copied state when the code snippet language changes.
    */
   useEffect(() => {
     void codeSnippetLanguage;
@@ -219,7 +223,7 @@ export default function Editor() {
   }, [codeSnippetLanguage]);
 
   /**
-   * Inject `overflow: hidden` to the body element when the editor is rendered.
+   * Injects `overflow: hidden` to the body element when the editor is rendered.
    */
   useEffect(() => {
     document.body.style.overflow = image && imageId ? "hidden" : "auto";
@@ -230,7 +234,7 @@ export default function Editor() {
   }, [image, imageId]);
 
   /**
-   * Update the object position of the image in the database when the user interacts with it
+   * Updates the object position of the image in the database when the user interacts with it
    * either by dragging the focal point or the image itself.
    */
   useDebouncedEffect(
@@ -259,7 +263,7 @@ export default function Editor() {
   });
 
   /**
-   * Load the image record from the database when the page is loaded or the database is
+   * Loads the image record from the database when the page is loaded or the database is
    * refreshed. A debounce is used because both events can happen almost at the same time.
    *
    * After the image record is loaded, the image state is created with a new blob URL and
@@ -268,20 +272,24 @@ export default function Editor() {
   useDebouncedEffect(
     () => {
       async function asyncSetImageState() {
-        if (imageCount === 0) return;
-
-        if (imageId == null) {
+        if (imageCount === 0 || imageId == null) {
           safeSetImage(null);
+          setIsLoading(false);
           return;
         }
 
         const imageRecord = stableImageRecordGetter(imageId);
 
-        if (imageRecord == null) return;
+        if (imageRecord == null) {
+          safeSetImage(null);
+          setIsLoading(false);
+          return;
+        }
 
         try {
           const nextImageState = await createImageStateFromImageRecord(imageRecord);
           safeSetImage(nextImageState);
+          setIsLoading(false);
           console.log("loaded image from record", imageRecord);
 
           if (isFirstImageLoadInSessionRef.current) {
@@ -292,6 +300,7 @@ export default function Editor() {
           setAspectRatio(nextImageState.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
         } catch (error) {
           safeSetImage(null);
+          setIsLoading(false);
           console.error("Error loading saved image:", error);
         }
       }
@@ -302,26 +311,7 @@ export default function Editor() {
     [imageId, imageCount],
   );
 
-  /**
-   * @todo
-   *
-   * ### Handle states
-   *
-   * - `!imageId` means that we are on the landing page.
-   * - `imageId && !image` means that the image is either loading or not found.
-   */
   if (!imageId) {
-    return (
-      <LandingGrid>
-        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
-        <Markdown>
-          <Instructions />
-        </Markdown>
-      </LandingGrid>
-    );
-  }
-
-  if (imageId && !image) {
     return (
       <LandingGrid>
         <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
@@ -365,7 +355,11 @@ export default function Editor() {
         />
       )}
       <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />
-      {image && (
+      {isLoading ? (
+        <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Loading...</h3>
+      ) : !image ? (
+        <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Not found...</h3>
+      ) : (
         <>
           {aspectRatio != null && image.naturalAspectRatio != null && (
             <FocalPointEditor

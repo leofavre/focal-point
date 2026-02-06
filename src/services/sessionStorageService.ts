@@ -24,7 +24,7 @@ function getStorage(): Storage {
 }
 
 /**
- * Implement a DatabaseService backed by sessionStorage.
+ * Implements a DatabaseService backed by sessionStorage.
  * Suitable for JSON-serializable stores only (e.g. "ui"). Stores that contain
  * Blob/File (e.g. "images") should use getIndexedDBService instead.
  */
