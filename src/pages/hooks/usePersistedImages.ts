@@ -11,12 +11,12 @@ import { createImageId } from "../helpers/createImageId";
  *
  * @returns Object with:
  * - `images`: all persisted image records (undefined until loaded).
- * - `addImage`: save a single image via addImages; returns its id.
- * - `addImages`: save multiple image records, then refresh once; returns ids of successful adds.
- * - `getImage`: fetch one image record by id.
- * - `updateImage`: merge partial image record into an existing record.
- * - `deleteImage`: remove an image record by id.
- * - `refreshImages`: reload the list from the database.
+ * - `addImage`: saves a single image via addImages; returns its id.
+ * - `addImages`: saves multiple image records, then refreshes once; returns ids of successful adds.
+ * - `getImage`: fetches one image record by id.
+ * - `updateImage`: merges partial image record into an existing record.
+ * - `deleteImage`: removes an image record by id.
+ * - `refreshImages`: reloads the list from the database.
  */
 export function usePersistedImages(): {
   images: ImageRecord[] | undefined;
