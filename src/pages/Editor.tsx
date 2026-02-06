@@ -45,8 +45,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### Basic functionality
  *
- * - Handle loading.
- * - Handle errors in a consistent way. Review try/catch blocks.
+ * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  * - Fix app not working in Incognito mode on mobile Chrome.
  * - Make sure app works without any database (single image direct to React state on upload?).
  *
@@ -60,6 +59,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * - Support external image sources.
  * - Breakpoints with container queries.
+ * - Can I make the loading immediate on refresh?
  * - Maybe make a browser extension?
  * - Maybe make a React component?
  * - Maybe make a native custom element?
@@ -67,12 +67,16 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
 export default function Editor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isFirstImageLoadInSessionRef = useRef(true);
+
   const { imageId } = useParams<{ imageId: string }>();
   const [image, setImage] = useState<ImageState | null>(null);
   const { images, addImage, updateImage } = usePersistedImages();
 
+  const [isLoading, setIsLoading] = useState(imageId != null);
+
   /**
-   * Safely set image state. Revokes the previous blob URL if the new blob URL is different.
+   * Safely set image state revoking the previous blob URL if the new blob URL is different
+   * and automatically setting the loading state to false.
    */
   const safeSetImage = useEffectEvent((valueOrFn) => {
     setImage((prevValue) => {
@@ -82,6 +86,7 @@ export default function Editor() {
         URL.revokeObjectURL(prevValue.url);
       }
 
+      setIsLoading(false);
       return nextValue;
     });
   }) satisfies typeof setImage;
@@ -268,16 +273,17 @@ export default function Editor() {
   useDebouncedEffect(
     () => {
       async function asyncSetImageState() {
-        if (imageCount === 0) return;
-
-        if (imageId == null) {
+        if (imageCount === 0 || imageId == null) {
           safeSetImage(null);
           return;
         }
 
         const imageRecord = stableImageRecordGetter(imageId);
 
-        if (imageRecord == null) return;
+        if (imageRecord == null) {
+          safeSetImage(null);
+          return;
+        }
 
         try {
           const nextImageState = await createImageStateFromImageRecord(imageRecord);
@@ -302,26 +308,7 @@ export default function Editor() {
     [imageId, imageCount],
   );
 
-  /**
-   * @todo
-   *
-   * ### Handle states
-   *
-   * - `!imageId` means that we are on the landing page.
-   * - `imageId && !image` means that the image is either loading or not found.
-   */
   if (!imageId) {
-    return (
-      <LandingGrid>
-        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
-        <Markdown>
-          <Instructions />
-        </Markdown>
-      </LandingGrid>
-    );
-  }
-
-  if (imageId && !image) {
     return (
       <LandingGrid>
         <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
@@ -365,7 +352,11 @@ export default function Editor() {
         />
       )}
       <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />
-      {image && (
+      {isLoading ? (
+        <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Loading...</h3>
+      ) : !image ? (
+        <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Not found...</h3>
+      ) : (
         <>
           {aspectRatio != null && image.naturalAspectRatio != null && (
             <FocalPointEditor
