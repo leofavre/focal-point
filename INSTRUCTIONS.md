@@ -1,6 +1,6 @@
 # Focal Point Editor
 
-Mask images in responsive layouts without losing what matters most.
+Crop images in responsive layouts without losing what matters most.
 
 ## Steps
 
