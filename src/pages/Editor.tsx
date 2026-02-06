@@ -75,8 +75,7 @@ export default function Editor() {
   const [isLoading, setIsLoading] = useState(imageId != null);
 
   /**
-   * Safely set image state revoking the previous blob URL if the new blob URL is different
-   * and automatically setting the loading state to false.
+   * Safely sets the image state revoking the previous blob URL if the new one is different.
    */
   const safeSetImage = useEffectEvent((valueOrFn) => {
     setImage((prevValue) => {
@@ -86,7 +85,6 @@ export default function Editor() {
         URL.revokeObjectURL(prevValue.url);
       }
 
-      setIsLoading(false);
       return nextValue;
     });
   }) satisfies typeof setImage;
@@ -148,6 +146,7 @@ export default function Editor() {
   const handleImageError = useCallback(() => {
     console.error("Error uploading image");
     safeSetImage(null);
+    setIsLoading(false);
   }, []);
 
   const handleObjectPositionChange = useCallback((objectPosition: ObjectPositionString) => {
@@ -275,6 +274,7 @@ export default function Editor() {
       async function asyncSetImageState() {
         if (imageCount === 0 || imageId == null) {
           safeSetImage(null);
+          setIsLoading(false);
           return;
         }
 
@@ -282,12 +282,14 @@ export default function Editor() {
 
         if (imageRecord == null) {
           safeSetImage(null);
+          setIsLoading(false);
           return;
         }
 
         try {
           const nextImageState = await createImageStateFromImageRecord(imageRecord);
           safeSetImage(nextImageState);
+          setIsLoading(false);
           console.log("loaded image from record", imageRecord);
 
           if (isFirstImageLoadInSessionRef.current) {
@@ -298,6 +300,7 @@ export default function Editor() {
           setAspectRatio(nextImageState.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
         } catch (error) {
           safeSetImage(null);
+          setIsLoading(false);
           console.error("Error loading saved image:", error);
         }
       }
