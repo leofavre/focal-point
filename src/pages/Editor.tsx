@@ -9,16 +9,12 @@ import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEdito
 import { ImageUploader } from "../components/ImageUploader/ImageUploader";
 import { Markdown } from "../components/Markdown/Markdown";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
-import { CodeSnippetToggleIcon } from "../icons/CodeSnippetToggleIcon";
-import { GhostImageToggleIcon } from "../icons/GhostImageToggleIcon";
-import { PointMarkerToggleIcon } from "../icons/PointMarkerToggleIcon";
 import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../types";
 import { EditorGrid } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
-import { LandingGrid } from "./Landing.styled";
 
 const DEFAULT_SHOW_POINT_MARKER = false;
 const DEFAULT_SHOW_GHOST_IMAGE = false;
@@ -315,12 +311,13 @@ export default function Editor() {
 
   if (!imageId) {
     return (
-      <LandingGrid>
-        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
-        <Markdown>
-          <Instructions />
-        </Markdown>
-      </LandingGrid>
+      <EditorGrid>
+        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload}>
+          <Markdown>
+            <Instructions />
+          </Markdown>
+        </ImageUploader>
+      </EditorGrid>
     );
   }
 
@@ -333,7 +330,7 @@ export default function Editor() {
           onToggle={() => setShowPointMarker((prev) => !prev)}
           titleOn="Hide pointer marker"
           titleOff="Show pointer marker"
-          icon={<PointMarkerToggleIcon />}
+          icon={<img src="/icons/reference.svg" alt="Reference" style={{ width: 22 }} />}
         />
       )}
       {showGhostImage != null && (
@@ -343,7 +340,7 @@ export default function Editor() {
           onToggle={() => setShowGhostImage((prev) => !prev)}
           titleOn="Hide ghost image"
           titleOff="Show ghost image"
-          icon={<GhostImageToggleIcon />}
+          icon={<img src="/icons/mask.svg" alt="Mask" style={{ width: 22 }} />}
         />
       )}
       {showCodeSnippet != null && (
@@ -353,7 +350,7 @@ export default function Editor() {
           onToggle={() => setShowCodeSnippet((prev) => !prev)}
           titleOn="Hide code snippet"
           titleOff="Show code snippet"
-          icon={<CodeSnippetToggleIcon />}
+          icon={<img src="/icons/code.svg" alt="Code" style={{ width: 22 }} />}
         />
       )}
       <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />

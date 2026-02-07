@@ -1,10 +1,9 @@
 import styled from "@emotion/styled";
 
 export const EditorGrid = styled.main`
-  --external-margin: 0rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 1fr 1fr minmax(0, 50rem) 1fr 1fr minmax(0, 1fr);
-  grid-template-rows: min-content 1fr 5.625rem;
+  grid-template-rows: 5.625rem 1fr 5.625rem;
   overflow: hidden;
   isolation: isolate;
   gap: 0.5rem;
@@ -51,9 +50,16 @@ export const EditorGrid = styled.main`
     grid-column: 6;
   }
 
-  [data-component="ImageUploader"] {
+  [data-component="ImageUploader"][data-variant="small"] {
     grid-row: 3;
     grid-column: 5;
     margin-bottom: auto;
+  }
+
+  [data-component="ImageUploader"][data-variant="large"] {
+    grid-column: 3 / 6;
+    grid-row: 2;
+    margin: auto;
+    max-width: 1200px;
   }
 `;

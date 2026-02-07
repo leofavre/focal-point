@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import type { PropsWithChildren, RefObject } from "react";
 import type { ImageDraftStateAndFile } from "../../types";
 
 type SingleImageUploaderProps = {
@@ -11,7 +11,9 @@ type MultipleImagesUploaderProps = {
   onImagesUpload: (draftsAndFiles: ImageDraftStateAndFile[]) => void;
 };
 
-export type ImageUploaderProps = (SingleImageUploaderProps | MultipleImagesUploaderProps) & {
-  ref?: RefObject<HTMLInputElement | null>;
-  variant: "small" | "large";
-};
+export type ImageUploaderProps = PropsWithChildren<
+  (SingleImageUploaderProps | MultipleImagesUploaderProps) & {
+    ref?: RefObject<HTMLInputElement | null>;
+    variant: "small" | "large";
+  }
+>;

@@ -8,19 +8,10 @@ import {
   useState,
 } from "react";
 import { parseBooleanDataAttribute } from "../../helpers/parseBooleanDataAttribute";
-import { CloudUploadIcon } from "../../icons/CloudUploadIcon";
 import type { ImageDraftStateAndFile } from "../../types";
 import { SmallButton as SmallButtonComponent } from "../SmallButton";
 import { processImageFiles } from "./helpers/processImageFiles";
-import {
-  BrowseButton,
-  DropZone,
-  Form,
-  HiddenControl,
-  IconWrapper,
-  InstructionText,
-  OrDivider,
-} from "./ImageUploader.styled";
+import { DropZone, Form, HiddenControl } from "./ImageUploader.styled";
 import type { ImageUploaderProps } from "./types";
 
 const SmallButton = SmallButtonComponent as unknown as ForwardRefExoticComponent<
@@ -34,6 +25,7 @@ export function ImageUploader({
   onImageUpload,
   onImagesUpload,
   variant,
+  children,
   ...rest
 }: ImageUploaderProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -99,17 +91,13 @@ export function ImageUploader({
         onChange={handleFileChange}
       />
       {variant === "large" ? (
-        <DropZone htmlFor="image-upload">
-          <IconWrapper>
-            <CloudUploadIcon />
-          </IconWrapper>
-          <InstructionText>Drag and Drop images here</InstructionText>
-          <OrDivider>Or</OrDivider>
-          <BrowseButton>Browse images</BrowseButton>
-        </DropZone>
+        <>
+          <DropZone htmlFor="image-upload"></DropZone>
+          {children}
+        </>
       ) : (
         <SmallButton as="label" htmlFor="image-upload">
-          <CloudUploadIcon />
+          <img src="/icons/upload.svg" alt="Upload" style={{ width: 22 }} />
         </SmallButton>
       )}
     </Form>
