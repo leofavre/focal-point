@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
+import { focusVisibleStyle } from "../shared";
 
-export const SmallButton = styled.button`
+export const Button = styled.button`
   container-type: inline-size;
   display: flex;
   align-items: center;
@@ -18,9 +19,7 @@ export const SmallButton = styled.button`
   font-size: calc(14 / 16 * 1rem);
   white-space: nowrap;
   box-shadow:
-    1px 1px 0 0 rgb(from var(--color-neutral) r g b / 100%),
-    2px 2px 0 0 rgb(from var(--color-neutral) r g b / 100%),
-    3px 3px 0 0 rgb(from var(--color-neutral) r g b / 100%);
+    0.25rem 0.25rem 0 0 rgb(from var(--color-neutral) r g b / 100%);
   transition:
     background-color 30ms ease-in-out,
     border-color 30ms ease-in-out,
@@ -35,9 +34,7 @@ export const SmallButton = styled.button`
   }
 
   &:focus-visible {
-    outline: 4px solid var(--color-glow);
-    border-radius: 4px;
-    outline-offset: 0;
+    ${focusVisibleStyle}
   }
 
   &[aria-pressed="true"] {

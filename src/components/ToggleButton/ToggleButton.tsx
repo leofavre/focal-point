@@ -1,5 +1,5 @@
 import { type MouseEvent, useCallback, useEffectEvent } from "react";
-import { SmallButton } from "../SmallButton";
+import { Button } from "./ToggleButton.styled";
 import type { ToggleButtonProps } from "./types";
 
 export function ToggleButton({
@@ -34,7 +34,7 @@ export function ToggleButton({
   );
 
   return (
-    <SmallButton
+    <Button
       ref={ref}
       as="button"
       type={type}
@@ -47,6 +47,6 @@ export function ToggleButton({
     >
       {icon}
       <span>{label}</span>
-    </SmallButton>
+    </Button>
   );
 }

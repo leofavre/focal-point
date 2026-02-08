@@ -35,7 +35,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### MELHORIZE™ UI.
  *
- * - Better typography.
  * - Verify accessibility.
  * - Review aria labels.
  * - Remove titles from SVGs.
@@ -45,14 +44,16 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Improve Landing page.
  * - Improve Focal Point draggable icon.
  * - Improve Code snippet.
+ * - Slider: use polygon instead of SVG.
+ * - Slider: mark original with loud color and bigger ruler dash.
  *
  * ### Basic functionality
  *
  * - Fix loading state saying "not found...".
  * - Fix image not resetting to original aspect ratio after upload.
  * - Fix app not working in Incognito mode on mobile Chrome.
- * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  * - Make sure app works without any database (single image direct to React state on upload?).
+ * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  *
  * ### DevOps
  *
@@ -320,9 +321,13 @@ export default function Editor() {
       <>
         <FullScreenDropZone onImageUpload={handleImageUpload} />
         <EditorGrid>
-          <div>
+          <div css={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>
+            <ImageUploaderButton
+              ref={uploaderButtonRef}
+              onImageUpload={handleImageUpload}
+              css={{ width: "8rem" }}
+            />
             <HowToUse />
-            <ImageUploaderButton ref={uploaderButtonRef} onImageUpload={handleImageUpload} />
           </div>
         </EditorGrid>
       </>

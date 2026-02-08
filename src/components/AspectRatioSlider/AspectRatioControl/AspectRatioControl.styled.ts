@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { focusVisibleStyle } from "../../shared";
 
 export const Slider = styled.div`
   --color-start: var(--color-neutral);
@@ -29,9 +30,8 @@ export const Slider = styled.div`
       position: absolute;
       display: block;
       inset: calc(var(--base-line-05x) - (var(--runner-thickness) / 2)) calc(var(--thumb-radius));
-      outline: 4px solid var(--color-glow);
-      border-radius: 4px;
       z-index: 0;
+      ${focusVisibleStyle}
     }
 
     /* Track styling - WebKit (Chrome, Safari, Edge) */
