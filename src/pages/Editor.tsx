@@ -38,6 +38,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Better typography.
  * - Verify accessibility.
  * - Review aria labels.
+ * - Remove titles from SVGs.
  * - Think about animations and transitions.
  * - Favicon.
  *
@@ -46,6 +47,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Fix loading state saying "not found...".
  * - Fix image not resetting to original aspect ratio after  upload.
  * - Fix app not working in Incognito mode on mobile Chrome.
+ * - Fix ImageUploaderButton not toggling while image is loading.
  * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  * - Make sure app works without any database (single image direct to React state on upload?).
  *
@@ -64,7 +66,8 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Maybe make a native custom element?
  */
 export default function Editor() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploaderInputRef = useRef<HTMLInputElement>(null);
+  const uploaderButtonRef = useRef<HTMLButtonElement>(null);
   const isFirstImageLoadInSessionRef = useRef(true);
 
   const { imageId } = useParams<{ imageId: string }>();
@@ -174,7 +177,8 @@ export default function Editor() {
   useEffect(() => {
     const handleKeyDown = createKeyboardShortcutHandler({
       u: () => {
-        fileInputRef.current?.click();
+        uploaderInputRef.current?.click();
+        uploaderButtonRef.current?.click();
       },
       a: () => {
         setShowFocalPoint((prev) => !prev);
@@ -313,7 +317,7 @@ export default function Editor() {
   if (!imageId) {
     return (
       <EditorGrid>
-        <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload}>
+        <ImageUploader ref={uploaderInputRef} onImageUpload={handleImageUpload}>
           <HowToUse />
         </ImageUploader>
       </EditorGrid>
@@ -390,7 +394,11 @@ export default function Editor() {
           icon={<IconCode />}
         />
       )}
-      <ImageUploaderButton ref={fileInputRef} onImageUpload={handleImageUpload} />
+      <ImageUploaderButton
+        toggled={isLoading}
+        ref={uploaderButtonRef}
+        onImageUpload={handleImageUpload}
+      />
     </EditorGrid>
   );
 }

@@ -1,11 +1,5 @@
-import {
-  type ChangeEvent,
-  type FormEvent,
-  useCallback,
-  useEffectEvent,
-  useRef,
-  useState,
-} from "react";
+import { type ChangeEvent, type FormEvent, useCallback, useEffectEvent, useRef } from "react";
+import { useMergeRefs } from "react-merge-refs";
 import { IconUpload } from "../../icons/IconUpload";
 import type { ImageDraftStateAndFile } from "../../types";
 import { ToggleButton } from "../ToggleButton/ToggleButton";
@@ -14,14 +8,16 @@ import { InvisibleControl, InvisibleForm, InvisibleLabel } from "./ImageUploader
 import type { ImageUploaderButtonProps } from "./types";
 
 export function ImageUploaderButton({
+  ref,
   onImageUpload,
   onImagesUpload,
-  ref,
+  toggled,
+  onToggle,
   ...rest
 }: ImageUploaderButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const [isUploading, setIsUploading] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const mergedRefs = useMergeRefs([ref, buttonRef]) as typeof buttonRef;
 
   const stableOnImageUpload = useEffectEvent(
     async (draftAndFile: ImageDraftStateAndFile | undefined) => {
@@ -59,12 +55,12 @@ export function ImageUploaderButton({
           tabIndex={-1}
         />
         <ToggleButton
-          ref={ref}
+          ref={mergedRefs}
           data-component="ImageUploaderButton"
           type="button"
-          toggled={isUploading}
-          onToggle={(toggled) => setIsUploading(!toggled)}
-          onClick={() => inputRef.current?.click()}
+          toggled={toggled}
+          onToggle={onToggle}
+          onClick={() => inputRef?.current?.click()}
           titleOn="Upload"
           titleOff="Upload"
           icon={<IconUpload />}

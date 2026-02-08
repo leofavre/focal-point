@@ -1,15 +1,15 @@
 import type { PointerEvent, SyntheticEvent } from "react";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { ClippedImage } from "./ClippedImage/ClippedImage";
+import { FocalPoint } from "./FocalPoint/FocalPoint";
 import { FocalPointEditorWrapper } from "./FocalPointEditorWrapper/FocalPointEditorWrapper";
-import { ImageOverflow } from "./ImageOverflow/ImageOverflow";
 import { clamp } from "./helpers/clamp";
 import { cssObjectPositionObjectToString } from "./helpers/cssObjectPositionObjectToString";
 import { cssObjectPositionStringToObject } from "./helpers/cssObjectPositionStringToObject";
 import { getImageDimensionDelta } from "./helpers/getImageDimensionDelta";
 import { getPointerCoordinatesFromEvent } from "./helpers/getPointerCoordinatesFromEvent";
 import { toPercentage } from "./helpers/toPercentage";
-import { FocalPoint } from "./FocalPoint/FocalPoint";
+import { ImageOverflow } from "./ImageOverflow/ImageOverflow";
 import type { Coordinates, FocalPointEditorProps, ImageDimensionDelta } from "./types";
 
 const CURSOR_MAP = {
@@ -30,10 +30,10 @@ export function FocalPointEditor({
   ...rest
 }: FocalPointEditorProps) {
   const imageRef = useRef<HTMLImageElement>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const objectPositionStartRef = useRef(objectPosition);
-  const pointerCoordinatesStartRef = useRef<Coordinates | null>(null);
+  const pointerCoordinatesStartRef = useRef<Coordinates>(null);
 
   const [imageDimensionDelta, setImageDimensionDelta] = useState<ImageDimensionDelta | null>(null);
 
