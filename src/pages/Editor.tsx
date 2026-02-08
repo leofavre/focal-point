@@ -8,11 +8,11 @@ import { Dialog } from "../components/Dialog/Dialog";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
 import { HowToUse } from "../components/HowToUse/HowToUse";
 import { ImageUploader } from "../components/ImageUploader/ImageUploader";
+import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
-import { IconUpload } from "../icons/IconUpload";
 import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../types";
 import { EditorGrid } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
@@ -36,18 +36,17 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * ### MELHORIZE™ UI.
  *
  * - Better typography.
- * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Verify accessibility.
  * - Review aria labels.
  * - Think about animations and transitions.
  * - Favicon.
- * - Use native dialog.
  *
  * ### Basic functionality
  *
- * - Reset to original aspect ratio when uploaded.
- * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
+ * - Fix loading state saying "not found...".
+ * - Fix image not resetting to original aspect ratio after  upload.
  * - Fix app not working in Incognito mode on mobile Chrome.
+ * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  * - Make sure app works without any database (single image direct to React state on upload?).
  *
  * ### DevOps
@@ -60,7 +59,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * - Support external image sources.
  * - Breakpoints with container queries.
- * - Can I make the loading immediate on refresh?
  * - Maybe make a browser extension?
  * - Maybe make a React component?
  * - Maybe make a native custom element?
@@ -116,7 +114,6 @@ export default function Editor() {
   );
 
   const [codeSnippetCopied, setCodeSnippetCopied] = useState(false);
-  const [showImageUploader, setShowImageUploader] = useState(false);
 
   const aspectRatioList = useAspectRatioList(image?.naturalAspectRatio);
 
@@ -124,8 +121,6 @@ export default function Editor() {
 
   const handleImageUpload = useCallback(
     async (draftAndFile: ImageDraftStateAndFile | undefined) => {
-      setShowImageUploader(false);
-
       if (draftAndFile == null) return;
 
       const { imageDraft, file } = draftAndFile;
@@ -332,7 +327,7 @@ export default function Editor() {
           type="button"
           data-component="FocalPointButton"
           toggled={showFocalPoint}
-          onToggle={() => setShowFocalPoint((prev) => !prev)}
+          onToggle={(toggled) => setShowFocalPoint(!toggled)}
           titleOn="Focal point"
           titleOff="Focal point"
           icon={<IconReference />}
@@ -343,7 +338,7 @@ export default function Editor() {
           type="button"
           data-component="ImageOverflowButton"
           toggled={showImageOverflow}
-          onToggle={() => setShowImageOverflow((prev) => !prev)}
+          onToggle={(toggled) => setShowImageOverflow(!toggled)}
           titleOn="Overflow"
           titleOff="Overflow"
           icon={<IconMask />}
@@ -389,26 +384,13 @@ export default function Editor() {
           type="button"
           data-component="CodeSnippetButton"
           toggled={showCodeSnippet}
-          onToggle={() => setShowCodeSnippet((prev) => !prev)}
+          onToggle={(toggled) => setShowCodeSnippet(!toggled)}
           titleOn="Code"
           titleOff="Code"
           icon={<IconCode />}
         />
       )}
-      <ToggleButton
-        type="submit"
-        data-component="ImageUploaderButton"
-        toggled={showImageUploader}
-        onToggle={() => setShowImageUploader((prev) => !prev)}
-        titleOn="Upload"
-        titleOff="Upload"
-        icon={<IconUpload />}
-      />
-      <Dialog open={showImageUploader} onOpenChange={setShowImageUploader}>
-        <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload}>
-          <HowToUse />
-        </ImageUploader>
-      </Dialog>
+      <ImageUploaderButton ref={fileInputRef} onImageUpload={handleImageUpload} />
     </EditorGrid>
   );
 }

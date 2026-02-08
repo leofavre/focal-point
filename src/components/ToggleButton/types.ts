@@ -4,7 +4,8 @@ export type ToggleButtonProps = {
   ref?: RefObject<HTMLButtonElement | null>;
   type: "button" | "submit";
   toggled: boolean;
-  onToggle: () => void;
+  onClick?: () => void;
+  onToggle?: (toggled: boolean) => void;
   titleOn: string;
   titleOff: string;
   icon: ReactNode;

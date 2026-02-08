@@ -9,7 +9,7 @@ import {
 import { parseBooleanDataAttribute } from "../../helpers/parseBooleanDataAttribute";
 import type { ImageDraftStateAndFile } from "../../types";
 import { processImageFiles } from "./helpers/processImageFiles";
-import { DropZone, Form, HiddenControl } from "./ImageUploader.styled";
+import { DropZone, Form, InvisibleControl } from "./ImageUploader.styled";
 import type { ImageUploaderProps } from "./types";
 
 export function ImageUploader({
@@ -21,19 +21,28 @@ export function ImageUploader({
 }: ImageUploaderProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const stableOnImageUpload = useEffectEvent((draftAndFile: ImageDraftStateAndFile | undefined) => {
-    onImageUpload?.(draftAndFile);
-  }) satisfies typeof onImageUpload;
+  const stableOnImageUpload = useEffectEvent(
+    async (draftAndFile: ImageDraftStateAndFile | undefined) => {
+      await onImageUpload?.(draftAndFile);
+    },
+  ) satisfies typeof onImageUpload;
 
-  const stableOnImagesUpload = useEffectEvent((draftsAndFiles: ImageDraftStateAndFile[]) => {
-    onImagesUpload?.(draftsAndFiles);
+  const stableOnImagesUpload = useEffectEvent(async (draftsAndFiles: ImageDraftStateAndFile[]) => {
+    await onImagesUpload?.(draftsAndFiles);
   }) satisfies typeof onImagesUpload;
 
   const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const imageDraftStatesAndFiles = processImageFiles(event.currentTarget.files);
-    stableOnImageUpload(imageDraftStatesAndFiles[0]);
-    stableOnImagesUpload(imageDraftStatesAndFiles);
-    event.currentTarget.value = "";
+    try {
+      const imageDraftStatesAndFiles = processImageFiles(event.currentTarget.files);
+      stableOnImageUpload(imageDraftStatesAndFiles[0]);
+      stableOnImagesUpload(imageDraftStatesAndFiles);
+    } finally {
+      event.currentTarget.value = "";
+    }
+  }, []);
+
+  const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
   }, []);
 
   const handleDragOver = useCallback((event: DragEvent<HTMLFormElement>) => {
@@ -57,10 +66,6 @@ export function ImageUploader({
     stableOnImagesUpload(imageDraftStatesAndFiles);
   }, []);
 
-  const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  }, []);
-
   return (
     <Form
       data-component="ImageUploader"
@@ -69,12 +74,11 @@ export function ImageUploader({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      noValidate
       {...rest}
     >
       {children}
       <DropZone htmlFor="image-upload"></DropZone>
-      <HiddenControl
+      <InvisibleControl
         ref={ref}
         id="image-upload"
         type="file"

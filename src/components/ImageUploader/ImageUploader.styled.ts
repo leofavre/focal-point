@@ -37,11 +37,19 @@ export const DropZone = styled.label`
   inset: 0;
 `;
 
-export const HiddenControl = styled.input`
+export const InvisibleControl = styled.input`
   position: absolute;
   width: 0;
   height: 0;
   opacity: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+`;
+
+export const InvisibleForm = styled.form`
+  display: contents;
+`;
+
+export const InvisibleLabel = styled.label`
+  display: contents;
 `;
