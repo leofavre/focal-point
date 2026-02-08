@@ -405,10 +405,7 @@ export default function Editor() {
               language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
               onLanguageChange={setCodeSnippetLanguage}
               copied={codeSnippetCopied}
-              onCopiedChange={(isCopied) => {
-                setCodeSnippetCopied(isCopied);
-                setShowCodeSnippet(false);
-              }}
+              onCopiedChange={setCodeSnippetCopied}
             />
           </Dialog>
         </>
