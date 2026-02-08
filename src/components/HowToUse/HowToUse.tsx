@@ -22,11 +22,11 @@ export const HowToUse = ({ ...rest }: Record<string, unknown>) => {
         </li>
         <li>
           <IconMask />
-          <p>Mask and crop it</p>
+          <p>Edit the focal point</p>
           <ul>
             <li>
-              Use the slider to set the mask aspect ratio and drag the image to control how it’s
-              cropped.
+              Test how the image adapts to different aspect ratios. Set a focal point to keep
+              important areas visible as the container changes.
             </li>
           </ul>
         </li>
@@ -35,8 +35,8 @@ export const HowToUse = ({ ...rest }: Record<string, unknown>) => {
           <p>Grab the code</p>
           <ul>
             <li>
-              When you’re done, copy the code to use the image in full-width banners and responsive
-              layouts.
+              When you’re done, copy the HTML and CSS code to use the image in full-width banners
+              and responsive layouts.
             </li>
           </ul>
         </li>
