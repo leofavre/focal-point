@@ -321,13 +321,39 @@ export default function Editor() {
       <>
         <FullScreenDropZone onImageUpload={handleImageUpload} />
         <EditorGrid>
-          <div css={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>
+          <div
+            css={{
+              gridColumn: "1 / -1",
+              gridRow: "1 / -1",
+
+              display: "grid",
+              gridTemplateColumns: "auto",
+              gridTemplateRows: "auto auto",
+              margin: "auto",
+              padding: "var(--base-line)",
+              paddingTop: "var(--base-line-2x)",
+              paddingLeft: "var(--base-line-2x)",
+              gap: "var(--base-line-2x)",
+              boxSizing: "border-box",
+              backgroundColor: "var(--color-zero)",
+            }}
+          >
             <ImageUploaderButton
               ref={uploaderButtonRef}
+              size="medium"
               onImageUpload={handleImageUpload}
-              css={{ width: "8rem" }}
+              css={{
+                width: "calc(100% - var(--base-line))",
+                maxWidth: "16rem",
+                gridRow: "auto !important",
+                gridColumn: "auto !important",
+              }}
             />
-            <HowToUse />
+            <HowToUse
+              css={{
+                padding: "var(--base-line)",
+              }}
+            />
           </div>
         </EditorGrid>
       </>

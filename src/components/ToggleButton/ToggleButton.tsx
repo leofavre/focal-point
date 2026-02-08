@@ -13,6 +13,7 @@ export function ToggleButton({
   icon,
   ref,
   type,
+  scale,
   ...rest
 }: ToggleButtonProps) {
   const label = toggled ? titleOn : titleOff;
@@ -43,6 +44,7 @@ export function ToggleButton({
       onClick={handleClick}
       onFocus={onFocus}
       onBlur={onBlur}
+      css={{ "--scale": scale }}
       {...rest}
     >
       {icon}

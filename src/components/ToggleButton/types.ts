@@ -8,4 +8,5 @@ export type ToggleButtonProps = {
   titleOn: string;
   titleOff: string;
   icon: ReactNode;
+  scale?: number;
 } & Pick<HTMLProps<HTMLButtonElement>, "onClick" | "onFocus" | "onBlur">;

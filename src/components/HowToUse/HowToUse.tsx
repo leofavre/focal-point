@@ -1,6 +1,6 @@
 import { IconCode } from "../../icons/IconCode";
 import { IconMask } from "../../icons/IconMask";
-import { IconUpload } from "../../icons/IconUpload";
+import { IconReference } from "../../icons/IconReference";
 import { Content } from "./HowToUse.styled";
 
 export const HowToUse = ({ ...rest }: Record<string, unknown>) => {
@@ -11,7 +11,7 @@ export const HowToUse = ({ ...rest }: Record<string, unknown>) => {
       <h2>Steps</h2>
       <ol>
         <li>
-          <IconUpload />
+          <IconMask />
           <p>Choose an image</p>
           <ul>
             <li>
@@ -21,7 +21,7 @@ export const HowToUse = ({ ...rest }: Record<string, unknown>) => {
           </ul>
         </li>
         <li>
-          <IconMask />
+          <IconReference />
           <p>Edit the focal point</p>
           <ul>
             <li>

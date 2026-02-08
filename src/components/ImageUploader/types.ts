@@ -19,4 +19,5 @@ export type ImageUploaderProps = PropsWithChildren<
 
 export type ImageUploaderButtonProps = (SingleImageUploaderProps | MultipleImagesUploaderProps) & {
   ref?: RefObject<HTMLButtonElement | null>;
+  size?: "small" | "medium" | "large";
 };

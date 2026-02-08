@@ -8,6 +8,7 @@ import type { ImageUploaderButtonProps } from "./types";
 
 export function ImageUploaderButton({
   ref,
+  size = "small",
   onImageUpload,
   onImagesUpload,
   ...rest
@@ -78,6 +79,7 @@ export function ImageUploaderButton({
           titleOn="Upload"
           titleOff="Upload"
           icon={<IconUpload />}
+          scale={size === "medium" ? 2 : size === "large" ? 4 : 1}
           {...rest}
         />
       </InvisibleLabel>

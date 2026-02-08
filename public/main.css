@@ -5,6 +5,8 @@
   --color-neutral: #827377;
   --color-body: #2a2828;
   --color-glow: rgb(from var(--color-loud) r g b / 40%);
+  --color-background: rgb(from var(--color-body) r g b / 4%);
+  --color-zero: #fff;
 
   --base-line: calc(22 / 16 * 1rem);
   --base-line-025x: calc(var(--base-line) * 0.25);
@@ -31,5 +33,5 @@ html {
 body {
   margin: 0;
   padding: 0;
-  background-color: #fff;
+  background-color: var(--color-background);
 }
