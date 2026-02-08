@@ -1,27 +1,27 @@
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
-import { ReactComponent as Instructions } from "../../INSTRUCTIONS.md";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "../components/AspectRatioSlider/hooks/useAspectRatioList";
 import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
+import { Dialog } from "../components/Dialog/Dialog";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
+import { HowToUse } from "../components/HowToUse/HowToUse";
 import { ImageUploader } from "../components/ImageUploader/ImageUploader";
-import { Markdown } from "../components/Markdown/Markdown";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
-import { CodeSnippetToggleIcon } from "../icons/CodeSnippetToggleIcon";
-import { GhostImageToggleIcon } from "../icons/GhostImageToggleIcon";
-import { PointMarkerToggleIcon } from "../icons/PointMarkerToggleIcon";
+import { IconCode } from "../icons/IconCode";
+import { IconMask } from "../icons/IconMask";
+import { IconReference } from "../icons/IconReference";
+import { IconUpload } from "../icons/IconUpload";
 import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../types";
 import { EditorGrid } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
-import { LandingGrid } from "./Landing.styled";
 
-const DEFAULT_SHOW_POINT_MARKER = false;
-const DEFAULT_SHOW_GHOST_IMAGE = false;
+const DEFAULT_SHOW_FOCAL_POINT = false;
+const DEFAULT_SHOW_IMAGE_OVERFLOW = false;
 const DEFAULT_SHOW_CODE_SNIPPET = false;
 const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
 const DEFAULT_ASPECT_RATIO = 1;
@@ -35,16 +35,17 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### MELHORIZE™ UI.
  *
- * - Better icons.
  * - Better typography.
  * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Verify accessibility.
  * - Review aria labels.
  * - Think about animations and transitions.
  * - Favicon.
+ * - Use native dialog.
  *
  * ### Basic functionality
  *
+ * - Reset to original aspect ratio when uploaded.
  * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  * - Fix app not working in Incognito mode on mobile Chrome.
  * - Make sure app works without any database (single image direct to React state on upload?).
@@ -94,13 +95,13 @@ export default function Editor() {
     { service: "sessionStorage", debounceTimeout: INTERACTION_DEBOUNCE_MS },
   );
 
-  const [showPointMarker, setShowPointMarker] = usePersistedUIRecord(
-    { id: "showPointMarker", value: DEFAULT_SHOW_POINT_MARKER },
+  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord(
+    { id: "showFocalPoint", value: DEFAULT_SHOW_FOCAL_POINT },
     { service: "sessionStorage" },
   );
 
-  const [showGhostImage, setShowGhostImage] = usePersistedUIRecord(
-    { id: "showGhostImage", value: DEFAULT_SHOW_GHOST_IMAGE },
+  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord(
+    { id: "showImageOverflow", value: DEFAULT_SHOW_IMAGE_OVERFLOW },
     { service: "sessionStorage" },
   );
 
@@ -115,6 +116,7 @@ export default function Editor() {
   );
 
   const [codeSnippetCopied, setCodeSnippetCopied] = useState(false);
+  const [showImageUploader, setShowImageUploader] = useState(false);
 
   const aspectRatioList = useAspectRatioList(image?.naturalAspectRatio);
 
@@ -122,6 +124,8 @@ export default function Editor() {
 
   const handleImageUpload = useCallback(
     async (draftAndFile: ImageDraftStateAndFile | undefined) => {
+      setShowImageUploader(false);
+
       if (draftAndFile == null) return;
 
       const { imageDraft, file } = draftAndFile;
@@ -165,8 +169,8 @@ export default function Editor() {
   /**
    * Handles all keyboard shortcuts:
    * - 'u' opens the file input to upload a new image.
-   * - 'a' or 'p' toggles the point marker.
-   * - 's' or 'l' toggles the ghost image.
+   * - 'a' or 'p' toggles the focal point.
+   * - 's' or 'l' toggles the image overflow.
    * - 'd' or 'c' toggles the code snippet.
    *
    * The shortcuts are case insensitive and are not triggered
@@ -178,16 +182,16 @@ export default function Editor() {
         fileInputRef.current?.click();
       },
       a: () => {
-        setShowPointMarker((prev) => !prev);
+        setShowFocalPoint((prev) => !prev);
       },
       p: () => {
-        setShowPointMarker((prev) => !prev);
+        setShowFocalPoint((prev) => !prev);
       },
       s: () => {
-        setShowGhostImage((prev) => !prev);
+        setShowImageOverflow((prev) => !prev);
       },
       l: () => {
-        setShowGhostImage((prev) => !prev);
+        setShowImageOverflow((prev) => !prev);
       },
       d: () => {
         setShowCodeSnippet((prev) => !prev);
@@ -202,7 +206,7 @@ export default function Editor() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [setShowCodeSnippet, setShowPointMarker, setShowGhostImage]);
+  }, [setShowCodeSnippet, setShowFocalPoint, setShowImageOverflow]);
 
   const currentObjectPosition = image?.breakpoints?.[0]?.objectPosition;
 
@@ -313,48 +317,36 @@ export default function Editor() {
 
   if (!imageId) {
     return (
-      <LandingGrid>
-        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
-        <Markdown>
-          <Instructions />
-        </Markdown>
-      </LandingGrid>
+      <EditorGrid>
+        <ImageUploader onImageUpload={handleImageUpload}>
+          <HowToUse />
+        </ImageUploader>
+      </EditorGrid>
     );
   }
 
   return (
     <EditorGrid>
-      {showPointMarker != null && (
+      {showFocalPoint != null && (
         <ToggleButton
-          data-component="PointerMarkerButton"
-          toggled={showPointMarker}
-          onToggle={() => setShowPointMarker((prev) => !prev)}
-          titleOn="Hide pointer marker"
-          titleOff="Show pointer marker"
-          icon={<PointMarkerToggleIcon />}
+          data-component="FocalPointButton"
+          toggled={showFocalPoint}
+          onToggle={() => setShowFocalPoint((prev) => !prev)}
+          titleOn="Focal point"
+          titleOff="Focal point"
+          icon={<IconReference />}
         />
       )}
-      {showGhostImage != null && (
+      {showImageOverflow != null && (
         <ToggleButton
-          data-component="GhostImageButton"
-          toggled={showGhostImage}
-          onToggle={() => setShowGhostImage((prev) => !prev)}
-          titleOn="Hide ghost image"
-          titleOff="Show ghost image"
-          icon={<GhostImageToggleIcon />}
+          data-component="ImageOverflowButton"
+          toggled={showImageOverflow}
+          onToggle={() => setShowImageOverflow((prev) => !prev)}
+          titleOn="Overflow"
+          titleOff="Overflow"
+          icon={<IconMask />}
         />
       )}
-      {showCodeSnippet != null && (
-        <ToggleButton
-          data-component="CodeSnippetButton"
-          toggled={showCodeSnippet}
-          onToggle={() => setShowCodeSnippet((prev) => !prev)}
-          titleOn="Hide code snippet"
-          titleOff="Show code snippet"
-          icon={<CodeSnippetToggleIcon />}
-        />
-      )}
-      <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />
       {isLoading ? (
         <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Loading...</h3>
       ) : !image ? (
@@ -367,24 +359,22 @@ export default function Editor() {
               aspectRatio={aspectRatio}
               initialAspectRatio={image.naturalAspectRatio}
               objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-              showPointMarker={showPointMarker ?? false}
-              showGhostImage={showGhostImage ?? false}
+              showFocalPoint={showFocalPoint ?? false}
+              showImageOverflow={showImageOverflow ?? false}
               onObjectPositionChange={handleObjectPositionChange}
               onImageError={handleImageError}
             />
           )}
-          <CodeSnippet
-            src={image.name}
-            objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-            language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-            onLanguageChange={setCodeSnippetLanguage}
-            copied={codeSnippetCopied}
-            onCopiedChange={setCodeSnippetCopied}
-            css={{
-              transform: showCodeSnippet ? "translateY(0)" : "translateY(100%)",
-              pointerEvents: showCodeSnippet ? "auto" : "none",
-            }}
-          />
+          <Dialog transparent open={showCodeSnippet} onOpenChange={setShowCodeSnippet}>
+            <CodeSnippet
+              src={image.name}
+              objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+              language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+              onLanguageChange={setCodeSnippetLanguage}
+              copied={codeSnippetCopied}
+              onCopiedChange={setCodeSnippetCopied}
+            />
+          </Dialog>
         </>
       )}
       <AspectRatioSlider
@@ -392,6 +382,29 @@ export default function Editor() {
         aspectRatioList={aspectRatioList}
         onAspectRatioChange={setAspectRatio}
       />
+      {showCodeSnippet != null && (
+        <ToggleButton
+          data-component="CodeSnippetButton"
+          toggled={showCodeSnippet}
+          onToggle={() => setShowCodeSnippet((prev) => !prev)}
+          titleOn="Code"
+          titleOff="Code"
+          icon={<IconCode />}
+        />
+      )}
+      <ToggleButton
+        data-component="ImageUploaderButton"
+        toggled={showImageUploader}
+        onToggle={() => setShowImageUploader((prev) => !prev)}
+        titleOn="Upload"
+        titleOff="Upload"
+        icon={<IconUpload />}
+      />
+      <Dialog open={showImageUploader} onOpenChange={setShowImageUploader}>
+        <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload}>
+          <HowToUse />
+        </ImageUploader>
+      </Dialog>
     </EditorGrid>
   );
 }

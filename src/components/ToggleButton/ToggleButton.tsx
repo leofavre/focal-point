@@ -10,17 +10,19 @@ export function ToggleButton({
   ref,
   ...rest
 }: ToggleButtonProps) {
+  const label = toggled ? titleOn : titleOff;
   return (
     <SmallButton
       ref={ref}
       as="button"
       type="button"
-      title={toggled ? titleOn : titleOff}
+      title={label}
       aria-pressed={toggled}
       onClick={onToggle}
       {...rest}
     >
       {icon}
+      <span>{label}</span>
     </SmallButton>
   );
 }

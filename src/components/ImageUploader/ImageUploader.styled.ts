@@ -1,85 +1,40 @@
 import styled from "@emotion/styled";
 
 export const Form = styled.form`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  background-color: #f5f7fa;
-  border-radius: 0.5rem;
-  border: 2px dashed #e2e8f0;
+  padding: var(--base-line-1x);
+  background-color: rgb(from var(--color-neutral) r g b / 5%);
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease;
   cursor: pointer;
   box-sizing: border-box;
-  height: 100%;
+  width: 100%;
+  aspect-ratio: 2 / 1;
 
   * {
     cursor: pointer;
   }
 
   &[data-drag-over] {
-    background-color: #edf2f7;
-    border-color: #cbd5e0;
+    background-color: rgb(from var(--color-neutral) r g b / 10%);
   }
+  
 
-  &[data-variant="small"] {
-    display: block;
-    padding: 0;
-    border: none;
-    background: none;
-    height: auto;
+  [data-component="HowToUse"] {
+    padding-left: var(--base-line-2x);
+    width: 100%;
+    max-width: 60rem;
   }
 `;
 
 export const DropZone = styled.label`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
-`;
-
-export const IconWrapper = styled.span`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #a0aec0;
-`;
-
-export const InstructionText = styled.span`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #4a5568;
-  text-align: center;
-`;
-
-export const OrDivider = styled.span`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #4a5568;
-`;
-
-export const BrowseButton = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  background-color: #4285f4;
-  border: none;
-  border-radius: 0.375rem;
-  transition: background-color 0.15s ease;
-
-  &:hover {
-    background-color: #3367d6;
-  }
+  position: absolute;
+  inset: 0;
 `;
 
 export const HiddenControl = styled.input`
