@@ -85,6 +85,7 @@ export const Slider = styled.div`
       background-position: top center;
       border: none;
       border-radius: 0;
+      box-shadow: none;
       cursor: pointer;
       margin-top: calc((var(--thumb-diameter) - var(--runner-thickness)) / -2);
       visibility: var(--thumb-visibility, hidden);
@@ -102,6 +103,7 @@ export const Slider = styled.div`
       background-position: top center;
       border: none;
       border-radius: 0;
+      box-shadow: none;
       cursor: pointer;
       visibility: var(--thumb-visibility, hidden);
     }
