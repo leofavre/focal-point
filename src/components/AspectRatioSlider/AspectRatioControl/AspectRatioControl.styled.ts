@@ -29,8 +29,8 @@ export const Slider = styled.div`
       position: absolute;
       display: block;
       inset: calc(var(--base-line-05x) - (var(--runner-thickness) / 2)) calc(var(--thumb-radius));
-      outline: 8px solid var(--color-glow);
-      border-radius: 8px;
+      outline: 4px solid var(--color-glow);
+      border-radius: 4px;
       z-index: 0;
     }
 

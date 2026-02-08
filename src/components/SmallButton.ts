@@ -1,11 +1,13 @@
 import styled from "@emotion/styled";
 
 export const SmallButton = styled.button`
+  container-type: inline-size;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.5rem;
-  height: calc(2rem);
+  min-width: calc(1rem + var(--base-line));
+  height: 2rem;
   padding: 0 0.5rem;
   border: 1px solid rgb(from var(--color-neutral) r g b);
   background-color: #fff;
@@ -14,6 +16,7 @@ export const SmallButton = styled.button`
   cursor: pointer;
   font: inherit;
   font-size: calc(14 / 16 * 1rem);
+  white-space: nowrap;
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
@@ -23,6 +26,12 @@ export const SmallButton = styled.button`
     background-color: rgb(from var(--color-neutral) r g b / 10%);
     border-color: rgb(from var(--color-neutral) r g b);
     color: rgb(from var(--color-neutral) r g b);
+  }
+
+  &:focus-visible {
+    outline: 4px solid var(--color-glow);
+    border-radius: 4px;
+    outline-offset: 0;
   }
 
   &[aria-pressed="true"] {
@@ -41,5 +50,15 @@ export const SmallButton = styled.button`
     width: var(--base-line);
     height: var(--base-line);
     flex-shrink: 0;
+  }
+
+  @container (max-width: 6rem) {
+    & > svg {
+      margin: auto;
+    }
+
+    & > span {
+      display: none;
+    }
   }
 `;
