@@ -318,7 +318,7 @@ export default function Editor() {
   if (!imageId) {
     return (
       <EditorGrid>
-        <ImageUploader onImageUpload={handleImageUpload}>
+        <ImageUploader ref={fileInputRef} onImageUpload={handleImageUpload}>
           <HowToUse />
         </ImageUploader>
       </EditorGrid>
@@ -329,6 +329,7 @@ export default function Editor() {
     <EditorGrid>
       {showFocalPoint != null && (
         <ToggleButton
+          type="button"
           data-component="FocalPointButton"
           toggled={showFocalPoint}
           onToggle={() => setShowFocalPoint((prev) => !prev)}
@@ -339,6 +340,7 @@ export default function Editor() {
       )}
       {showImageOverflow != null && (
         <ToggleButton
+          type="button"
           data-component="ImageOverflowButton"
           toggled={showImageOverflow}
           onToggle={() => setShowImageOverflow((prev) => !prev)}
@@ -384,6 +386,7 @@ export default function Editor() {
       />
       {showCodeSnippet != null && (
         <ToggleButton
+          type="button"
           data-component="CodeSnippetButton"
           toggled={showCodeSnippet}
           onToggle={() => setShowCodeSnippet((prev) => !prev)}
@@ -393,6 +396,7 @@ export default function Editor() {
         />
       )}
       <ToggleButton
+        type="submit"
         data-component="ImageUploaderButton"
         toggled={showImageUploader}
         onToggle={() => setShowImageUploader((prev) => !prev)}
