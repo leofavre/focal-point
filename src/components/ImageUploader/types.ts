@@ -18,5 +18,5 @@ export type ImageUploaderProps = PropsWithChildren<
 >;
 
 export type ImageUploaderButtonProps = (SingleImageUploaderProps | MultipleImagesUploaderProps) & {
-  ref?: RefObject<HTMLInputElement | null>;
+  ref?: RefObject<HTMLButtonElement | null>;
 };
