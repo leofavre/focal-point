@@ -4,40 +4,42 @@ export const SmallButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: calc(2rem);
+  gap: 0.5rem;
   height: calc(2rem);
-  padding: 0;
-  border: 1px solid #9ca3af;
-  border-radius: 0.5rem;
+  padding: 0 0.5rem;
+  border: 1px solid rgb(from var(--color-neutral) r g b);
   background-color: #fff;
   box-sizing: border-box;
-  color: #374151;
+  color: rgb(from var(--color-neutral) r g b);
   cursor: pointer;
+  font: inherit;
+  font-size: calc(14 / 16 * 1rem);
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
     color 0.15s ease;
 
   &:hover {
-    background-color: #f3f4f6;
-    border-color: #6b7280;
-    color: #111827;
+    background-color: rgb(from var(--color-neutral) r g b / 10%);
+    border-color: rgb(from var(--color-neutral) r g b);
+    color: rgb(from var(--color-neutral) r g b);
   }
 
   &[aria-pressed="true"] {
-    background-color: #dbeafe;
-    border-color: #3b82f6;
-    color: #1d4ed8;
+    background-color: rgb(from var(--color-loud) r g b / 10%);
+    border-color: rgb(from var(--color-loud) r g b);
+    color: rgb(from var(--color-loud) r g b);
 
     &:hover {
-      background-color: #bfdbfe;
-      border-color: #2563eb;
-      color: #1e40af;
+      background-color: rgb(from var(--color-loud) r g b / 20%);
+      border-color: rgb(from var(--color-loud) r g b);
+      color: rgb(from var(--color-loud) r g b);
     }
   }
 
   svg {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: var(--base-line);
+    height: var(--base-line);
+    flex-shrink: 0;
   }
 `;

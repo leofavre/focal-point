@@ -332,8 +332,8 @@ export default function Editor() {
           data-component="FocalPointButton"
           toggled={showFocalPoint}
           onToggle={() => setShowFocalPoint((prev) => !prev)}
-          titleOn="Hide focal point"
-          titleOff="Show focal point"
+          titleOn="Focal point"
+          titleOff="Focal point"
           icon={<IconReference />}
         />
       )}
@@ -342,8 +342,8 @@ export default function Editor() {
           data-component="ImageOverflowButton"
           toggled={showImageOverflow}
           onToggle={() => setShowImageOverflow((prev) => !prev)}
-          titleOn="Hide image overflow"
-          titleOff="Show image overflow"
+          titleOn="Overflow"
+          titleOff="Overflow"
           icon={<IconMask />}
         />
       )}
@@ -387,8 +387,8 @@ export default function Editor() {
           data-component="CodeSnippetButton"
           toggled={showCodeSnippet}
           onToggle={() => setShowCodeSnippet((prev) => !prev)}
-          titleOn="Hide code snippet"
-          titleOff="Show code snippet"
+          titleOn="Code"
+          titleOff="Code"
           icon={<IconCode />}
         />
       )}
@@ -396,8 +396,8 @@ export default function Editor() {
         data-component="ImageUploaderButton"
         toggled={showImageUploader}
         onToggle={() => setShowImageUploader((prev) => !prev)}
-        titleOn="Hide image uploader"
-        titleOff="Show image uploader"
+        titleOn="Upload"
+        titleOff="Upload"
         icon={<IconUpload />}
       />
       <Dialog open={showImageUploader} onOpenChange={setShowImageUploader}>
