@@ -12,6 +12,10 @@
   --base-line-1x: calc(var(--base-line) * 1);
   --base-line-2x: calc(var(--base-line) * 2);
   --base-line-4x: calc(var(--base-line) * 4);
+
+  --thumb-radius: var(--base-line-05x);
+  --thumb-diameter: calc(2 * var(--thumb-radius));
+  --runner-thickness: 4px;
 }
 
 html {

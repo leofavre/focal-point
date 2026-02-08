@@ -1,10 +1,6 @@
 import styled from "@emotion/styled";
 
 export const Wrapper = styled.div`
-  --thumb-radius: var(--base-line-05x);
-  --thumb-diameter: calc(2 * var(--thumb-radius));
-  --runner-thickness: 4px;
-
   container-type: inline-size;
   container-name: aspect-ratio-slider;
 
