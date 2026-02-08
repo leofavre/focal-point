@@ -1,9 +1,8 @@
-import { type ChangeEvent, type FormEvent, useCallback, useEffectEvent, useRef } from "react";
+import { useRef } from "react";
 import { useMergeRefs } from "react-merge-refs";
 import { IconUpload } from "../../icons/IconUpload";
-import type { ImageDraftStateAndFile } from "../../types";
 import { ToggleButton } from "../ToggleButton/ToggleButton";
-import { processImageFiles } from "./helpers/processImageFiles";
+import { useImageUploadHandlers } from "./hooks/useImageUploadHandlers";
 import { InvisibleControl, InvisibleForm, InvisibleLabel } from "./ImageUploader.styled";
 import type { ImageUploaderButtonProps } from "./types";
 
@@ -19,29 +18,10 @@ export function ImageUploaderButton({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const mergedRefs = useMergeRefs([ref, buttonRef]) as typeof buttonRef;
 
-  const stableOnImageUpload = useEffectEvent(
-    async (draftAndFile: ImageDraftStateAndFile | undefined) => {
-      await onImageUpload?.(draftAndFile);
-    },
-  ) satisfies typeof onImageUpload;
-
-  const stableOnImagesUpload = useEffectEvent(async (draftsAndFiles: ImageDraftStateAndFile[]) => {
-    await onImagesUpload?.(draftsAndFiles);
-  }) satisfies typeof onImagesUpload;
-
-  const handleFileChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
-    try {
-      const imageDraftStatesAndFiles = processImageFiles(event.currentTarget.files);
-      stableOnImageUpload(imageDraftStatesAndFiles[0]);
-      stableOnImagesUpload(imageDraftStatesAndFiles);
-    } finally {
-      event.currentTarget.value = "";
-    }
-  }, []);
-
-  const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  }, []);
+  const { handleFileChange, handleFormSubmit } = useImageUploadHandlers({
+    onImageUpload,
+    onImagesUpload,
+  });
 
   return (
     <InvisibleForm onSubmit={handleFormSubmit}>
