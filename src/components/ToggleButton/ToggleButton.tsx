@@ -8,6 +8,7 @@ export function ToggleButton({
   titleOff,
   icon,
   ref,
+  type,
   ...rest
 }: ToggleButtonProps) {
   const label = toggled ? titleOn : titleOff;
@@ -15,7 +16,7 @@ export function ToggleButton({
     <SmallButton
       ref={ref}
       as="button"
-      type="button"
+      type={type}
       title={label}
       aria-pressed={toggled}
       onClick={onToggle}
