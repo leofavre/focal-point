@@ -47,7 +47,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Fix loading state saying "not found...".
  * - Fix image not resetting to original aspect ratio after upload.
  * - Fix app not working in Incognito mode on mobile Chrome.
- * - Fix ImageUploaderButton not toggling while image is loading.
  * - Separate drag and drop from button uploader so that it fills the whole screen.
  * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
  * - Make sure app works without any database (single image direct to React state on upload?).
@@ -184,13 +183,13 @@ export default function Editor() {
       a: () => {
         setShowFocalPoint((prev) => !prev);
       },
-      p: () => {
+      f: () => {
         setShowFocalPoint((prev) => !prev);
       },
       s: () => {
         setShowImageOverflow((prev) => !prev);
       },
-      l: () => {
+      o: () => {
         setShowImageOverflow((prev) => !prev);
       },
       d: () => {
