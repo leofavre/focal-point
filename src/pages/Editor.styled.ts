@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 export const EditorGrid = styled.main`
   display: grid;
   grid-template-columns: minmax(0, 1fr) 1fr 1fr minmax(0, 50rem) 1fr 1fr minmax(0, 1fr);
-  grid-template-rows: 5.625rem 1fr 5.625rem;
+  grid-template-rows: 7rem 1fr 7rem;
   overflow: hidden;
   isolation: isolate;
   gap: 0.5rem;
@@ -61,83 +61,5 @@ export const EditorGrid = styled.main`
     grid-row: 2;
     margin: auto;
     max-width: 1200px;
-  }
-`;
-
-export const IntroContent = styled.div`
-  --base-line: 22;
-  display: contents;
-
-  & > div {
-    display: contents;
-  }
-
-  h1,
-  h2,
-  p,
-  ol,
-  ul,
-  li {
-    margin: 0;
-    padding: 0;
-  }
-
-  h1 {
-    display: none;
-  }
-
-  h1 + p {
-    display: none;
-  }
-
-  h2 {
-    display: none;
-  }
-
-  ol {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(22ch, 1fr));
-    gap: 2rem;
-    width: 100%;
-    max-width: 60rem;
-  }
-
-  li {
-    list-style-type: none;
-    text-wrap: balance;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-
-  ol > li {
-    padding-top: calc((var(--base-line) * 2) / 16 * 1rem);
-  }
-
-  ol > li > p {
-    font-family: "Sono", monospace;
-    font-optical-sizing: auto;
-    font-size: calc(21 / 16 * 1rem);
-    line-height: calc(var(--base-line) / 16 * 1rem);
-    font-weight: 300;
-    text-transform: uppercase;
-    word-spacing: -0.5ch;
-    color: var(--color-neutral);
-    display: flex;
-    align-items: end;
-    margin-bottom: calc((var(--base-line) / 2) / 16 * 1rem);
-    min-height: calc((var(--base-line) * 2) / 16 * 1rem);
-  }
-
-  ul > li {
-    font-size: calc(16 / 16 * 1rem);
-    line-height: calc(var(--base-line) / 16 * 1rem);
-    font-weight: 400;
-  }
-
-  svg {
-    width: calc((var(--base-line) * 2) / 16 * 1rem);
-    height: calc((var(--base-line) * 2) / 16 * 1rem);
-    color: var(--color-loud);
   }
 `;

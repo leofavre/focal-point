@@ -1,10 +1,9 @@
 import styled from "@emotion/styled";
 
 export const Wrapper = styled.div`
-  --thumb-radius: 0.75rem;
+  --thumb-radius: var(--base-line-05x);
   --thumb-diameter: calc(2 * var(--thumb-radius));
-  --thumb-border: 2px;
-  --runner-thickness: 0.25rem;
+  --runner-thickness: 4px;
 
   container-type: inline-size;
   container-name: aspect-ratio-slider;
@@ -14,15 +13,16 @@ export const Wrapper = styled.div`
 
   [data-component="AspectRatioControl"] {
     position: relative;
-    z-index: 1;
+    z-index: 0;
   }
 
   [data-component="AspectRatioRuler"] {
     position: relative;
     margin-left: calc(var(--thumb-radius));
     margin-right: calc(var(--thumb-radius) + 1px);
-    margin-top: calc(var(--thumb-diameter) / -2);
-    z-index: 0;
+    margin-top: calc((var(--thumb-diameter) / -2) + (var(--runner-thickness) / 2));
+    z-index: 1;
+    pointer-events: none;
 
     @container aspect-ratio-slider (width < 37.5rem) {
       [data-name="original"]:not(:first-of-type):not(:last-of-type),

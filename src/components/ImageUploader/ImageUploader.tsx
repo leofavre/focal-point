@@ -83,6 +83,16 @@ export function ImageUploader({
       noValidate
       {...rest}
     >
+      {variant === "large" ? (
+        <>
+          {children}
+          <DropZone htmlFor="image-upload"></DropZone>
+        </>
+      ) : (
+        <SmallButton as="label" htmlFor="image-upload">
+          <IconUpload />
+        </SmallButton>
+      )}
       <HiddenControl
         ref={ref}
         id="image-upload"
@@ -91,16 +101,6 @@ export function ImageUploader({
         multiple={onImagesUpload != null}
         onChange={handleFileChange}
       />
-      {variant === "large" ? (
-        <>
-          <DropZone htmlFor="image-upload"></DropZone>
-          {children}
-        </>
-      ) : (
-        <SmallButton as="label" htmlFor="image-upload">
-          <IconUpload />
-        </SmallButton>
-      )}
     </Form>
   );
 }

@@ -5,13 +5,15 @@ import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSl
 import { useAspectRatioList } from "../components/AspectRatioSlider/hooks/useAspectRatioList";
 import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
+import { HowToUse } from "../components/HowToUse/HowToUse";
 import { ImageUploader } from "../components/ImageUploader/ImageUploader";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
+import { IconReference } from "../icons/IconReference";
 import { IconUpload } from "../icons/IconUpload";
 import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../types";
-import { EditorGrid, IntroContent } from "./Editor.styled";
+import { EditorGrid } from "./Editor.styled";
 import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedImages } from "./hooks/usePersistedImages";
@@ -32,15 +34,13 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### MELHORIZE™ UI.
  *
- * - Uploader contains instructions.
- * - One icon per step.
- * - Better icons.
  * - Better typography.
  * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Verify accessibility.
  * - Review aria labels.
  * - Think about animations and transitions.
  * - Favicon.
+ * - Use native dialog.
  *
  * ### Basic functionality
  *
@@ -314,7 +314,7 @@ export default function Editor() {
     return (
       <EditorGrid>
         <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload}>
-          <IntroContent>
+          <HowToUse>
             <h1>Focal Point Editor</h1>
             <p>Crop images in responsive layouts without losing what matters most.</p>
             <h2>Steps</h2>
@@ -331,7 +331,7 @@ export default function Editor() {
               </li>
               <li>
                 <IconMask />
-                <p>Mask it</p>
+                <p>Mask and crop it</p>
                 <ul>
                   <li>
                     Use the slider to set the mask aspect ratio and drag the image to control how
@@ -350,7 +350,7 @@ export default function Editor() {
                 </ul>
               </li>
             </ol>
-          </IntroContent>
+          </HowToUse>
         </ImageUploader>
       </EditorGrid>
     );
@@ -365,7 +365,7 @@ export default function Editor() {
           onToggle={() => setShowPointMarker((prev) => !prev)}
           titleOn="Hide pointer marker"
           titleOff="Show pointer marker"
-          icon={<img src="/icons/reference.svg" alt="Reference" style={{ width: 22 }} />}
+          icon={<IconReference />}
         />
       )}
       {showGhostImage != null && (
@@ -375,20 +375,9 @@ export default function Editor() {
           onToggle={() => setShowGhostImage((prev) => !prev)}
           titleOn="Hide ghost image"
           titleOff="Show ghost image"
-          icon={<img src="/icons/mask.svg" alt="Mask" style={{ width: 22 }} />}
+          icon={<IconMask />}
         />
       )}
-      {showCodeSnippet != null && (
-        <ToggleButton
-          data-component="CodeSnippetButton"
-          toggled={showCodeSnippet}
-          onToggle={() => setShowCodeSnippet((prev) => !prev)}
-          titleOn="Hide code snippet"
-          titleOff="Show code snippet"
-          icon={<img src="/icons/code.svg" alt="Code" style={{ width: 22 }} />}
-        />
-      )}
-      <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />
       {isLoading ? (
         <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Loading...</h3>
       ) : !image ? (
@@ -426,6 +415,17 @@ export default function Editor() {
         aspectRatioList={aspectRatioList}
         onAspectRatioChange={setAspectRatio}
       />
+      <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />
+      {showCodeSnippet != null && (
+        <ToggleButton
+          data-component="CodeSnippetButton"
+          toggled={showCodeSnippet}
+          onToggle={() => setShowCodeSnippet((prev) => !prev)}
+          titleOn="Hide code snippet"
+          titleOff="Show code snippet"
+          icon={<IconCode />}
+        />
+      )}
     </EditorGrid>
   );
 }

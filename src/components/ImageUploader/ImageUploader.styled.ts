@@ -6,9 +6,8 @@ export const Form = styled.form`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem 1rem 1rem 4rem;
+  padding: var(--base-line-1x);
   background-color: rgb(from var(--color-neutral) r g b / 5%);
-  border: 1px dashed var(--color-body);
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease;
@@ -33,6 +32,12 @@ export const Form = styled.form`
   &[data-variant="large"] {
     width: 100%;
     aspect-ratio: 2 / 1;
+  }
+
+  [data-component="HowToUse"] {
+    padding-left: var(--base-line-2x);
+    width: 100%;
+    max-width: 60rem;
   }
 `;
 

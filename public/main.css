@@ -2,8 +2,15 @@
 
 :root {
   --color-loud: #eb8552;
-  --color-neutral: #5a5053;
+  --color-neutral: #827377;
   --color-body: #2a2828;
+  --color-glow: rgb(from var(--color-loud) r g b / 40%);
+
+  --base-line: calc(22 / 16 * 1rem);
+  --base-line-05x: calc(var(--base-line) * 0.5);
+  --base-line-1x: calc(var(--base-line) * 1);
+  --base-line-2x: calc(var(--base-line) * 2);
+  --base-line-4x: calc(var(--base-line) * 4);
 }
 
 html {
