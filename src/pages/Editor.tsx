@@ -6,7 +6,6 @@ import { useAspectRatioList } from "../components/AspectRatioSlider/hooks/useAsp
 import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
 import { Dialog } from "../components/Dialog/Dialog";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
-import { HowToUse } from "../components/HowToUse/HowToUse";
 import { FullScreenDropZone } from "../components/ImageUploader/FullScreenDropZone";
 import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
@@ -20,6 +19,7 @@ import { createImageStateFromRecord } from "./helpers/createImageStateFromRecord
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
+import { Landing } from "./Landing/Landing";
 
 const DEFAULT_SHOW_FOCAL_POINT = false;
 const DEFAULT_SHOW_IMAGE_OVERFLOW = false;
@@ -77,7 +77,17 @@ export default function Editor() {
   const [image, setImage] = useState<ImageState | null>(null);
   const { images, addImage, updateImage } = usePersistedImages();
 
-  const [isLoading, setIsLoading] = useState(imageId != null);
+  /**
+   * @todo To rethink the loading state, consider the following:
+   * - `imageId` always come from the URL.
+   * - `imageId` can be undefined if:
+   *    - the user is on the landing page.
+   *    - an image was not saved to the database on purpose in ephemeral mode.
+   * - I guess I need to set which mode the app is running in: ephemeral or persistent.
+   * - If the app is in persistent mode, has an `imageId` and still the image was not
+   * loaded, then we have a "not found..." error.
+   */
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * Safely sets the image state revoking the previous blob URL if the new one is different.
@@ -147,7 +157,6 @@ export default function Editor() {
        * refresh and losing the image and the current object position.
        */
       safeSetImage(imageStateResult.accepted);
-      setIsLoading(false);
 
       const addResult = await addImage({ imageDraft, file });
 
@@ -166,7 +175,6 @@ export default function Editor() {
      */
     console.error("Error uploading image");
     safeSetImage(null);
-    setIsLoading(false);
   }, []);
 
   const handleObjectPositionChange = useCallback((objectPosition: ObjectPositionString) => {
@@ -255,7 +263,8 @@ export default function Editor() {
 
   /**
    * Updates the object position of the image in the database when the user interacts with it
-   * either by dragging the focal point or the image itself.
+   * either by dragging the focal point or the image itself. If the app is in ephemeral mode,
+   * the object position is still updated in the UI via local state.
    */
   useDebouncedEffect(
     () => {
@@ -296,39 +305,65 @@ export default function Editor() {
   useDebouncedEffect(
     () => {
       async function asyncSetImageState() {
+        /**
+         * Landing page or ephemeral mode.
+         */
         if (imageId == null) return;
 
+        /**
+         * @todo
+         *
+         * Either there are no images in the database or the database is still loading:
+         * - If it has loaded, then the image record will not be found in the database.
+         *   Show error to the user and the spinner stops.
+         * - If it hasn't loaded yet. Show spinner.
+         */
         if (imageCount === 0) {
           safeSetImage(null);
-          setIsLoading(false);
           return;
         }
 
         const imageRecord = stableImageRecordGetter(imageId);
 
+        /**
+         * @todo
+         *
+         * Image record not found in the database.
+         * Show error to the user and the spinner stops.
+         */
         if (imageRecord == null) {
           safeSetImage(null);
-          setIsLoading(false);
           return;
         }
 
         const result = await createImageStateFromRecord(imageRecord);
 
         /**
-         * @todo Maybe show error to the user in the UI.
+         * @todo
+         *
+         * Image could not be loaded from the database.
+         * Show error to the user and the spinner stops.
          */
         if (result.rejected != null) {
           safeSetImage(null);
-          setIsLoading(false);
           console.error("Error loading saved image:", result.rejected.reason);
           return;
         }
 
+        /**
+         * @todo
+         *
+         * All went fine. Spinner stops.
+         */
         const nextImageState = result.accepted;
         safeSetImage(nextImageState);
-        setIsLoading(false);
         console.log("loaded image from record", imageRecord);
 
+        /**
+         * @todo
+         *
+         * Fix the bug where the spinner is not reset after an upload.
+         */
         if (isFirstImageLoadInSessionRef.current) {
           isFirstImageLoadInSessionRef.current = false;
           return;
@@ -348,40 +383,7 @@ export default function Editor() {
       <>
         <FullScreenDropZone onImageUpload={handleImageUpload} />
         <EditorGrid>
-          <div
-            css={{
-              gridColumn: "1 / -1",
-              gridRow: "1 / -1",
-
-              display: "grid",
-              gridTemplateColumns: "auto",
-              gridTemplateRows: "auto auto",
-              margin: "auto",
-              padding: "var(--base-line)",
-              paddingTop: "var(--base-line-2x)",
-              paddingLeft: "var(--base-line-2x)",
-              gap: "var(--base-line-2x)",
-              boxSizing: "border-box",
-              backgroundColor: "var(--color-zero)",
-            }}
-          >
-            <ImageUploaderButton
-              ref={uploaderButtonRef}
-              size="medium"
-              onImageUpload={handleImageUpload}
-              css={{
-                width: "calc(100% - var(--base-line))",
-                maxWidth: "16rem",
-                gridRow: "auto !important",
-                gridColumn: "auto !important",
-              }}
-            />
-            <HowToUse
-              css={{
-                padding: "var(--base-line)",
-              }}
-            />
-          </div>
+          <Landing uploaderButtonRef={uploaderButtonRef} onImageUpload={handleImageUpload} />
         </EditorGrid>
       </>
     );

@@ -11,6 +11,12 @@ export const EditorGrid = styled.main`
   width: 100dvw;
   height: 100dvh;
 
+  [data-component="Landing"] {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    margin: auto;
+  }
+
   [data-component="FocalPointEditor"] {
     grid-row: 1 / 3;
     grid-column: 1 / -1;
