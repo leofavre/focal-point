@@ -1,6 +1,11 @@
 import { type ChangeEvent, type FormEvent, useCallback, useEffectEvent } from "react";
+import type { Err } from "../../../helpers/errorHandling";
 import type { ImageDraftStateAndFile } from "../../../types";
 import { processImageFiles } from "../helpers/processImageFiles";
+import {
+  type ImageDraftStateAndFileError,
+  processImageFilesWithErrorHandling,
+} from "../helpers/processImageFilesWithErrorhandling";
 import type { ImageUploaderProps } from "../types";
 
 type UseImageUploadHandlersProps = Pick<ImageUploaderProps, "onImageUpload" | "onImagesUpload">;
@@ -18,17 +23,33 @@ export function useImageUploadHandlers({
   });
 
   const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    try {
-      const imageDraftStatesAndFiles = processImageFiles(event.currentTarget.files);
-      stableOnImageUpload(imageDraftStatesAndFiles[0]);
-      stableOnImagesUpload(imageDraftStatesAndFiles);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    } finally {
-      if (event.currentTarget != null) {
-        event.currentTarget.value = "";
+    /**
+     * @todo Create helper for this repeated block.
+     */
+    const processed = processImageFilesWithErrorHandling(event.currentTarget.files);
+    const successes: ImageDraftStateAndFile[] = [];
+    const errors: Err<ImageDraftStateAndFileError>[] = [];
+
+    processed.forEach((result) => {
+      if (result.success) {
+        successes.push(result.success);
+      } else {
+        errors.push(result.error);
       }
-    }
+    });
+
+    stableOnImageUpload(successes[0]);
+    stableOnImagesUpload(successes);
+
+    /**
+     * @todo Show error to the user in the UI.
+     */
+    errors.forEach((error) => {
+      console.error("Error uploading image:", error);
+    });
+
+    if (event.currentTarget == null) return;
+    event.currentTarget.value = "";
   }, []);
 
   const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {

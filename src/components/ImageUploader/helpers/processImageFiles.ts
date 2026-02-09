@@ -5,6 +5,8 @@ import type { ImageDraftState, ImageDraftStateAndFile } from "../../../types";
  *
  * @returns An array of `ImageDraftStateAndFile` pairs. Returns an empty array when `files`
  *   is null, empty, or contains no image files.
+ *
+ * @deprecated Use `processImageFilesWithErrorHandling` instead.
  */
 export function processImageFiles(files: FileList | null): ImageDraftStateAndFile[] {
   if (files == null || files.length === 0) return [];
