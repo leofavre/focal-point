@@ -1,11 +1,15 @@
 import { isEqual } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import type { Err, Result } from "../../helpers/errorHandling";
 import { accept, processResults, reject } from "../../helpers/errorHandling";
 import { getIndexedDBService } from "../../services/indexedDBService";
 import type { DatabaseService } from "../../services/types";
 import type { ImageDraftStateAndFile, ImageId, ImageRecord } from "../../types";
 import { createImageId } from "../helpers/createImageId";
+
+export type UsePersistedImagesOptions = {
+  onRefreshImagesError?: (error: Err<"RefreshFailed">) => void;
+};
 
 const noopIndexedDBService: DatabaseService<ImageRecord> = {
   addRecord: async () => {},
@@ -32,8 +36,12 @@ export type UsePersistedImagesReturn = {
 
 /**
  * Custom React hook for persisting image records in IndexedDB.
+ *
  * Unlike usePersistedUIRecord (one entry per id), this store holds many images
  * each identified by a human-friendly ID derived from the filename (with collision suffix).
+ *
+ * `onRefreshImagesError` can be passed as an option to be called when the initial refresh
+ * fails (e.g. IndexedDB unavailable).
  *
  * @returns Object with:
  * - `images`: all persisted image records (undefined until loaded).
@@ -44,7 +52,8 @@ export type UsePersistedImagesReturn = {
  * - `deleteImage`: removes an image record by id.
  * - `refreshImages`: reloads the list from the database; returns Result.
  */
-export function usePersistedImages(): UsePersistedImagesReturn {
+export function usePersistedImages(options?: UsePersistedImagesOptions): UsePersistedImagesReturn {
+  const { onRefreshImagesError } = options ?? {};
   const indexedDBResult = getIndexedDBService<ImageRecord>("images");
 
   const { addRecord, getRecord, getAllRecords, updateRecord, deleteRecord } =
@@ -62,16 +71,14 @@ export function usePersistedImages(): UsePersistedImagesReturn {
     }
   }, [getAllRecords]);
 
+  const stableOnRefreshImagesError = useEffectEvent((err: Err<"RefreshFailed">) =>
+    onRefreshImagesError?.(err),
+  );
+
   useEffect(() => {
     refreshImages().then((result) => {
-      /**
-       * @todo
-       *
-       * Also export an event handler so that this error can be handled by the caller.
-       */
-      if (result.rejected != null) {
-        console.error("Error refreshing images:", result.rejected.reason);
-      }
+      if (result.rejected == null) return;
+      stableOnRefreshImagesError(result.rejected);
     });
   }, [refreshImages]);
 
