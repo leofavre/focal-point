@@ -9,23 +9,21 @@ export function useImageUploadHandlers({
   onImageUpload,
   onImagesUpload,
 }: UseImageUploadHandlersProps) {
-  const stableOnImageUpload = useEffectEvent(
-    async (draftAndFile: ImageDraftStateAndFile | undefined) => {
-      await onImageUpload?.(draftAndFile);
-    },
-  );
-
-  const stableOnImagesUpload = useEffectEvent(async (draftsAndFiles: ImageDraftStateAndFile[]) => {
-    await onImagesUpload?.(draftsAndFiles);
+  const stableOnImageUpload = useEffectEvent((draftAndFile: ImageDraftStateAndFile | undefined) => {
+    onImageUpload?.(draftAndFile);
   });
 
-  const handleFileChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+  const stableOnImagesUpload = useEffectEvent((draftsAndFiles: ImageDraftStateAndFile[]) => {
+    onImagesUpload?.(draftsAndFiles);
+  });
+
+  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     try {
       const imageDraftStatesAndFiles = processImageFiles(event.currentTarget.files);
-      await Promise.all([
-        stableOnImageUpload(imageDraftStatesAndFiles[0]),
-        stableOnImagesUpload(imageDraftStatesAndFiles),
-      ]);
+      stableOnImageUpload(imageDraftStatesAndFiles[0]);
+      stableOnImagesUpload(imageDraftStatesAndFiles);
+    } catch (error) {
+      console.error("Error uploading image:", error);
     } finally {
       if (event.currentTarget != null) {
         event.currentTarget.value = "";

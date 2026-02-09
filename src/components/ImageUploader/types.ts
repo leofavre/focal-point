@@ -1,23 +1,21 @@
-import type { PropsWithChildren, RefObject } from "react";
+import type { RefObject } from "react";
 import type { ImageDraftStateAndFile } from "../../types";
 
 type SingleImageUploaderProps = {
   onImagesUpload?: never;
-  onImageUpload: (draftAndFile: ImageDraftStateAndFile | undefined) => Promise<void>;
+  onImageUpload: (draftAndFile: ImageDraftStateAndFile | undefined) => void;
 };
 
 type MultipleImagesUploaderProps = {
   onImageUpload?: never;
-  onImagesUpload: (draftsAndFiles: ImageDraftStateAndFile[]) => Promise<void>;
+  onImagesUpload: (draftsAndFiles: ImageDraftStateAndFile[]) => void;
 };
 
-export type ImageUploaderProps = PropsWithChildren<
-  (SingleImageUploaderProps | MultipleImagesUploaderProps) & {
-    ref?: RefObject<HTMLInputElement | null>;
-  }
->;
+export type ImageUploaderProps = SingleImageUploaderProps | MultipleImagesUploaderProps;
 
-export type ImageUploaderButtonProps = (SingleImageUploaderProps | MultipleImagesUploaderProps) & {
+export type ImageUploaderButtonProps = ImageUploaderProps & {
   ref?: RefObject<HTMLButtonElement | null>;
   size?: "small" | "medium" | "large";
 };
+
+export type FullScreenDropZoneProps = Pick<ImageUploaderProps, "onImageUpload" | "onImagesUpload">;

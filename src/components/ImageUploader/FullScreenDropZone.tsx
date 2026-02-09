@@ -2,9 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Overlay } from "./FullScreenDropZone.styled";
 import { processImageFiles } from "./helpers/processImageFiles";
 import { useImageUploadHandlers } from "./hooks/useImageUploadHandlers";
-import type { ImageUploaderButtonProps } from "./types";
-
-type FullScreenDropZoneProps = Pick<ImageUploaderButtonProps, "onImageUpload" | "onImagesUpload">;
+import type { FullScreenDropZoneProps } from "./types";
 
 export function FullScreenDropZone({ onImageUpload, onImagesUpload }: FullScreenDropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -19,17 +17,19 @@ export function FullScreenDropZone({ onImageUpload, onImagesUpload }: FullScreen
    * When a file is dropped, upload it and close the file manager.
    */
   const handleDrop = useCallback(
-    async (event: DragEvent) => {
+    (event: DragEvent) => {
       event.preventDefault();
       event.stopPropagation();
       dragCounterRef.current = 0;
       setIsDragOver(false);
 
-      const imageDraftStatesAndFiles = processImageFiles(event.dataTransfer?.files ?? null);
-      await Promise.all([
-        stableOnImageUpload(imageDraftStatesAndFiles[0]),
-        stableOnImagesUpload(imageDraftStatesAndFiles),
-      ]);
+      try {
+        const imageDraftStatesAndFiles = processImageFiles(event.dataTransfer?.files ?? null);
+        stableOnImageUpload(imageDraftStatesAndFiles[0]);
+        stableOnImagesUpload(imageDraftStatesAndFiles);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
     },
     [stableOnImageUpload, stableOnImagesUpload],
   );
