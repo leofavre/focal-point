@@ -1,8 +1,19 @@
 import { isEqual } from "lodash";
 import { useCallback, useEffect, useState } from "react";
+import type { Err, Result } from "../../helpers/errorHandling";
+import { accept, reject, processResults } from "../../helpers/errorHandling";
 import { getIndexedDBService } from "../../services/indexedDBService";
+import type { DatabaseService } from "../../services/types";
 import type { ImageDraftStateAndFile, ImageRecord } from "../../types";
 import { createImageId } from "../helpers/createImageId";
+
+const noopIndexedDBService: DatabaseService<ImageRecord> = {
+  addRecord: async () => {},
+  getRecord: async () => undefined,
+  getAllRecords: async () => [],
+  updateRecord: async () => {},
+  deleteRecord: async () => {},
+};
 
 /**
  * Custom React hook for persisting image records in IndexedDB.
@@ -11,80 +22,107 @@ import { createImageId } from "../helpers/createImageId";
  *
  * @returns Object with:
  * - `images`: all persisted image records (undefined until loaded).
- * - `addImage`: saves a single image via addImages; returns its id.
- * - `addImages`: saves multiple image records, then refreshes once; returns ids of successful adds.
+ * - `addImage`: saves a single image via addImages; returns Result with id or AddImageFailed.
+ * - `addImages`: saves multiple image records, then refreshes once; returns accepted ids and rejected reasons.
  * - `getImage`: fetches one image record by id.
- * - `updateImage`: merges partial image record into an existing record.
+ * - `updateImage`: merges partial image record into an existing record; returns Result.
  * - `deleteImage`: removes an image record by id.
- * - `refreshImages`: reloads the list from the database.
+ * - `refreshImages`: reloads the list from the database; returns Result.
  */
 export function usePersistedImages(): {
   images: ImageRecord[] | undefined;
-  addImage: (draftAndFile: ImageDraftStateAndFile) => Promise<string>;
-  addImages: (draftsAndFiles: ImageDraftStateAndFile[]) => Promise<string[]>;
+  addImage: (
+    draftAndFile: ImageDraftStateAndFile,
+  ) => Promise<Result<string, "AddImageFailed">>;
+  addImages: (
+    draftsAndFiles: ImageDraftStateAndFile[],
+  ) => Promise<{ accepted: string[]; rejected: Err<"AddImageFailed">[] }>;
   getImage: (id: string) => Promise<ImageRecord | undefined>;
-  updateImage: (id: string, updates: Partial<ImageRecord>) => Promise<string | undefined>;
+  updateImage: (
+    id: string,
+    updates: Partial<ImageRecord>,
+  ) => Promise<Result<string | undefined, "UpdateImageFailed">>;
   deleteImage: (id: string) => Promise<string | undefined>;
-  refreshImages: () => Promise<void>;
+  refreshImages: () => Promise<Result<void, "RefreshFailed">>;
 } {
+  const indexedDBResult = getIndexedDBService<ImageRecord>("images");
   const { addRecord, getRecord, getAllRecords, updateRecord, deleteRecord } =
-    getIndexedDBService<ImageRecord>("images");
+    indexedDBResult.rejected != null ? noopIndexedDBService : indexedDBResult.accepted;
 
   const [images, setImages] = useState<ImageRecord[] | undefined>(undefined);
 
-  const refreshImages = useCallback(async () => {
+  const refreshImages = useCallback(async (): Promise<Result<void, "RefreshFailed">> => {
     try {
       const all = await getAllRecords();
       setImages(all ?? []);
-    } catch (err) {
-      throw new Error("Failed to refresh images", { cause: err });
+      return accept(undefined);
+    } catch {
+      return reject({ reason: "RefreshFailed" });
     }
   }, [getAllRecords]);
 
   useEffect(() => {
-    refreshImages();
+    refreshImages().then((result) => {
+      /**
+       * @todo Maybe show error to the user in the UI.
+       */
+      if (result.rejected != null) {
+        console.error("Error refreshing images:", result.rejected.reason);
+      }
+    });
   }, [refreshImages]);
 
   const addImages = useCallback(
-    async (draftsAndFiles: ImageDraftStateAndFile[]): Promise<string[]> => {
-      const existing = await getAllRecords();
-      const usedIds = new Set((existing ?? []).map((r) => r.id));
+    async (
+      draftsAndFiles: ImageDraftStateAndFile[],
+    ): Promise<{ accepted: string[]; rejected: Err<"AddImageFailed">[] }> => {
+      let existing: ImageRecord[];
+      try {
+        const all = await getAllRecords();
+        existing = all ?? [];
+      } catch {
+        return processResults(
+          draftsAndFiles.map(() => reject({ reason: "AddImageFailed" })),
+        );
+      }
+      const usedIds = new Set(existing.map((r) => r.id));
 
-      const ids: string[] = [];
+      const results: Result<string, "AddImageFailed">[] = [];
       for (const { imageDraft, file } of draftsAndFiles) {
         try {
           const id = createImageId(imageDraft.name, usedIds);
-
-          const record: ImageRecord = {
-            id,
-            ...imageDraft,
-            file,
-          };
-
+          const record: ImageRecord = { id, ...imageDraft, file };
           await addRecord(record);
-          ids.push(id);
-        } catch (err) {
-          console.error("Error saving image to database:", err);
+          usedIds.add(id);
+          results.push(accept(id));
+        } catch {
+          results.push(reject({ reason: "AddImageFailed" }));
         }
       }
+
+      const { accepted: ids } = processResults(results);
       if (ids.length > 0) {
-        await refreshImages();
+        const refreshResult = await refreshImages();
+        /**
+         * @todo Maybe show error to the user in the UI.
+         */
+        if (refreshResult.rejected != null) {
+          console.error("Error refreshing images after add:", refreshResult.rejected.reason);
+        }
       }
-      return ids;
+      return processResults(results);
     },
     [addRecord, getAllRecords, refreshImages],
   );
 
   const addImage = useCallback(
-    async (draftAndFile: ImageDraftStateAndFile): Promise<string> => {
-      const ids = await addImages([draftAndFile]);
+    async (
+      draftAndFile: ImageDraftStateAndFile,
+    ): Promise<Result<string, "AddImageFailed">> => {
+      const { accepted: ids } = await addImages([draftAndFile]);
       const id = ids[0];
-
-      if (id == null) {
-        throw new Error("Failed to add image");
-      }
-
-      return id;
+      if (id != null) return accept(id);
+      return reject({ reason: "AddImageFailed" });
     },
     [addImages],
   );
@@ -97,23 +135,34 @@ export function usePersistedImages(): {
   );
 
   const updateImage = useCallback(
-    async (id: string, updates: Partial<ImageRecord>) => {
-      const current = await getRecord(id);
+    async (
+      id: string,
+      updates: Partial<ImageRecord>,
+    ): Promise<Result<string | undefined, "UpdateImageFailed">> => {
+      try {
+        const current = await getRecord(id);
+        if (current == null) return accept(undefined);
 
-      if (current == null) return;
+        const updated: ImageRecord = {
+          ...current,
+          ...updates,
+          id,
+          file: current.file,
+        };
+        if (isEqual(current, updated)) return accept(id);
 
-      const updated: ImageRecord = {
-        ...current,
-        ...updates,
-        id,
-        file: current.file,
-      };
-
-      if (isEqual(current, updated)) return;
-
-      await updateRecord(updated);
-      await refreshImages();
-      return id;
+        await updateRecord(updated);
+        const refreshResult = await refreshImages();
+        /**
+         * @todo Maybe show error to the user in the UI.
+         */
+        if (refreshResult.rejected != null) {
+          console.error("Error refreshing images after update:", refreshResult.rejected.reason);
+        }
+        return accept(id);
+      } catch {
+        return reject({ reason: "UpdateImageFailed" });
+      }
     },
     [getRecord, updateRecord, refreshImages],
   );

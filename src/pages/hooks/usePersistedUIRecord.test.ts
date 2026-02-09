@@ -10,11 +10,14 @@ const { mockGetRecord, mockUpdateRecord } = vi.hoisted(() => ({
 
 vi.mock("../../services/indexedDBService", () => ({
   getIndexedDBService: vi.fn(() => ({
-    addRecord: vi.fn(),
-    getRecord: mockGetRecord,
-    getAllRecords: vi.fn(),
-    updateRecord: mockUpdateRecord,
-    deleteRecord: vi.fn(),
+    accepted: {
+      addRecord: vi.fn(),
+      getRecord: mockGetRecord,
+      getAllRecords: vi.fn(),
+      updateRecord: mockUpdateRecord,
+      deleteRecord: vi.fn(),
+    },
+    rejected: undefined,
   })),
 }));
 

@@ -130,18 +130,18 @@ export default function Editor() {
       if (draftAndFile == null) return;
 
       const { imageDraft, file } = draftAndFile;
+      const result = await addImage({ imageDraft, file });
 
-      let nextImageId: string | undefined;
-
-      try {
-        nextImageId = await addImage({ imageDraft, file });
-        console.log("uploaded image with id", nextImageId);
-      } catch (error) {
-        console.error("Error saving image to database:", error);
+      /**
+       * @todo Maybe show error to the user in the UI.
+       */
+      if (result.rejected != null) {
+        console.error("Error saving image to database:", result.rejected.reason);
+        return;
       }
 
-      if (nextImageId == null) return;
-
+      const nextImageId = result.accepted;
+      console.log("uploaded image with id", nextImageId);
       await navigate(`/${nextImageId}`);
       console.log("navigated to", `/${nextImageId}`);
     },
@@ -149,6 +149,9 @@ export default function Editor() {
   );
 
   const handleImageError = useCallback(() => {
+    /**
+     * @todo Maybe show error to the user in the UI.
+     */
     console.error("Error uploading image");
     safeSetImage(null);
     setIsLoading(false);
@@ -248,14 +251,18 @@ export default function Editor() {
 
       updateImage(imageId, {
         breakpoints: [{ objectPosition: currentObjectPosition }],
-      })
-        .then((id) => {
-          if (id == null) return;
+      }).then((result) => {
+        /**
+         * @todo Maybe show error to the user in the UI.
+         */
+        if (result.rejected != null) {
+          console.error("Error saving position to database:", result.rejected.reason);
+          return;
+        }
+        if (result.accepted != null) {
           console.log("updated image", imageId, "with object position", currentObjectPosition);
-        })
-        .catch((error) => {
-          console.error("Error saving position to database:", error);
-        });
+        }
+      });
     },
     { timeout: INTERACTION_DEBOUNCE_MS },
     [imageId, currentObjectPosition, updateImage],

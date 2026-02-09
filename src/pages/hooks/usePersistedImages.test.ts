@@ -15,11 +15,14 @@ const { mockAddRecord, mockGetRecord, mockGetAllRecords, mockUpdateRecord, mockD
 
 vi.mock("../../services/indexedDBService", () => ({
   getIndexedDBService: vi.fn(() => ({
-    addRecord: mockAddRecord,
-    getRecord: mockGetRecord,
-    getAllRecords: mockGetAllRecords,
-    updateRecord: mockUpdateRecord,
-    deleteRecord: mockDeleteRecord,
+    accepted: {
+      addRecord: mockAddRecord,
+      getRecord: mockGetRecord,
+      getAllRecords: mockGetAllRecords,
+      updateRecord: mockUpdateRecord,
+      deleteRecord: mockDeleteRecord,
+    },
+    rejected: undefined,
   })),
 }));
 
@@ -84,12 +87,12 @@ describe("usePersistedImages", () => {
 
     const imageDraft = createMockImageDraftState({ name: "new.png" });
 
-    let returnedId: string | undefined;
+    let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
     await act(async () => {
-      returnedId = await result.current.addImage({ imageDraft, file: testFile });
+      addResult = await result.current.addImage({ imageDraft, file: testFile });
     });
 
-    expect(returnedId).toBe("new");
+    expect(addResult?.accepted).toBe("new");
     expect(mockAddRecord).toHaveBeenCalledWith({
       id: "new",
       ...imageDraft,
@@ -113,12 +116,12 @@ describe("usePersistedImages", () => {
     });
 
     const imageDraft = createMockImageDraftState({ name: "My Photo.jpg" });
-    let returnedId: string | undefined;
+    let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
     await act(async () => {
-      returnedId = await result.current.addImage({ imageDraft, file: testFile });
+      addResult = await result.current.addImage({ imageDraft, file: testFile });
     });
 
-    expect(returnedId).toBe("my-photo-2");
+    expect(addResult?.accepted).toBe("my-photo-2");
     expect(mockAddRecord).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "my-photo-2",
@@ -238,9 +241,11 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toBeDefined();
     });
 
-    const returnValue = await act(async () => result.current.updateImage("update-id", {}));
+    const updateResult = await act(async () =>
+      result.current.updateImage("update-id", {}),
+    );
 
-    expect(returnValue).toBeUndefined();
+    expect(updateResult?.accepted).toBe("update-id");
     expect(mockUpdateRecord).not.toHaveBeenCalled();
     expect(mockGetAllRecords).toHaveBeenCalledTimes(1); // only initial load
   });
@@ -291,7 +296,7 @@ describe("usePersistedImages", () => {
     expect(mockGetAllRecords).toHaveBeenCalledTimes(2);
   });
 
-  it("propagates errors when refreshImages (getAll) fails", async () => {
+  it("returns rejected when refreshImages (getAll) fails", async () => {
     mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
@@ -300,18 +305,18 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toBeDefined();
     });
 
-    const dbError = new Error("IndexedDB unavailable");
-    mockGetAllRecords.mockRejectedValue(dbError);
+    mockGetAllRecords.mockRejectedValue(new Error("IndexedDB unavailable"));
 
-    await expect(
-      act(async () => {
-        await result.current.refreshImages();
-      }),
-    ).rejects.toThrow();
+    let refreshResult: Awaited<ReturnType<typeof result.current.refreshImages>> | undefined;
+    await act(async () => {
+      refreshResult = await result.current.refreshImages();
+    });
+
+    expect(refreshResult?.rejected).toEqual({ reason: "RefreshFailed" });
   });
 
-  it("propagates errors when addImage fails", async () => {
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("returns rejected when addImage fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
 
     mockGetAllRecords.mockResolvedValue([]);
     mockAddRecord.mockRejectedValue(new Error("IndexedDB write failed"));
@@ -324,13 +329,12 @@ describe("usePersistedImages", () => {
 
     const imageDraft = createMockImageDraftState();
 
-    await expect(
-      act(async () => {
-        await result.current.addImage({ imageDraft, file: testFile });
-      }),
-    ).rejects.toThrow("Failed to add image");
+    let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
+    await act(async () => {
+      addResult = await result.current.addImage({ imageDraft, file: testFile });
+    });
 
-    consoleErrorSpy.mockRestore();
+    expect(addResult?.rejected).toEqual({ reason: "AddImageFailed" });
   });
 
   it("propagates errors when getImage fails", async () => {
@@ -350,7 +354,7 @@ describe("usePersistedImages", () => {
     ).rejects.toThrow("IndexedDB read failed");
   });
 
-  it("propagates errors when updateImage fails", async () => {
+  it("returns rejected when updateImage fails", async () => {
     const existing = createMockImageRecord({
       id: "update-id",
       ...createMockImageDraftState(),
@@ -367,11 +371,12 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toBeDefined();
     });
 
-    await expect(
-      act(async () => {
-        await result.current.updateImage("update-id", { name: "new.png" });
-      }),
-    ).rejects.toThrow("IndexedDB update failed");
+    let updateResult: Awaited<ReturnType<typeof result.current.updateImage>> | undefined;
+    await act(async () => {
+      updateResult = await result.current.updateImage("update-id", { name: "new.png" });
+    });
+
+    expect(updateResult?.rejected).toEqual({ reason: "UpdateImageFailed" });
   });
 
   it("propagates errors when deleteImage fails", async () => {

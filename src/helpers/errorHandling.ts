@@ -47,8 +47,8 @@ export async function resultFromPromise<A, R extends string>(
 }
 
 /**
- * Central list of error reasons. Use the const values in reject() / resultFromPromise
- * so the app stays type-safe and reason strings stay in one place.
+ * Central list of error reason types. Use these types for type-safe reject() / resultFromPromise;
+ * pass string literals (e.g. "RefreshFailed") that match the types.
  */
 
 /** Image upload validation (file input / drop zone). */
@@ -60,3 +60,17 @@ export type ImageUploadValidationReason = NoFilesProvidedReason | NotImageReason
 export type ImageLoadFailedReason = "ImageLoadFailed";
 export type BlobCreateFailedReason = "BlobCreateFailed";
 export type CreateImageStateReason = ImageLoadFailedReason | BlobCreateFailedReason;
+
+/** Persistence (IndexedDB / images). */
+export type RefreshFailedReason = "RefreshFailed";
+export type AddImageFailedReason = "AddImageFailed";
+export type UpdateImageFailedReason = "UpdateImageFailed";
+
+/** Session storage. */
+export type SessionStorageUnavailableReason = "SessionStorageUnavailable";
+
+/** IndexedDB. */
+export type IndexedDBUnavailableReason = "IndexedDBUnavailable";
+
+/** UI record load (getRecord failure). */
+export type GetUIRecordFailedReason = "GetUIRecordFailed";
