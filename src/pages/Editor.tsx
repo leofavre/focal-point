@@ -1,27 +1,28 @@
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
-import { ReactComponent as Instructions } from "../../INSTRUCTIONS.md";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "../components/AspectRatioSlider/hooks/useAspectRatioList";
 import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
+import { Dialog } from "../components/Dialog/Dialog";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
-import { ImageUploader } from "../components/ImageUploader/ImageUploader";
-import { Markdown } from "../components/Markdown/Markdown";
+import { HowToUse } from "../components/HowToUse/HowToUse";
+import { FullScreenDropZone } from "../components/ImageUploader/FullScreenDropZone";
+import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
-import { CodeSnippetToggleIcon } from "../icons/CodeSnippetToggleIcon";
-import { GhostImageToggleIcon } from "../icons/GhostImageToggleIcon";
-import { PointMarkerToggleIcon } from "../icons/PointMarkerToggleIcon";
+import { IconCode } from "../icons/IconCode";
+import { IconMask } from "../icons/IconMask";
+import { IconReference } from "../icons/IconReference";
 import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../types";
 import { EditorGrid } from "./Editor.styled";
-import { createImageStateFromImageRecord } from "./helpers/createImageStateFromImageRecord";
+import { createImageStateFromDraftAndFile } from "./helpers/createImageStateFromDraftAndFile";
+import { createImageStateFromRecord } from "./helpers/createImageStateFromRecord";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
 import { usePersistedImages } from "./hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./hooks/usePersistedUIRecord";
-import { LandingGrid } from "./Landing.styled";
 
-const DEFAULT_SHOW_POINT_MARKER = false;
-const DEFAULT_SHOW_GHOST_IMAGE = false;
+const DEFAULT_SHOW_FOCAL_POINT = false;
+const DEFAULT_SHOW_IMAGE_OVERFLOW = false;
 const DEFAULT_SHOW_CODE_SNIPPET = false;
 const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
 const DEFAULT_ASPECT_RATIO = 1;
@@ -35,19 +36,23 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * ### MELHORIZE™ UI.
  *
- * - Better icons.
- * - Better typography.
- * - Make shure focus is visible, specially in AspectRatioSlider.
  * - Verify accessibility.
  * - Review aria labels.
+ * - Remove titles from SVGs.
  * - Think about animations and transitions.
- * - Favicon.
+ * - Improve Full Screen Drop Zone.
+ * - Improve Landing page.
+ * - Improve Focal Point draggable icon.
+ * - Is there a way to make it invert the colors of the underlying image?
+ * - Improve Code snippet.
+ * - Slider: use polygon instead of SVG.
  *
  * ### Basic functionality
  *
- * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
- * - Fix app not working in Incognito mode on mobile Chrome.
- * - Make sure app works without any database (single image direct to React state on upload?).
+ * - Fix loading state saying "not found...".
+ * - Fix image not resetting to original aspect ratio after upload.
+ * - Fix app not working in Incognito mode on mobile Chrome. Maybe fixed by no relying on IndexedDB?
+ * - Remove all deprecated and dead code.
  *
  * ### DevOps
  *
@@ -59,13 +64,12 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  *
  * - Support external image sources.
  * - Breakpoints with container queries.
- * - Can I make the loading immediate on refresh?
  * - Maybe make a browser extension?
  * - Maybe make a React component?
  * - Maybe make a native custom element?
  */
 export default function Editor() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploaderButtonRef = useRef<HTMLButtonElement>(null);
   const isFirstImageLoadInSessionRef = useRef(true);
 
   const { imageId } = useParams<{ imageId: string }>();
@@ -94,13 +98,13 @@ export default function Editor() {
     { service: "sessionStorage", debounceTimeout: INTERACTION_DEBOUNCE_MS },
   );
 
-  const [showPointMarker, setShowPointMarker] = usePersistedUIRecord(
-    { id: "showPointMarker", value: DEFAULT_SHOW_POINT_MARKER },
+  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord(
+    { id: "showFocalPoint", value: DEFAULT_SHOW_FOCAL_POINT },
     { service: "sessionStorage" },
   );
 
-  const [showGhostImage, setShowGhostImage] = usePersistedUIRecord(
-    { id: "showGhostImage", value: DEFAULT_SHOW_GHOST_IMAGE },
+  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord(
+    { id: "showImageOverflow", value: DEFAULT_SHOW_IMAGE_OVERFLOW },
     { service: "sessionStorage" },
   );
 
@@ -126,24 +130,39 @@ export default function Editor() {
 
       const { imageDraft, file } = draftAndFile;
 
-      let nextImageId: string | undefined;
+      const imageStateResult = await createImageStateFromDraftAndFile(draftAndFile);
 
-      try {
-        nextImageId = await addImage({ imageDraft, file });
-        console.log("uploaded image with id", nextImageId);
-      } catch (error) {
-        console.error("Error saving image to database:", error);
+      /**
+       * @todo Maybe show error to the user in the UI.
+       */
+      if (imageStateResult.rejected != null) {
+        console.error("Error creating image state:", imageStateResult.rejected.reason);
+        return;
       }
 
-      if (nextImageId == null) return;
+      /**
+       * The image is set before it's added to the database. This guarantees that the app
+       * works even without persistent storage. The worst case scenario is the user hitting
+       * refresh and losing the image and the current object position.
+       */
+      safeSetImage(imageStateResult.accepted);
+      setIsLoading(false);
 
-      await navigate(`/${nextImageId}`);
-      console.log("navigated to", `/${nextImageId}`);
+      const addResult = await addImage({ imageDraft, file });
+
+      if (addResult.accepted != null) {
+        console.log("saved image with id", addResult.accepted);
+        await navigate(`/${addResult.accepted}`);
+        console.log("navigated to", `/${addResult.accepted}`);
+      }
     },
     [addImage, navigate],
   );
 
   const handleImageError = useCallback(() => {
+    /**
+     * @todo Maybe show error to the user in the UI.
+     */
     console.error("Error uploading image");
     safeSetImage(null);
     setIsLoading(false);
@@ -165,8 +184,8 @@ export default function Editor() {
   /**
    * Handles all keyboard shortcuts:
    * - 'u' opens the file input to upload a new image.
-   * - 'a' or 'p' toggles the point marker.
-   * - 's' or 'l' toggles the ghost image.
+   * - 'a' or 'p' toggles the focal point.
+   * - 's' or 'l' toggles the image overflow.
    * - 'd' or 'c' toggles the code snippet.
    *
    * The shortcuts are case insensitive and are not triggered
@@ -175,19 +194,19 @@ export default function Editor() {
   useEffect(() => {
     const handleKeyDown = createKeyboardShortcutHandler({
       u: () => {
-        fileInputRef.current?.click();
+        uploaderButtonRef.current?.click();
       },
       a: () => {
-        setShowPointMarker((prev) => !prev);
+        setShowFocalPoint((prev) => !prev);
       },
-      p: () => {
-        setShowPointMarker((prev) => !prev);
+      f: () => {
+        setShowFocalPoint((prev) => !prev);
       },
       s: () => {
-        setShowGhostImage((prev) => !prev);
+        setShowImageOverflow((prev) => !prev);
       },
-      l: () => {
-        setShowGhostImage((prev) => !prev);
+      o: () => {
+        setShowImageOverflow((prev) => !prev);
       },
       d: () => {
         setShowCodeSnippet((prev) => !prev);
@@ -202,7 +221,7 @@ export default function Editor() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [setShowCodeSnippet, setShowPointMarker, setShowGhostImage]);
+  }, [setShowCodeSnippet, setShowFocalPoint, setShowImageOverflow]);
 
   const currentObjectPosition = image?.breakpoints?.[0]?.objectPosition;
 
@@ -243,14 +262,18 @@ export default function Editor() {
 
       updateImage(imageId, {
         breakpoints: [{ objectPosition: currentObjectPosition }],
-      })
-        .then((id) => {
-          if (id == null) return;
+      }).then((result) => {
+        /**
+         * @todo Maybe show error to the user in the UI.
+         */
+        if (result.rejected != null) {
+          console.error("Error saving position to database:", result.rejected.reason);
+          return;
+        }
+        if (result.accepted != null) {
           console.log("updated image", imageId, "with object position", currentObjectPosition);
-        })
-        .catch((error) => {
-          console.error("Error saving position to database:", error);
-        });
+        }
+      });
     },
     { timeout: INTERACTION_DEBOUNCE_MS },
     [imageId, currentObjectPosition, updateImage],
@@ -272,7 +295,9 @@ export default function Editor() {
   useDebouncedEffect(
     () => {
       async function asyncSetImageState() {
-        if (imageCount === 0 || imageId == null) {
+        if (imageId == null) return;
+
+        if (imageCount === 0) {
           safeSetImage(null);
           setIsLoading(false);
           return;
@@ -286,23 +311,29 @@ export default function Editor() {
           return;
         }
 
-        try {
-          const nextImageState = await createImageStateFromImageRecord(imageRecord);
-          safeSetImage(nextImageState);
-          setIsLoading(false);
-          console.log("loaded image from record", imageRecord);
+        const result = await createImageStateFromRecord(imageRecord);
 
-          if (isFirstImageLoadInSessionRef.current) {
-            isFirstImageLoadInSessionRef.current = false;
-            return;
-          }
-
-          setAspectRatio(nextImageState.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
-        } catch (error) {
+        /**
+         * @todo Maybe show error to the user in the UI.
+         */
+        if (result.rejected != null) {
           safeSetImage(null);
           setIsLoading(false);
-          console.error("Error loading saved image:", error);
+          console.error("Error loading saved image:", result.rejected.reason);
+          return;
         }
+
+        const nextImageState = result.accepted;
+        safeSetImage(nextImageState);
+        setIsLoading(false);
+        console.log("loaded image from record", imageRecord);
+
+        if (isFirstImageLoadInSessionRef.current) {
+          isFirstImageLoadInSessionRef.current = false;
+          return;
+        }
+
+        setAspectRatio(nextImageState.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
       }
 
       asyncSetImageState();
@@ -311,87 +342,124 @@ export default function Editor() {
     [imageId, imageCount],
   );
 
-  if (!imageId) {
+  if (!imageId && !image) {
     return (
-      <LandingGrid>
-        <ImageUploader variant="large" ref={fileInputRef} onImageUpload={handleImageUpload} />
-        <Markdown>
-          <Instructions />
-        </Markdown>
-      </LandingGrid>
+      <>
+        <FullScreenDropZone onImageUpload={handleImageUpload} />
+        <EditorGrid>
+          <div
+            css={{
+              gridColumn: "1 / -1",
+              gridRow: "1 / -1",
+
+              display: "grid",
+              gridTemplateColumns: "auto",
+              gridTemplateRows: "auto auto",
+              margin: "auto",
+              padding: "var(--base-line)",
+              paddingTop: "var(--base-line-2x)",
+              paddingLeft: "var(--base-line-2x)",
+              gap: "var(--base-line-2x)",
+              boxSizing: "border-box",
+              backgroundColor: "var(--color-zero)",
+            }}
+          >
+            <ImageUploaderButton
+              ref={uploaderButtonRef}
+              size="medium"
+              onImageUpload={handleImageUpload}
+              css={{
+                width: "calc(100% - var(--base-line))",
+                maxWidth: "16rem",
+                gridRow: "auto !important",
+                gridColumn: "auto !important",
+              }}
+            />
+            <HowToUse
+              css={{
+                padding: "var(--base-line)",
+              }}
+            />
+          </div>
+        </EditorGrid>
+      </>
     );
   }
 
   return (
-    <EditorGrid>
-      {showPointMarker != null && (
-        <ToggleButton
-          data-component="PointerMarkerButton"
-          toggled={showPointMarker}
-          onToggle={() => setShowPointMarker((prev) => !prev)}
-          titleOn="Hide pointer marker"
-          titleOff="Show pointer marker"
-          icon={<PointMarkerToggleIcon />}
-        />
-      )}
-      {showGhostImage != null && (
-        <ToggleButton
-          data-component="GhostImageButton"
-          toggled={showGhostImage}
-          onToggle={() => setShowGhostImage((prev) => !prev)}
-          titleOn="Hide ghost image"
-          titleOff="Show ghost image"
-          icon={<GhostImageToggleIcon />}
-        />
-      )}
-      {showCodeSnippet != null && (
-        <ToggleButton
-          data-component="CodeSnippetButton"
-          toggled={showCodeSnippet}
-          onToggle={() => setShowCodeSnippet((prev) => !prev)}
-          titleOn="Hide code snippet"
-          titleOff="Show code snippet"
-          icon={<CodeSnippetToggleIcon />}
-        />
-      )}
-      <ImageUploader variant="small" ref={fileInputRef} onImageUpload={handleImageUpload} />
-      {isLoading ? (
-        <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Loading...</h3>
-      ) : !image ? (
-        <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Not found...</h3>
-      ) : (
-        <>
-          {aspectRatio != null && image.naturalAspectRatio != null && (
-            <FocalPointEditor
-              imageUrl={image.url}
-              aspectRatio={aspectRatio}
-              initialAspectRatio={image.naturalAspectRatio}
-              objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-              showPointMarker={showPointMarker ?? false}
-              showGhostImage={showGhostImage ?? false}
-              onObjectPositionChange={handleObjectPositionChange}
-              onImageError={handleImageError}
-            />
-          )}
-          <CodeSnippet
-            src={image.name}
-            objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-            language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-            onLanguageChange={setCodeSnippetLanguage}
-            copied={codeSnippetCopied}
-            onCopiedChange={setCodeSnippetCopied}
-            css={{
-              transform: showCodeSnippet ? "translateY(0)" : "translateY(100%)",
-              pointerEvents: showCodeSnippet ? "auto" : "none",
-            }}
+    <>
+      <FullScreenDropZone onImageUpload={handleImageUpload} />
+      <EditorGrid>
+        {showFocalPoint != null && (
+          <ToggleButton
+            type="button"
+            data-component="FocalPointButton"
+            toggled={showFocalPoint}
+            onToggle={(toggled) => setShowFocalPoint(!toggled)}
+            titleOn="Focal point"
+            titleOff="Focal point"
+            icon={<IconReference />}
           />
-        </>
-      )}
-      <AspectRatioSlider
-        aspectRatio={aspectRatio}
-        aspectRatioList={aspectRatioList}
-        onAspectRatioChange={setAspectRatio}
-      />
-    </EditorGrid>
+        )}
+        {showImageOverflow != null && (
+          <ToggleButton
+            type="button"
+            data-component="ImageOverflowButton"
+            toggled={showImageOverflow}
+            onToggle={(toggled) => setShowImageOverflow(!toggled)}
+            titleOn="Overflow"
+            titleOff="Overflow"
+            icon={<IconMask />}
+          />
+        )}
+        {isLoading ? (
+          <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Loading...</h3>
+        ) : !image ? (
+          <h3 style={{ gridColumn: "1 / -1", gridRow: "1 / -2", margin: "auto" }}>Not found...</h3>
+        ) : (
+          <>
+            {aspectRatio != null && image.naturalAspectRatio != null && (
+              <FocalPointEditor
+                imageUrl={image.url}
+                aspectRatio={aspectRatio}
+                initialAspectRatio={image.naturalAspectRatio}
+                objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+                showFocalPoint={showFocalPoint ?? false}
+                showImageOverflow={showImageOverflow ?? false}
+                onObjectPositionChange={handleObjectPositionChange}
+                onImageError={handleImageError}
+              />
+            )}
+            <Dialog transparent open={showCodeSnippet} onOpenChange={setShowCodeSnippet}>
+              <CodeSnippet
+                src={image.name}
+                objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+                language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+                onLanguageChange={setCodeSnippetLanguage}
+                copied={codeSnippetCopied}
+                onCopiedChange={setCodeSnippetCopied}
+              />
+            </Dialog>
+          </>
+        )}
+        <AspectRatioSlider
+          aspectRatio={aspectRatio}
+          aspectRatioList={aspectRatioList}
+          onAspectRatioChange={setAspectRatio}
+        />
+        {showCodeSnippet != null && (
+          <ToggleButton
+            type="button"
+            data-component="CodeSnippetButton"
+            toggled={showCodeSnippet}
+            onToggle={(toggled) => setShowCodeSnippet(!toggled)}
+            titleOn="Code"
+            titleOff="Code"
+            icon={<IconCode />}
+          />
+        )}
+        <ImageUploaderButton ref={uploaderButtonRef} onImageUpload={handleImageUpload} />
+      </EditorGrid>
+    </>
   );
 }

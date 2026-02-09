@@ -1,12 +1,19 @@
 import { initDB, useIndexedDB } from "react-indexed-db-hook";
+import type { Result } from "../helpers/errorHandling";
+import { accept, reject } from "../helpers/errorHandling";
 import { DBConfig } from "./databaseConfig";
 import type { DatabaseKey, DatabaseService } from "./types";
 
 let databaseInitialized = false;
 
+/**
+ * Returns a DatabaseService backed by IndexedDB.
+ * Same signature as getSessionStorageService: returns a Result so callers can handle
+ * IndexedDBUnavailable without try/catch.
+ */
 export function getIndexedDBService<T, K extends DatabaseKey = string>(
   tableName: string,
-): DatabaseService<T, K> {
+): Result<DatabaseService<T, K>, "IndexedDBUnavailable"> {
   if (databaseInitialized === false) {
     initDB(DBConfig);
     databaseInitialized = true;
@@ -14,7 +21,11 @@ export function getIndexedDBService<T, K extends DatabaseKey = string>(
 
   const indexedDB = useIndexedDB(tableName);
 
-  return {
+  if (typeof window === "undefined" || !window.indexedDB) {
+    return reject({ reason: "IndexedDBUnavailable" });
+  }
+
+  return accept({
     async addRecord(value: T, key?: K) {
       await indexedDB.add(value, key);
     },
@@ -24,5 +35,5 @@ export function getIndexedDBService<T, K extends DatabaseKey = string>(
     async deleteRecord(key: K) {
       await indexedDB.deleteRecord(key);
     },
-  };
+  });
 }

@@ -3,6 +3,8 @@
  * JSON-serializable data is supported. For stores that contain Blob/File
  * (e.g. "images"), use getIndexedDBService instead.
  */
+import type { Result } from "../helpers/errorHandling";
+import { accept, reject } from "../helpers/errorHandling";
 import type { DatabaseKey, DatabaseService } from "./types";
 
 const SESSION_PREFIX = "fpe_session_";
@@ -11,30 +13,42 @@ function keyFor(tableName: string, recordKey: string | number): string {
   return `${SESSION_PREFIX}${tableName}_${String(recordKey)}`;
 }
 
+function hasId(obj: unknown): obj is { id: unknown } {
+  return typeof obj === "object" && obj != null && "id" in obj;
+}
+
 function getRecordKeyFromValue<T>(value: T, key?: DatabaseKey): string {
-  const id = (value as { id?: unknown }).id ?? key;
+  const id = hasId(value) ? value.id : key;
   return String(id);
 }
 
-function getStorage(): Storage {
+/**
+ * Returns sessionStorage as a Result. Use this for Result-based handling.
+ */
+export function getStorageResult(): Result<Storage, "SessionStorageUnavailable"> {
   if (typeof window === "undefined" || !window.sessionStorage) {
-    throw new Error("sessionStorage is not available");
+    return reject({ reason: "SessionStorageUnavailable" });
   }
-  return window.sessionStorage;
+  return accept(window.sessionStorage);
 }
 
 /**
  * Implements a DatabaseService backed by sessionStorage.
+ * Returns a Result so callers can handle SessionStorageUnavailable without try/catch.
  * Suitable for JSON-serializable stores only (e.g. "ui"). Stores that contain
  * Blob/File (e.g. "images") should use getIndexedDBService instead.
  */
 export function getSessionStorageService<T, K extends DatabaseKey = string>(
   tableName: string,
-): DatabaseService<T, K> {
-  const storage = getStorage();
+): Result<DatabaseService<T, K>, "SessionStorageUnavailable"> {
+  const storageResult = getStorageResult();
+  if (storageResult.rejected != null) {
+    return reject(storageResult.rejected);
+  }
+  const storage = storageResult.accepted;
   const prefix = `${SESSION_PREFIX}${tableName}_`;
 
-  return {
+  return accept({
     async addRecord(value: T, key?: K): Promise<void> {
       const recordKey = getRecordKeyFromValue(value, key);
       storage.setItem(keyFor(tableName, recordKey), JSON.stringify(value));
@@ -68,5 +82,5 @@ export function getSessionStorageService<T, K extends DatabaseKey = string>(
     async deleteRecord(key: K): Promise<void> {
       storage.removeItem(keyFor(tableName, String(key)));
     },
-  } satisfies DatabaseService<T, K>;
+  } satisfies DatabaseService<T, K>);
 }

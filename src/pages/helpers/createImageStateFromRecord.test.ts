@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { accept, reject } from "../../helpers/errorHandling";
 import { createMockImageRecord } from "../../test-utils/mocks";
-import { createImageStateFromImageRecord } from "./createImageStateFromImageRecord";
+import { createImageStateFromRecord } from "./createImageStateFromRecord";
 import { getNaturalAspectRatioFromImageSrc } from "./getNaturalAspectRatioFromImageSrc";
 
 vi.mock("./getNaturalAspectRatioFromImageSrc");
 
-describe("createImageStateFromImageRecord", () => {
+describe("createImageStateFromRecord", () => {
   const mockCreateObjectURL = vi.fn();
   const mockRevokeObjectURL = vi.fn();
 
@@ -15,19 +16,19 @@ describe("createImageStateFromImageRecord", () => {
 
     vi.spyOn(URL, "createObjectURL").mockImplementation(mockCreateObjectURL);
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(mockRevokeObjectURL);
-    vi.mocked(getNaturalAspectRatioFromImageSrc).mockResolvedValue(1.5);
+    vi.mocked(getNaturalAspectRatioFromImageSrc).mockResolvedValue(accept(1.5));
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("returns ImageState with url and naturalAspectRatio when successful", async () => {
+  it("returns accepted ImageState with url and naturalAspectRatio when successful", async () => {
     const record = createMockImageRecord();
 
-    const result = await createImageStateFromImageRecord(record);
+    const result = await createImageStateFromRecord(record);
 
-    expect(result).toEqual({
+    expect(result.accepted).toEqual({
       name: "test.png",
       url: "blob:https://example.com/abc-123",
       type: "image/png",
@@ -41,7 +42,7 @@ describe("createImageStateFromImageRecord", () => {
     const file = new Blob(["content"], { type: "image/jpeg" });
     const record = createMockImageRecord({ file });
 
-    await createImageStateFromImageRecord(record);
+    await createImageStateFromRecord(record);
 
     expect(mockCreateObjectURL).toHaveBeenCalledTimes(1);
     expect(mockCreateObjectURL).toHaveBeenCalledWith(file);
@@ -50,7 +51,7 @@ describe("createImageStateFromImageRecord", () => {
   it("gets natural aspect ratio from blob URL", async () => {
     const record = createMockImageRecord();
 
-    await createImageStateFromImageRecord(record);
+    await createImageStateFromRecord(record);
 
     expect(getNaturalAspectRatioFromImageSrc).toHaveBeenCalledTimes(1);
     expect(getNaturalAspectRatioFromImageSrc).toHaveBeenCalledWith(
@@ -66,35 +67,34 @@ describe("createImageStateFromImageRecord", () => {
       breakpoints: [{ objectPosition: "25% 75%" }],
     });
 
-    const result = await createImageStateFromImageRecord(record);
+    const result = await createImageStateFromRecord(record);
 
-    expect(result.name).toBe("custom-name.jpg");
-    expect(result.type).toBe("image/jpeg");
-    expect(result.createdAt).toBe(999);
-    expect(result.breakpoints).toEqual([{ objectPosition: "25% 75%" }]);
+    expect(result.accepted?.name).toBe("custom-name.jpg");
+    expect(result.accepted?.type).toBe("image/jpeg");
+    expect(result.accepted?.createdAt).toBe(999);
+    expect(result.accepted?.breakpoints).toEqual([{ objectPosition: "25% 75%" }]);
   });
 
-  it("revokes blob URL and rethrows when getNaturalAspectRatioFromImageSrc fails", async () => {
-    const loadError = new Error("Failed to load image");
-    vi.mocked(getNaturalAspectRatioFromImageSrc).mockRejectedValue(loadError);
-
-    await expect(createImageStateFromImageRecord(createMockImageRecord())).rejects.toThrow(
-      "Failed to load image",
+  it("revokes blob URL and returns rejected when getNaturalAspectRatioFromImageSrc fails", async () => {
+    vi.mocked(getNaturalAspectRatioFromImageSrc).mockResolvedValue(
+      reject({ reason: "ImageLoadFailed" }),
     );
 
+    const result = await createImageStateFromRecord(createMockImageRecord());
+
+    expect(result.rejected).toEqual({ reason: "ImageLoadFailed" });
     expect(mockRevokeObjectURL).toHaveBeenCalledTimes(1);
     expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:https://example.com/abc-123");
   });
 
-  it("does not revoke blob URL when createObjectURL fails", async () => {
+  it("returns rejected with BlobCreateFailed when createObjectURL fails", async () => {
     mockCreateObjectURL.mockImplementation(() => {
       throw new Error("Quota exceeded");
     });
 
-    await expect(createImageStateFromImageRecord(createMockImageRecord())).rejects.toThrow(
-      "Quota exceeded",
-    );
+    const result = await createImageStateFromRecord(createMockImageRecord());
 
+    expect(result.rejected).toEqual({ reason: "BlobCreateFailed" });
     expect(mockRevokeObjectURL).not.toHaveBeenCalled();
   });
 });

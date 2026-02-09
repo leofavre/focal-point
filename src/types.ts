@@ -42,15 +42,10 @@ export type CodeSnippetLanguage = "html" | "tailwind" | "react" | "react-tailwin
 
 export type UIState = {
   aspectRatio: number;
-  showPointMarker: boolean;
-  showGhostImage: boolean;
+  showFocalPoint: boolean;
+  showImageOverflow: boolean;
   showCodeSnippet: boolean;
   codeSnippetLanguage: CodeSnippetLanguage;
 };
 
 export type UIRecord<T extends keyof UIState> = { id: T; value: UIState[T] };
-
-export type EditorState = {
-  ui: UIState;
-  images: ImageState[];
-};

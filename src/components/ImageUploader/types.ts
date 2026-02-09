@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import type { Ref } from "react";
 import type { ImageDraftStateAndFile } from "../../types";
 
 type SingleImageUploaderProps = {
@@ -11,7 +11,11 @@ type MultipleImagesUploaderProps = {
   onImagesUpload: (draftsAndFiles: ImageDraftStateAndFile[]) => void;
 };
 
-export type ImageUploaderProps = (SingleImageUploaderProps | MultipleImagesUploaderProps) & {
-  ref?: RefObject<HTMLInputElement | null>;
-  variant: "small" | "large";
+export type ImageUploaderProps = SingleImageUploaderProps | MultipleImagesUploaderProps;
+
+export type ImageUploaderButtonProps = ImageUploaderProps & {
+  ref?: Ref<HTMLButtonElement>;
+  size?: "small" | "medium" | "large";
 };
+
+export type FullScreenDropZoneProps = Pick<ImageUploaderProps, "onImageUpload" | "onImagesUpload">;
