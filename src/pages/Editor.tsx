@@ -43,6 +43,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Improve Full Screen Drop Zone.
  * - Improve Landing page.
  * - Improve Focal Point draggable icon.
+ * - Is there a way to make it invert the colors of the underlying image?
  * - Improve Code snippet.
  * - Slider: use polygon instead of SVG.
  * - Slider: mark original with loud color and bigger ruler dash.
