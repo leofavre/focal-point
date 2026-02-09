@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Err } from "../../helpers/errorHandling";
-import type { ImageDraftStateAndFile } from "../../types";
+import { processResults } from "../../helpers/errorHandling";
+
 import { Overlay } from "./FullScreenDropZone.styled";
-import {
-  type ImageDraftStateAndFileError,
-  processImageFilesWithErrorHandling,
-} from "./helpers/processImageFilesWithErrorhandling";
+import { processImageFilesWithErrorHandling } from "./helpers/processImageFilesWithErrorHandling";
 import { useImageUploadHandlers } from "./hooks/useImageUploadHandlers";
 import type { FullScreenDropZoneProps } from "./types";
 
@@ -28,28 +25,17 @@ export function FullScreenDropZone({ onImageUpload, onImagesUpload }: FullScreen
       dragCounterRef.current = 0;
       setIsDragOver(false);
 
-      /**
-       * @todo Create helper for this repeated block.
-       */
-      const processed = processImageFilesWithErrorHandling(event.dataTransfer?.files ?? null);
-      const successes: ImageDraftStateAndFile[] = [];
-      const errors: Err<ImageDraftStateAndFileError>[] = [];
+      const { accepted, rejected } = processResults(
+        processImageFilesWithErrorHandling(event.dataTransfer?.files ?? null),
+      );
 
-      processed.forEach((result) => {
-        if (result.success) {
-          successes.push(result.success);
-        } else {
-          errors.push(result.error);
-        }
-      });
-
-      stableOnImageUpload(successes[0]);
-      stableOnImagesUpload(successes);
+      stableOnImageUpload(accepted[0]);
+      stableOnImagesUpload(accepted);
 
       /**
        * @todo Show error to the user in the UI.
        */
-      errors.forEach((error) => {
+      rejected.forEach((error) => {
         console.error("Error uploading image:", error);
       });
     },

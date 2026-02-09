@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "../../../helpers/errorHandling";
+import { accept, type Result, reject } from "../../../helpers/errorHandling";
 import type { ImageDraftState, ImageDraftStateAndFile } from "../../../types";
 
 export type ImageDraftStateAndFileError = "NoFilesProvidedError" | "NotImageError";
@@ -14,13 +14,13 @@ export function processImageFilesWithErrorHandling(
   const results: ImageDraftStateAndFileResult[] = [];
 
   if (files == null || files.length === 0) {
-    results.push(err({ reason: "NoFilesProvidedError" }));
+    results.push(reject({ reason: "NoFilesProvidedError" }));
     return results;
   }
 
   for (const file of Array.from(files)) {
     if (!file.type.startsWith("image/")) {
-      results.push(err({ reason: "NotImageError" }));
+      results.push(reject({ reason: "NotImageError" }));
       continue;
     }
 
@@ -31,7 +31,7 @@ export function processImageFilesWithErrorHandling(
       breakpoints: [],
     };
 
-    results.push(ok({ imageDraft, file }));
+    results.push(accept({ imageDraft, file }));
   }
 
   return results;
