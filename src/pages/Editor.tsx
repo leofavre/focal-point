@@ -46,7 +46,6 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Is there a way to make it invert the colors of the underlying image?
  * - Improve Code snippet.
  * - Slider: use polygon instead of SVG.
- * - Slider: mark original with loud color and bigger ruler dash.
  *
  * ### Basic functionality
  *
@@ -55,6 +54,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Fix app not working in Incognito mode on mobile Chrome.
  * - Make sure app works without any database (single image direct to React state on upload?).
  * - Handle errors in a consistent way. Review try/catch blocks. Test neverthrow.
+ * - Remove all deprecated and dead code.
  *
  * ### DevOps
  *
