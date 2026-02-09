@@ -46,6 +46,7 @@ export type UsePersistedImagesReturn = {
  */
 export function usePersistedImages(): UsePersistedImagesReturn {
   const indexedDBResult = getIndexedDBService<ImageRecord>("images");
+
   const { addRecord, getRecord, getAllRecords, updateRecord, deleteRecord } =
     indexedDBResult.rejected != null ? noopIndexedDBService : indexedDBResult.accepted;
 

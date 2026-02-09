@@ -52,6 +52,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
  * - Fix image not resetting to original aspect ratio after upload.
  * - Fix app not working in Incognito mode on mobile Chrome. Maybe fixed by no relying on IndexedDB?
  * - Remove all deprecated and dead code.
+ * - For study, use an opaque type for the image id.
  *
  * ### DevOps
  *
