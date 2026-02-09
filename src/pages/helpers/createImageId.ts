@@ -1,4 +1,5 @@
 import slugify from "@sindresorhus/slugify";
+import type { ImageId } from "../../types";
 
 /**
  * Generates a unique, URL-friendly image ID from a filename.
@@ -10,7 +11,7 @@ import slugify from "@sindresorhus/slugify";
  *
  * @returns A unique ID (e.g. "my-photo", "my-photo-2")
  */
-export function createImageId(name: string, usedIds: Set<string>): string {
+export function createImageId(name: string, usedIds: Set<string>): ImageId {
   const baseName = name.split(/[/\\]/).pop() ?? "";
   const lastDot = baseName.lastIndexOf(".");
   const nameWithoutExt = lastDot > 0 ? baseName.slice(0, lastDot) : baseName;
@@ -26,5 +27,5 @@ export function createImageId(name: string, usedIds: Set<string>): string {
   }
 
   usedIds.add(candidate);
-  return candidate;
+  return candidate as ImageId;
 }

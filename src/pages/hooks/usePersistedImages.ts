@@ -4,7 +4,7 @@ import type { Err, Result } from "../../helpers/errorHandling";
 import { accept, processResults, reject } from "../../helpers/errorHandling";
 import { getIndexedDBService } from "../../services/indexedDBService";
 import type { DatabaseService } from "../../services/types";
-import type { ImageDraftStateAndFile, ImageRecord } from "../../types";
+import type { ImageDraftStateAndFile, ImageId, ImageRecord } from "../../types";
 import { createImageId } from "../helpers/createImageId";
 
 const noopIndexedDBService: DatabaseService<ImageRecord> = {
@@ -17,16 +17,16 @@ const noopIndexedDBService: DatabaseService<ImageRecord> = {
 
 export type UsePersistedImagesReturn = {
   images: ImageRecord[] | undefined;
-  addImage: (draftAndFile: ImageDraftStateAndFile) => Promise<Result<string, "AddImageFailed">>;
+  addImage: (draftAndFile: ImageDraftStateAndFile) => Promise<Result<ImageId, "AddImageFailed">>;
   addImages: (
     draftsAndFiles: ImageDraftStateAndFile[],
-  ) => Promise<{ accepted: string[]; rejected: Err<"AddImageFailed">[] }>;
-  getImage: (id: string) => Promise<ImageRecord | undefined>;
+  ) => Promise<{ accepted: ImageId[]; rejected: Err<"AddImageFailed">[] }>;
+  getImage: (id: ImageId) => Promise<ImageRecord | undefined>;
   updateImage: (
-    id: string,
+    id: ImageId,
     updates: Partial<ImageRecord>,
-  ) => Promise<Result<string | undefined, "UpdateImageFailed">>;
-  deleteImage: (id: string) => Promise<string | undefined>;
+  ) => Promise<Result<ImageId | undefined, "UpdateImageFailed">>;
+  deleteImage: (id: ImageId) => Promise<ImageId | undefined>;
   refreshImages: () => Promise<Result<void, "RefreshFailed">>;
 };
 
@@ -52,7 +52,7 @@ export function usePersistedImages(): UsePersistedImagesReturn {
 
   const [images, setImages] = useState<ImageRecord[] | undefined>(undefined);
 
-  const refreshImages = useCallback(async (): Promise<Result<void, "RefreshFailed">> => {
+  const refreshImages: UsePersistedImagesReturn["refreshImages"] = useCallback(async () => {
     try {
       const all = await getAllRecords();
       setImages(all ?? []);
@@ -65,7 +65,9 @@ export function usePersistedImages(): UsePersistedImagesReturn {
   useEffect(() => {
     refreshImages().then((result) => {
       /**
-       * @todo Maybe show error to the user in the UI.
+       * @todo
+       *
+       * Also export an event handler so that this error can be handled by the caller.
        */
       if (result.rejected != null) {
         console.error("Error refreshing images:", result.rejected.reason);
@@ -73,10 +75,8 @@ export function usePersistedImages(): UsePersistedImagesReturn {
     });
   }, [refreshImages]);
 
-  const addImages = useCallback(
-    async (
-      draftsAndFiles: ImageDraftStateAndFile[],
-    ): Promise<{ accepted: string[]; rejected: Err<"AddImageFailed">[] }> => {
+  const addImages: UsePersistedImagesReturn["addImages"] = useCallback(
+    async (draftsAndFiles) => {
       let existing: ImageRecord[];
       try {
         const all = await getAllRecords();
@@ -86,7 +86,7 @@ export function usePersistedImages(): UsePersistedImagesReturn {
       }
       const usedIds = new Set(existing.map((r) => r.id));
 
-      const results: Result<string, "AddImageFailed">[] = [];
+      const results: Result<ImageId, "AddImageFailed">[] = [];
       for (const { imageDraft, file } of draftsAndFiles) {
         try {
           const id = createImageId(imageDraft.name, usedIds);
@@ -100,6 +100,7 @@ export function usePersistedImages(): UsePersistedImagesReturn {
       }
 
       const { accepted: ids } = processResults(results);
+
       if (ids.length > 0) {
         const refreshResult = await refreshImages();
         /**
@@ -114,8 +115,8 @@ export function usePersistedImages(): UsePersistedImagesReturn {
     [addRecord, getAllRecords, refreshImages],
   );
 
-  const addImage = useCallback(
-    async (draftAndFile: ImageDraftStateAndFile): Promise<Result<string, "AddImageFailed">> => {
+  const addImage: UsePersistedImagesReturn["addImage"] = useCallback(
+    async (draftAndFile) => {
       const { accepted: ids } = await addImages([draftAndFile]);
       const id = ids[0];
       if (id != null) return accept(id);
@@ -124,18 +125,15 @@ export function usePersistedImages(): UsePersistedImagesReturn {
     [addImages],
   );
 
-  const getImage = useCallback(
-    async (id: string) => {
+  const getImage: UsePersistedImagesReturn["getImage"] = useCallback(
+    async (id) => {
       return await getRecord(id);
     },
     [getRecord],
   );
 
-  const updateImage = useCallback(
-    async (
-      id: string,
-      updates: Partial<ImageRecord>,
-    ): Promise<Result<string | undefined, "UpdateImageFailed">> => {
+  const updateImage: UsePersistedImagesReturn["updateImage"] = useCallback(
+    async (id, updates) => {
       try {
         const current = await getRecord(id);
         if (current == null) return accept(undefined);
@@ -164,8 +162,8 @@ export function usePersistedImages(): UsePersistedImagesReturn {
     [getRecord, updateRecord, refreshImages],
   );
 
-  const deleteImage = useCallback(
-    async (id: string) => {
+  const deleteImage: UsePersistedImagesReturn["deleteImage"] = useCallback(
+    async (id) => {
       await deleteRecord(id);
       await refreshImages();
       return id;

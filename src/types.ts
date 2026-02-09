@@ -1,4 +1,7 @@
-import type { Simplify } from "type-fest";
+import type { Simplify, Tagged } from "type-fest";
+
+export type ImageId = Tagged<string, "ImageId">;
+
 export type ObjectPositionString = `${string}% ${string}%`;
 
 export type ObjectPositionObject = { x: number; y: number };
@@ -33,7 +36,7 @@ export type ImageState = Simplify<
 
 export type ImageRecord = Simplify<
   ImageDraftState & {
-    id: string;
+    id: ImageId;
     file: Blob;
   }
 >;

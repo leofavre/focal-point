@@ -12,7 +12,7 @@ import { ToggleButton } from "../components/ToggleButton/ToggleButton";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
-import type { ImageDraftStateAndFile, ImageState, ObjectPositionString } from "../types";
+import type { ImageDraftStateAndFile, ImageId, ImageState, ObjectPositionString } from "../types";
 import { EditorGrid } from "./Editor.styled";
 import { createImageStateFromDraftAndFile } from "./helpers/createImageStateFromDraftAndFile";
 import { createImageStateFromRecord } from "./helpers/createImageStateFromRecord";
@@ -73,7 +73,7 @@ export default function Editor() {
   const uploaderButtonRef = useRef<HTMLButtonElement>(null);
   const isFirstImageLoadInSessionRef = useRef(true);
 
-  const { imageId } = useParams<{ imageId: string }>();
+  const { imageId } = useParams<{ imageId: ImageId }>();
   const [image, setImage] = useState<ImageState | null>(null);
   const { images, addImage, updateImage } = usePersistedImages();
 
@@ -87,7 +87,7 @@ export default function Editor() {
    * - If the app is in persistent mode, has an `imageId` and still the image was not
    * loaded, then we have a "not found..." error.
    */
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   /**
    * Safely sets the image state revoking the previous blob URL if the new one is different.
@@ -291,7 +291,7 @@ export default function Editor() {
 
   const imageCount = images?.length ?? 0;
 
-  const stableImageRecordGetter = useEffectEvent((imageId: string) => {
+  const stableImageRecordGetter = useEffectEvent((imageId: ImageId) => {
     return images?.find((image) => image.id === imageId);
   });
 
