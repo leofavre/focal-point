@@ -84,12 +84,7 @@ const noop = () => {};
  *
  * - Fix broken pre-release pipeline. Maybe add PAT?
  * - Control cache invalidation, given it's a PWA.
- * - Add integration tests (which tool to use?).
  * - Add Storybook tests (to see how it works?).
- *
- * ### Testing
- *
- * - Integration tests with Playwright or something like that.
  *
  * ### Advanced functionality
  *
