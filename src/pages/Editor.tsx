@@ -95,6 +95,7 @@ const noop = () => {};
  *
  * - Support external image sources.
  * - Breakpoints with container queries.
+ * - Multiple images with "file system".
  * - Maybe make a browser extension?
  * - Maybe make a React component?
  * - Maybe make a native custom element?
