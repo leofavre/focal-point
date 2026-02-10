@@ -76,9 +76,9 @@ The Generator uses `generator_setup_page`, runs each step with browser tools, th
 
 ## Commands
 
-| Command           | Description                    |
-|------------------|--------------------------------|
-| `yarn test:e2e`  | Run all Playwright E2E tests   |
+| Command            | Description                  |
+|--------------------|------------------------------|
+| `yarn test:e2e`    | Run all Playwright E2E tests |
 | `yarn test:e2e:ui` | Run tests with Playwright UI |
 
 ## Regenerating agent definitions
