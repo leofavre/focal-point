@@ -27,7 +27,7 @@ export function FullScreenDropZone({
       aria-hidden
       style={{ pointerEvents: "auto" }}
     >
-      <input {...getInputProps()} />
+      <input {...getInputProps()} aria-hidden />
     </Overlay>
   );
 }

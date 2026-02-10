@@ -46,7 +46,7 @@ export function ImageUploaderButton({
       {...rest}
     >
       <InvisibleLabel>
-        <InvisibleControl {...getInputProps()} tabIndex={-1} />
+        <InvisibleControl {...getInputProps()} tabIndex={-1} aria-hidden />
         <ToggleButton
           ref={mergedRefs}
           type="button"
