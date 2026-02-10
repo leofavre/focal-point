@@ -59,12 +59,13 @@ const noop = () => {};
  * - Improve Focal Point draggable icon. Is there a way to make it invert the colors of the underlying image?
  * - Improve loading state.
  * - Improve Code snippet.
+ * - Improve toasters.
  * - Slider: use polygon instead of SVG. Can I use it in the background-image?
  *
  * ### Basic functionality
  *
  * - Handle errors with toaster.
- * - Fix app not working in Incognito mode on mobile Chrome. Maybe fixed by no relying on IndexedDB?
+ * - Fix app not working in Incognito mode on mobile Chrome. Maybe fixed by not relying on IndexedDB?
  * - Fix aspect ratio being reset on refresh. But on refresh only.
  * - Fix weird shadow in buttons.
  * - Remove all deprecated and dead code.
