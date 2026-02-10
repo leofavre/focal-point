@@ -71,4 +71,61 @@ test.describe("Landing upload", () => {
     await expect(page).toHaveURL("/");
     await expectEditorWithControlsVisible(page);
   });
+
+  test("user starts upload via button then cancels file dialog – UI responsive and button not pressed", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const landing = page.locator('[data-component="Landing"]');
+    await expect(landing).toBeVisible();
+    const uploadButton = landing.getByRole("button", { name: "Upload" });
+    await expect(uploadButton).toBeVisible();
+
+    const fileChooserPromise = page.waitForEvent("filechooser");
+    await uploadButton.click();
+    await fileChooserPromise;
+    // Don't call setFiles(); simulate dialog closed by triggering window focus.
+    // react-dropzone calls onFileDialogCancel 300ms after window focus when no files were selected.
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.waitForTimeout(500);
+
+    await expect(page).toHaveURL("/");
+    await expect(landing).toBeVisible();
+    await expect(uploadButton).toHaveAttribute("aria-pressed", "false", { timeout: 5000 });
+    await expect(page.locator('[data-component="FocalPointEditor"]')).not.toBeVisible();
+  });
+
+  test("IndexedDB disabled: user starts upload via button then cancels – UI responsive and button not pressed", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      try {
+        Object.defineProperty(window, "indexedDB", {
+          get: () => undefined,
+          configurable: true,
+          enumerable: true,
+        });
+      } catch {
+        // ignore if not configurable
+      }
+    });
+    await page.goto("/");
+
+    const landing = page.locator('[data-component="Landing"]');
+    await expect(landing).toBeVisible();
+    const uploadButton = landing.getByRole("button", { name: "Upload" });
+    await expect(uploadButton).toBeVisible();
+
+    const fileChooserPromise = page.waitForEvent("filechooser");
+    await uploadButton.click();
+    await fileChooserPromise;
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.waitForTimeout(500);
+
+    await expect(page).toHaveURL("/");
+    await expect(landing).toBeVisible();
+    await expect(uploadButton).toHaveAttribute("aria-pressed", "false", { timeout: 5000 });
+    await expect(page.locator('[data-component="FocalPointEditor"]')).not.toBeVisible();
+  });
 });
