@@ -1,97 +1,74 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import { type FileRejection, useDropzone } from "react-dropzone";
 import { processResults } from "../../helpers/errorHandling";
-
 import { Overlay } from "./FullScreenDropZone.styled";
 import { processImageFilesWithErrorHandling } from "./helpers/processImageFilesWithErrorHandling";
 import { useImageUploadHandlers } from "./hooks/useImageUploadHandlers";
 import type { FullScreenDropZoneProps } from "./types";
 
-export function FullScreenDropZone({ onImageUpload, onImagesUpload }: FullScreenDropZoneProps) {
-  const [isDragOver, setIsDragOver] = useState(false);
-  const dragCounterRef = useRef(0);
+const IMAGE_ACCEPT = {
+  "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif"],
+} as const;
 
+/**
+ * Build a FileList-like from an array of File for use with processImageFilesWithErrorHandling.
+ */
+function fileListFromFiles(files: File[]): FileList {
+  const list = {
+    length: files.length,
+    item: (i: number) => files[i] ?? null,
+    ...Object.fromEntries(files.map((f, i) => [i, f])),
+  } as unknown as FileList;
+  return list;
+}
+
+export function FullScreenDropZone({ onImageUpload, onImagesUpload }: FullScreenDropZoneProps) {
   const { stableOnImageUpload, stableOnImagesUpload } = useImageUploadHandlers({
     onImageUpload,
     onImagesUpload,
   });
 
-  /**
-   * When a file is dropped, upload it and close the file manager.
-   */
-  const handleDrop = useCallback(
-    (event: DragEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      dragCounterRef.current = 0;
-      setIsDragOver(false);
+  const onDrop = useCallback(
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      for (const rejection of fileRejections) {
+        for (const err of rejection.errors) {
+          console.error("Error uploading image:", err.message);
+        }
+      }
 
-      const { accepted, rejected } = processResults(
-        processImageFilesWithErrorHandling(event.dataTransfer?.files ?? null),
-      );
+      if (acceptedFiles.length === 0) return;
+
+      const fileList = fileListFromFiles(acceptedFiles);
+      const { accepted, rejected } = processResults(processImageFilesWithErrorHandling(fileList));
 
       stableOnImageUpload(accepted[0]);
       stableOnImagesUpload(accepted);
 
-      /**
-       * @todo Maybe show error to the user in the UI.
-       */
-      rejected.forEach((error) => {
+      for (const error of rejected) {
         console.error("Error uploading image:", error);
-      });
+      }
     },
     [stableOnImageUpload, stableOnImagesUpload],
   );
 
-  /**
-   * When a file is dragged over the drop zone, show the drop zone. Using counter avoids
-   * showing the drop zone when a file is dragged over the drop zone multiple times.
-   */
-  useEffect(() => {
-    const handleDragEnter = (event: DragEvent) => {
-      event.preventDefault();
-      dragCounterRef.current += 1;
-      setIsDragOver(true);
-    };
+  const { getRootProps, getInputProps, isDragGlobal } = useDropzone({
+    noClick: true,
+    noKeyboard: true,
+    accept: IMAGE_ACCEPT,
+    onDrop,
+    multiple: onImagesUpload != null,
+  });
 
-    const handleDragOver = (event: DragEvent) => {
-      event.preventDefault();
-    };
+  if (!isDragGlobal) return null;
 
-    const handleDragLeave = (event: DragEvent) => {
-      if (
-        event.relatedTarget != null &&
-        event.relatedTarget instanceof Node &&
-        document.contains(event.relatedTarget)
-      ) {
-        return;
-      }
-
-      dragCounterRef.current -= 1;
-
-      if (dragCounterRef.current > 0) return;
-
-      dragCounterRef.current = 0;
-      setIsDragOver(false);
-    };
-
-    const handleDropEffect = (event: DragEvent) => {
-      handleDrop(event);
-    };
-
-    document.addEventListener("dragenter", handleDragEnter);
-    document.addEventListener("dragover", handleDragOver);
-    document.addEventListener("dragleave", handleDragLeave);
-    document.addEventListener("drop", handleDropEffect);
-
-    return () => {
-      document.removeEventListener("dragenter", handleDragEnter);
-      document.removeEventListener("dragover", handleDragOver);
-      document.removeEventListener("dragleave", handleDragLeave);
-      document.removeEventListener("drop", handleDropEffect);
-    };
-  }, [handleDrop]);
-
-  if (!isDragOver) return null;
-
-  return <Overlay data-component="FullScreenDropZone" aria-hidden />;
+  return (
+    <Overlay
+      {...getRootProps()}
+      data-component="FullScreenDropZone"
+      aria-hidden
+      style={{ pointerEvents: "auto" }}
+    >
+      <input {...getInputProps()} />
+    </Overlay>
+  );
 }
