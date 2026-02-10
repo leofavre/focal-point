@@ -1,9 +1,11 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import { useMergeRefs } from "react-merge-refs";
+import { type Err, processResults } from "../../helpers/errorHandling";
 import { IconUpload } from "../../icons/IconUpload";
+import type { ImageDraftStateAndFile } from "../../types";
 import { ToggleButton } from "../ToggleButton/ToggleButton";
-import { useImageUploadHandlers } from "./hooks/useImageUploadHandlers";
+import { processImageFilesWithErrorHandling } from "./helpers/processImageFilesWithErrorHandling";
 import { InvisibleControl, InvisibleForm, InvisibleLabel } from "./ImageUploader.styled";
 import type { ImageUploaderButtonProps } from "./types";
 
@@ -22,24 +24,55 @@ export function ImageUploaderButton({
 
   const [isOpened, setIsOpened] = useState(false);
 
-  const { handleFileChange, handleFormSubmit } = useImageUploadHandlers({
-    onImageUpload,
-    onImagesUpload,
-    onImageUploadError,
-    onImagesUploadError,
-  });
+  const stableOnImageUpload = useEffectEvent((draftAndFile: ImageDraftStateAndFile) =>
+    onImageUpload?.(draftAndFile),
+  );
+  const stableOnImagesUpload = useEffectEvent((draftsAndFiles: ImageDraftStateAndFile[]) =>
+    onImagesUpload?.(draftsAndFiles),
+  );
+  const stableOnImageUploadError = useEffectEvent((error: Err<string>) =>
+    onImageUploadError?.(error),
+  );
+  const stableOnImagesUploadError = useEffectEvent((errors: Err<string>[]) =>
+    onImagesUploadError?.(errors),
+  );
+
+  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const { accepted, rejected } = processResults(
+      processImageFilesWithErrorHandling(event.currentTarget?.files ?? null),
+    );
+
+    if (accepted.length > 0) {
+      stableOnImageUpload(accepted[0]);
+      stableOnImagesUpload(accepted);
+    }
+
+    if (rejected.length > 0) {
+      stableOnImageUploadError(rejected[0]);
+      stableOnImagesUploadError(rejected);
+    }
+
+    if (event.currentTarget == null) return;
+    event.currentTarget.value = "";
+  }, []);
+
+  const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  }, []);
 
   const stableInputRefGetter = useEffectEvent(() => inputRef.current);
-  const stableHandleFileChange = useEffectEvent(handleFileChange);
   const setClosed = useEffectEvent(() => setIsOpened(false));
 
   /**
    * When a file is selected, upload it and close the file manager.
    */
-  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    stableHandleFileChange(event);
-    setClosed();
-  }, []);
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      handleFileChange(event);
+      setClosed();
+    },
+    [handleFileChange],
+  );
 
   /**
    * When the button is clicked, open the file manager by clicking the hidden input element.
