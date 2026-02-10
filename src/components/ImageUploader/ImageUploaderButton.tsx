@@ -12,6 +12,8 @@ export function ImageUploaderButton({
   size = "small",
   onImageUpload,
   onImagesUpload,
+  onImageUploadError,
+  onImagesUploadError,
   ...rest
 }: ImageUploaderButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -23,6 +25,8 @@ export function ImageUploaderButton({
   const { handleFileChange, handleFormSubmit } = useImageUploadHandlers({
     onImageUpload,
     onImagesUpload,
+    onImageUploadError,
+    onImagesUploadError,
   });
 
   const stableInputRefGetter = useEffectEvent(() => inputRef.current);
