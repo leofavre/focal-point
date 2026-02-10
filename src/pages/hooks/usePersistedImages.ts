@@ -8,6 +8,7 @@ import type { ImageDraftStateAndFile, ImageId, ImageRecord } from "../../types";
 import { createImageId } from "../helpers/createImageId";
 
 export type UsePersistedImagesOptions = {
+  enabled?: boolean;
   onRefreshImagesError?: (error: Err<"RefreshFailed">) => void;
 };
 
@@ -40,6 +41,10 @@ export type UsePersistedImagesReturn = {
  * Unlike usePersistedUIRecord (one entry per id), this store holds many images
  * each identified by a human-friendly ID derived from the filename (with collision suffix).
  *
+ * `enabled` (default `true`) can be set to `false` to disable persistence; when disabled,
+ * no IndexedDB reads or writes occur, `images` is always `undefined` (never loaded), and
+ * mutating methods (addImage, updateImage, deleteImage) no-op without touching the database.
+ *
  * `onRefreshImagesError` can be passed as an option to be called when the initial refresh
  * fails (e.g. IndexedDB unavailable).
  *
@@ -53,15 +58,21 @@ export type UsePersistedImagesReturn = {
  * - `refreshImages`: reloads the list from the database; returns Result.
  */
 export function usePersistedImages(options?: UsePersistedImagesOptions): UsePersistedImagesReturn {
-  const { onRefreshImagesError } = options ?? {};
+  const { enabled = true, onRefreshImagesError } = options ?? {};
   const indexedDBResult = getIndexedDBService<ImageRecord>("images");
+  const isEnabled = indexedDBResult.rejected == null && enabled;
 
-  const { addRecord, getRecord, getAllRecords, updateRecord, deleteRecord } =
-    indexedDBResult.rejected != null ? noopIndexedDBService : indexedDBResult.accepted;
+  const { addRecord, getRecord, getAllRecords, updateRecord, deleteRecord } = isEnabled
+    ? indexedDBResult.accepted
+    : noopIndexedDBService;
 
   const [images, setImages] = useState<ImageRecord[] | undefined>(undefined);
 
   const refreshImages: UsePersistedImagesReturn["refreshImages"] = useCallback(async () => {
+    if (!isEnabled) {
+      return accept(undefined);
+    }
+
     try {
       const all = await getAllRecords();
       setImages(all ?? []);
@@ -69,7 +80,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
     } catch {
       return reject({ reason: "RefreshFailed" });
     }
-  }, [getAllRecords]);
+  }, [isEnabled, getAllRecords]);
 
   const stableOnRefreshImagesError = useEffectEvent((err: Err<"RefreshFailed">) =>
     onRefreshImagesError?.(err),

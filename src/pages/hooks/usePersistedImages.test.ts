@@ -404,4 +404,128 @@ describe("usePersistedImages", () => {
       }),
     ).rejects.toThrow("IndexedDB delete failed");
   });
+
+  describe("enabled option", () => {
+    it("when enabled is false, images is always undefined", async () => {
+      mockGetAllRecords.mockResolvedValue([
+        createMockImageRecord({
+          id: "any-id",
+          ...createMockImageDraftState({ name: "any.png" }),
+          file: testFile,
+        }),
+      ]);
+
+      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+
+      expect(result.current.images).toBeUndefined();
+
+      await waitFor(() => {
+        expect(result.current.images).toBeUndefined();
+      });
+
+      await act(async () => {
+        await result.current.refreshImages();
+      });
+      expect(result.current.images).toBeUndefined();
+    });
+
+    it("when enabled is false, does not load images or call getAllRecords", async () => {
+      mockGetAllRecords.mockResolvedValue([]);
+
+      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+
+      await waitFor(() => {
+        expect(result.current.images).toBeUndefined();
+      });
+
+      expect(mockGetAllRecords).not.toHaveBeenCalled();
+    });
+
+    it("when enabled is false, refreshImages resolves without calling getAllRecords", async () => {
+      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+
+      let refreshResult: Awaited<ReturnType<typeof result.current.refreshImages>> | undefined;
+      await act(async () => {
+        refreshResult = await result.current.refreshImages();
+      });
+
+      expect(refreshResult?.accepted).toBeUndefined();
+      expect(refreshResult?.rejected).toBeUndefined();
+      expect(mockGetAllRecords).not.toHaveBeenCalled();
+      expect(result.current.images).toBeUndefined();
+    });
+
+    it("when enabled is false, addImage does not call addRecord and images stay undefined", async () => {
+      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+
+      const imageDraft = createMockImageDraftState({ name: "no-persist.png" });
+      let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
+      await act(async () => {
+        addResult = await result.current.addImage({ imageDraft, file: testFile });
+      });
+
+      expect(addResult?.accepted).toBe("no-persist");
+      expect(mockAddRecord).not.toHaveBeenCalled();
+      expect(mockGetAllRecords).not.toHaveBeenCalled();
+      expect(result.current.images).toBeUndefined();
+    });
+
+    it("when enabled is false, getImage returns undefined without calling getRecord", async () => {
+      const id = "any-id" as ImageId;
+      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+
+      let fetched: ImageRecord | undefined;
+      await act(async () => {
+        fetched = await result.current.getImage(id);
+      });
+
+      expect(fetched).toBeUndefined();
+      expect(mockGetRecord).not.toHaveBeenCalled();
+    });
+
+    it("when enabled is false, updateImage returns accepted undefined without calling getRecord or updateRecord", async () => {
+      const id = "update-id" as ImageId;
+      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+
+      let updateResult: Awaited<ReturnType<typeof result.current.updateImage>> | undefined;
+      await act(async () => {
+        updateResult = await result.current.updateImage(id, { name: "ignored.png" });
+      });
+
+      expect(updateResult?.accepted).toBeUndefined();
+      expect(mockGetRecord).not.toHaveBeenCalled();
+      expect(mockUpdateRecord).not.toHaveBeenCalled();
+    });
+
+    it("when enabled is false, deleteImage does not call deleteRecord", async () => {
+      const id = "delete-id" as ImageId;
+      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+
+      const deleted = await act(async () => result.current.deleteImage(id));
+
+      expect(deleted).toBe(id);
+      expect(mockDeleteRecord).not.toHaveBeenCalled();
+      expect(mockGetAllRecords).not.toHaveBeenCalled();
+    });
+
+    it("when enabled is true explicitly, loads images as when default", async () => {
+      const record = createMockImageRecord({
+        id: "explicit-enabled",
+        ...createMockImageDraftState({ name: "explicit.png" }),
+        file: testFile,
+      });
+      mockGetAllRecords.mockResolvedValue([record]);
+
+      const { result } = renderHook(() => usePersistedImages({ enabled: true }));
+
+      await waitFor(() => {
+        expect(result.current.images).toHaveLength(1);
+        expect(result.current.images?.[0]).toMatchObject({
+          id: "explicit-enabled",
+          name: "explicit.png",
+        });
+      });
+      expect(mockGetAllRecords).toHaveBeenCalled();
+    });
+  });
 });
