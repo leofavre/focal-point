@@ -204,15 +204,21 @@ export default function Editor() {
         { id: persistenceMode === "singleImage" ? SINGLE_IMAGE_MODE_ID : undefined },
       );
 
-      if (addResult.accepted != null) {
-        console.log("saved image with id", addResult.accepted);
-        await navigate(`/${addResult.accepted}`);
-        console.log("navigated to", `/${addResult.accepted}`);
+      const nextImageId = addResult.accepted;
+
+      /**
+       * Only navigate if the imageId has changed, which means that pages are different.
+       */
+      const shouldNavigate = nextImageId != null && imageId !== nextImageId;
+
+      if (shouldNavigate) {
+        await navigate(`/${nextImageId}`);
+        console.log("navigated from", `/${imageId ?? ""}`, "to", `/${nextImageId ?? ""}`);
       }
 
       setIsProcessingImageUpload(false);
     },
-    [persistenceMode, addImage, navigate, setAspectRatio],
+    [persistenceMode, addImage, navigate, setAspectRatio, imageId],
   );
 
   const handleImageError = useCallback(() => {
@@ -356,6 +362,9 @@ export default function Editor() {
     [imageId, aspectRatio, persistenceMode, updateImage],
   );
 
+  /**
+   * Undefined if the database is loading, zero if the database is empty.
+   */
   const imageCount = images?.length;
 
   const stableImageRecordGetter = useEffectEvent((imageId: ImageId) => {
@@ -418,7 +427,10 @@ export default function Editor() {
     asyncSetImageState();
   }, [imageId, imageCount, persistenceMode, setAspectRatio]);
 
-  const pageState = usePageState({ persistenceMode, imageId, image });
+  const isEditingSingleImage =
+    persistenceMode === "singleImage" && imageId === SINGLE_IMAGE_MODE_ID;
+
+  const pageState = usePageState({ persistenceMode, imageId, image, isEditingSingleImage });
 
   const [isLoading, setIsLoading] = useDelayedState(pageState === "imageNotFound");
 
@@ -469,7 +481,9 @@ export default function Editor() {
           <Message>Page not found...</Message>
         ) : pageState === "imageNotFound" ? (
           <Message>
-            {imageCount === 0 ? "Start by uploading an image..." : "Image not found..."}
+            {isEditingSingleImage && imageCount === 0
+              ? "Start by uploading an image..."
+              : "Image not found..."}
           </Message>
         ) : (
           <Message>Critical error...</Message>
