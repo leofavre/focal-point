@@ -1,11 +1,10 @@
-import { initDB, useIndexedDB } from "react-indexed-db-hook";
+import { initDB, useIndexedDB, type IndexedDBProps } from "react-indexed-db-hook";
 import { isIndexedDBAvailable } from "../helpers/indexedDBAvailability";
 import type { Result } from "../helpers/errorHandling";
 import { accept, reject } from "../helpers/errorHandling";
-import { DBConfig } from "./databaseConfig";
 import type { DatabaseKey, DatabaseService } from "./types";
 
-let databaseInitialized = false;
+const initializedDatabases = new Set<string>();
 
 /**
  * Returns a DatabaseService backed by IndexedDB.
@@ -13,15 +12,18 @@ let databaseInitialized = false;
  * IndexedDBUnavailable without try/catch.
  */
 export function getIndexedDBService<T, K extends DatabaseKey = string>(
+  dbConfig: IndexedDBProps,
   tableName: string,
 ): Result<DatabaseService<T, K>, "IndexedDBUnavailable"> {
   if (!isIndexedDBAvailable()) {
     return reject({ reason: "IndexedDBUnavailable" });
   }
 
-  if (databaseInitialized === false) {
-    initDB(DBConfig);
-    databaseInitialized = true;
+  const dbKey = `${dbConfig.name}_${dbConfig.version}`;
+
+  if (!initializedDatabases.has(dbKey)) {
+    initDB(dbConfig);
+    initializedDatabases.add(dbKey);
   }
 
   const indexedDB = useIndexedDB(tableName);

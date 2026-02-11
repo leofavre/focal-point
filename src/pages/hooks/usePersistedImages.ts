@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import type { Err, Result } from "../../helpers/errorHandling";
 import { accept, processResults, reject } from "../../helpers/errorHandling";
 import { getIndexedDBService } from "../../services/indexedDBService";
+import { DBConfig } from "../../services/databaseConfig";
 import type { DatabaseService } from "../../services/types";
 import type { ImageDraftStateAndFile, ImageId, ImageRecord } from "../../types";
 import { createImageId } from "../helpers/createImageId";
@@ -89,7 +90,7 @@ export type UsePersistedImagesReturn = {
  */
 export function usePersistedImages(options?: UsePersistedImagesOptions): UsePersistedImagesReturn {
   const { enabled = true, onRefreshImagesError } = options ?? {};
-  const indexedDBResult = getIndexedDBService<ImageRecord>("images");
+  const indexedDBResult = getIndexedDBService<ImageRecord>(DBConfig, "images");
   const isEnabled = indexedDBResult.rejected == null && enabled;
 
   const { addRecord, getRecord, getAllRecords, updateRecord, deleteRecord } = isEnabled

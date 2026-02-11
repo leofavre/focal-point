@@ -3,17 +3,16 @@
  * instead of the whole service being wrapped in a Result.
  * Must be called from a React component (uses useIndexedDB hook).
  */
-import { initDB, useIndexedDB } from "react-indexed-db-hook";
+import { initDB, useIndexedDB, type IndexedDBProps } from "react-indexed-db-hook";
 import { isIndexedDBAvailable } from "../helpers/indexedDBAvailability";
 import type { Result } from "../helpers/errorHandling";
 import { accept, reject } from "../helpers/errorHandling";
-import { DBConfig } from "./databaseConfig";
 import { getRecordKeyFromValue } from "../helpers/recordKey";
 import type { DatabaseKey, ResultBasedDatabaseService } from "./types";
 
 const UNAVAILABLE = "IndexedDBUnavailable" as const;
 
-let databaseInitialized = false;
+const initializedDatabases = new Set<string>();
 
 function createUnavailableStub<T, K extends DatabaseKey>(): ResultBasedDatabaseService<
   T,
@@ -38,15 +37,18 @@ function createUnavailableStub<T, K extends DatabaseKey>(): ResultBasedDatabaseS
  * Must be called from a React component (uses useIndexedDB hook).
  */
 export function getIndexedDBServiceResultBased<T, K extends DatabaseKey = string>(
+  dbConfig: IndexedDBProps,
   tableName: string,
 ): ResultBasedDatabaseService<T, K, typeof UNAVAILABLE> {
   if (!isIndexedDBAvailable()) {
     return createUnavailableStub<T, K>();
   }
 
-  if (databaseInitialized === false) {
-    initDB(DBConfig);
-    databaseInitialized = true;
+  const dbKey = `${dbConfig.name}_${dbConfig.version}`;
+
+  if (!initializedDatabases.has(dbKey)) {
+    initDB(dbConfig);
+    initializedDatabases.add(dbKey);
   }
 
   /**

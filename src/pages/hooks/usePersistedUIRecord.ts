@@ -4,6 +4,7 @@ import useDebouncedEffect from "use-debounced-effect";
 import { resultFromPromise } from "../../helpers/errorHandling";
 import { getIndexedDBService } from "../../services/indexedDBService";
 import { getSessionStorageService } from "../../services/sessionStorageService";
+import { DBConfig } from "../../services/databaseConfig";
 import type { UIRecord, UIState } from "../../types";
 
 const noopGetRecord = async (): Promise<undefined> => undefined;
@@ -34,7 +35,7 @@ export function usePersistedUIRecord<K extends keyof UIState>(
   { debounceTimeout = 0, service = "indexedDB" }: UsePersistedUIRecordOptions = {},
 ): UsePersistedUIRecordReturn<K> {
   // Call both so hook order is stable (getIndexedDBService uses useIndexedDB).
-  const indexedDBResult = getIndexedDBService<UIRecord<K>>("ui");
+  const indexedDBResult = getIndexedDBService<UIRecord<K>>(DBConfig, "ui");
   const sessionStorageResult = getSessionStorageService<UIRecord<K>>("ui");
 
   /**

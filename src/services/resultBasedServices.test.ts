@@ -1,48 +1,83 @@
 import { renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import type { IndexedDBProps } from "react-indexed-db-hook";
 import type { Result } from "../helpers/errorHandling";
 import { getInMemoryStorageServiceResultBased } from "./inMemoryStorageServiceResultBased";
 import { getIndexedDBServiceResultBased } from "./indexedDBServiceResultBased";
 import { getSessionStorageServiceResultBased } from "./sessionStorageServiceResultBased";
 import type { ResultBasedDatabaseService } from "./types";
 
-const tableStores = new Map<string, Map<string, unknown>>();
+/**
+ * Test-specific IndexedDB configuration.
+ * Creates multiple stores to support tests that need unique table names.
+ * We create enough stores to support the test suite (27 tests, each may use 1-2 tables).
+ */
+const testDBConfig: IndexedDBProps = {
+  name: "FocalPointEditorTest",
+  version: 1,
+  objectStoresMeta: Array.from({ length: 50 }, (_, i) => ({
+    store: `test_table_${i + 1}`,
+    storeConfig: {
+      keyPath: "id",
+      autoIncrement: false,
+    },
+    storeSchema: [],
+  })),
+};
 
-function getStoreForTable(tableName: string): Map<string, unknown> {
-  if (!tableStores.has(tableName)) {
-    tableStores.set(tableName, new Map());
-  }
-  return tableStores.get(tableName)!;
-}
+/**
+ * Clears the IndexedDB stores used by tests.
+ * This ensures tests start with empty stores and don't leak state.
+ * If the DB doesn't exist yet, this is a no-op (initDB will create it when needed).
+ */
+/**
+ * Clears the IndexedDB stores used by tests.
+ * This ensures tests start with empty stores and don't leak state.
+ * If the DB doesn't exist yet, this is a no-op (initDB will create it when needed).
+ */
+async function clearIndexedDBStores(): Promise<void> {
+  return new Promise((resolve) => {
+    const request = indexedDB.open(testDBConfig.name, testDBConfig.version);
 
-function getRecordKey(value: unknown, key?: unknown): string {
-  const obj = value as { id?: unknown };
-  return String(obj?.id ?? key ?? "");
-}
+    request.onsuccess = () => {
+      const db = request.result;
+      const storeNames = Array.from(db.objectStoreNames);
+      if (storeNames.length === 0) {
+        db.close();
+        resolve();
+        return;
+      }
 
-vi.mock("../helpers/indexedDBAvailability", () => ({
-  isIndexedDBAvailable: vi.fn(() => true),
-}));
+      const transaction = db.transaction(storeNames, "readwrite");
 
-vi.mock("react-indexed-db-hook", () => ({
-  initDB: vi.fn(),
-  useIndexedDB: vi.fn((tableName: string) => {
-    const store = getStoreForTable(tableName);
-    return {
-      add: async (value: unknown, key?: unknown) => {
-        store.set(getRecordKey(value, key), value);
-      },
-      getByID: async (id: string | number) => store.get(String(id)),
-      getAll: async () => Array.from(store.values()),
-      update: async (value: unknown, key?: unknown) => {
-        store.set(getRecordKey(value, key), value);
-      },
-      deleteRecord: async (key: string) => {
-        store.delete(String(key));
-      },
+      transaction.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+
+      transaction.onerror = () => {
+        db.close();
+        // Ignore errors - stores might not exist yet
+        resolve();
+      };
+
+      for (const storeName of storeNames) {
+        transaction.objectStore(storeName).clear();
+      }
     };
-  }),
-}));
+
+    request.onerror = () => {
+      // DB doesn't exist yet, which is fine
+      resolve();
+    };
+
+    request.onupgradeneeded = () => {
+      // DB doesn't exist yet or needs upgrade, but we'll let initDB handle that
+      request.transaction?.abort();
+      resolve();
+    };
+  });
+}
 
 async function expectAccepted<T, R extends string>(
   promise: Promise<Result<T, R>>,
@@ -58,6 +93,8 @@ let tableCounter = 0;
 
 function getUniqueTableName(): string {
   tableCounter += 1;
+  // For indexedDB, cycle through the available test stores
+  // For other services, use unique names to avoid collisions
   return `test_table_${tableCounter}`;
 }
 
@@ -66,31 +103,50 @@ type ServiceConfig = {
   getService: <T, K extends string = string>(
     tableName: string,
   ) => ResultBasedDatabaseService<T, K, string>;
+  getTableName: () => string;
 };
 
 const serviceConfigs: ServiceConfig[] = [
   {
     name: "sessionStorage",
     getService: (tableName) => getSessionStorageServiceResultBased(tableName),
+    getTableName: getUniqueTableName,
   },
   {
     name: "inMemory",
     getService: (tableName) => getInMemoryStorageServiceResultBased(tableName),
+    getTableName: getUniqueTableName,
   },
   {
     name: "indexedDB",
     getService: <T, K extends string = string>(tableName: string) => {
-      const { result } = renderHook(() => getIndexedDBServiceResultBased<T, K>(tableName));
+      // Use the table name directly since testDBConfig has stores matching the pattern
+      const { result } = renderHook(() =>
+        getIndexedDBServiceResultBased<T, K>(testDBConfig, tableName),
+      );
       return result.current as ResultBasedDatabaseService<T, K, string>;
     },
+    getTableName: getUniqueTableName,
   },
 ];
 
 describe("result-based services (shared contract)", () => {
+  beforeEach(async () => {
+    // Clear IndexedDB stores before each test to prevent state leakage
+    try {
+      await clearIndexedDBStores();
+    } catch (error) {
+      // Ignore errors if DB doesn't exist yet (first test)
+      // The error will be handled when initDB is called
+    }
+    // Clear sessionStorage to prevent state leakage
+    sessionStorage.clear();
+  });
+
   it.each(serviceConfigs)(
     "addRecord and getRecord round-trip a value ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string; name: string }, string>(tableName);
       const record = { id: "r1", name: "First" };
 
@@ -103,8 +159,8 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "getRecord returns undefined when key is missing ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string }, string>(tableName);
 
       const got = await expectAccepted(service.getRecord("missing"));
@@ -115,8 +171,8 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "getAllRecords returns all records for the table ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string; v: number }, string>(tableName);
 
       await expectAccepted(service.addRecord({ id: "a", v: 1 }));
@@ -131,8 +187,8 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "updateRecord overwrites existing record ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string; count: number }, string>(tableName);
 
       await expectAccepted(service.addRecord({ id: "r1", count: 1 }));
@@ -145,8 +201,8 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "upsertRecord creates record when it does not exist ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string; name: string }, string>(tableName);
 
       await expectAccepted(service.upsertRecord({ id: "new", name: "Created" }));
@@ -158,8 +214,8 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "upsertRecord updates record when it exists ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string; count: number }, string>(tableName);
 
       await expectAccepted(service.addRecord({ id: "r1", count: 1 }));
@@ -172,8 +228,8 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "deleteRecord removes the record ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string }, string>(tableName);
 
       await expectAccepted(service.addRecord({ id: "r1" }));
@@ -186,8 +242,8 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "addRecord uses value.id when present for storage key ($name)",
-    async ({ getService }) => {
-      const tableName = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      const tableName = getTableName();
       const service = getService<{ id: string }, string>(tableName);
 
       await expectAccepted(service.addRecord({ id: "my-id" }));
@@ -199,9 +255,14 @@ describe("result-based services (shared contract)", () => {
 
   it.each(serviceConfigs)(
     "different table names do not collide ($name)",
-    async ({ getService }) => {
-      const tableA = getUniqueTableName();
-      const tableB = getUniqueTableName();
+    async ({ getService, getTableName }) => {
+      // Ensure we get two different table names
+      const tableA = getTableName();
+      let tableB = getTableName();
+      // If we got the same name, get another one
+      while (tableB === tableA) {
+        tableB = getTableName();
+      }
       const serviceA = getService<{ id: string }, string>(tableA);
       const serviceB = getService<{ id: string }, string>(tableB);
 
