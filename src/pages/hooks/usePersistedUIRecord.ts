@@ -1,18 +1,15 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useEffectEvent, useState } from "react";
 import useDebouncedEffect from "use-debounced-effect";
-import { resultFromPromise } from "../../helpers/errorHandling";
-import { getIndexedDBService } from "../../services/indexedDBService";
-import { getSessionStorageService } from "../../services/sessionStorageService";
-import { DBConfig } from "../../services/databaseConfig";
+import { getInMemoryStorageServiceResultBased } from "../../services/inMemoryStorageServiceResultBased";
+import { getSessionStorageServiceResultBased } from "../../services/sessionStorageServiceResultBased";
+import { isSessionStorageAvailable } from "../../helpers/sessionStorageAvailability";
 import type { UIRecord, UIState } from "../../types";
-
-const noopGetRecord = async (): Promise<undefined> => undefined;
-const noopUpdateRecord = async (): Promise<void> => {};
 
 export type UsePersistedUIRecordOptions = {
   debounceTimeout?: number;
-  service?: "sessionStorage" | "indexedDB";
+  /** When true, use in-memory storage instead of sessionStorage (e.g. for ephemeral mode). */
+  forceInMemoryStorage?: boolean;
 };
 
 export type UsePersistedUIRecordReturn<K extends keyof UIState> = [
@@ -21,54 +18,34 @@ export type UsePersistedUIRecordReturn<K extends keyof UIState> = [
 ];
 
 /**
- * Custom React hook for syncing a UI state value with IndexedDB or sessionStorage.
+ * Custom React hook for syncing a UI state value with sessionStorage or in-memory storage.
  * Retrieves the persisted value for the given id from the "ui" store (if available),
  * falls back to a provided default value, and writes updates (debounced).
- * Uses a Result-based approach: getRecord failures and sessionStorage unavailability
- * are handled by falling back to the default value.
+ * Uses result-based services: getRecord returns a Result; failures are handled by falling back to the default value.
+ *
+ * Storage: sessionStorage when available (unless forceInMemoryStorage is true), else in-memory.
  *
  * @returns A tuple: [value, setter] where value is the current state (or undefined initially),
  * and setter updates the state (and persists the value).
  */
 export function usePersistedUIRecord<K extends keyof UIState>(
   { id, value: defaultValue }: UIRecord<K>,
-  { debounceTimeout = 0, service = "indexedDB" }: UsePersistedUIRecordOptions = {},
+  { debounceTimeout = 0, forceInMemoryStorage = false }: UsePersistedUIRecordOptions = {},
 ): UsePersistedUIRecordReturn<K> {
-  // Call both so hook order is stable (getIndexedDBService uses useIndexedDB).
-  const indexedDBResult = getIndexedDBService<UIRecord<K>>(DBConfig, "ui");
-  const sessionStorageResult = getSessionStorageService<UIRecord<K>>("ui");
-
-  /**
-   * @todo Maybe show error to the user in the UI.
-   */
-  const { getRecord, updateRecord } =
-    service === "indexedDB"
-      ? indexedDBResult.rejected != null
-        ? { getRecord: noopGetRecord, updateRecord: noopUpdateRecord }
-        : indexedDBResult.accepted
-      : sessionStorageResult.rejected != null
-        ? { getRecord: noopGetRecord, updateRecord: noopUpdateRecord }
-        : sessionStorageResult.accepted;
+  const useSessionStorage = !forceInMemoryStorage && isSessionStorageAvailable();
+  const service = useSessionStorage
+    ? getSessionStorageServiceResultBased<UIRecord<K>>("ui")
+    : getInMemoryStorageServiceResultBased<UIRecord<K>>("ui");
 
   const [value, setter] = useState<UIState[K]>();
 
-  // All stable so updating them does not trigger re-renders nor database updates.
   const stableIdGetter = useEffectEvent(() => id);
   const stableDefaultValueGetter = useEffectEvent(() => defaultValue);
 
-  const stableGetRecord = useEffectEvent(getRecord);
-  const stableUpdateRecord = useEffectEvent(updateRecord);
-
-  // Initial load: Result-based so we handle getRecord failure without throw.
+  // Initial load: unwrap Result from getRecord.
   useEffect(() => {
     const load = async () => {
-      const result = await resultFromPromise(
-        stableGetRecord(stableIdGetter()),
-        "GetUIRecordFailed",
-      );
-      /**
-       * @todo Maybe show error to the user in the UI.
-       */
+      const result = await service.getRecord(stableIdGetter());
       if (result.rejected != null) {
         setter(stableDefaultValueGetter());
         return;
@@ -82,7 +59,7 @@ export function usePersistedUIRecord<K extends keyof UIState>(
   useDebouncedEffect(
     () => {
       if (value == null) return;
-      stableUpdateRecord({ id: stableIdGetter(), value: value });
+      void service.updateRecord({ id: stableIdGetter(), value });
     },
     { timeout: debounceTimeout },
     [value],

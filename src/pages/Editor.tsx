@@ -128,27 +128,23 @@ export default function Editor() {
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
-    { service: "sessionStorage", debounceTimeout: INTERACTION_DEBOUNCE_MS },
+    { debounceTimeout: INTERACTION_DEBOUNCE_MS },
   );
 
   const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord(
     { id: "showFocalPoint", value: DEFAULT_SHOW_FOCAL_POINT },
-    { service: "sessionStorage" },
   );
 
   const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord(
     { id: "showImageOverflow", value: DEFAULT_SHOW_IMAGE_OVERFLOW },
-    { service: "sessionStorage" },
   );
 
   const [showCodeSnippet, setShowCodeSnippet] = usePersistedUIRecord(
     { id: "showCodeSnippet", value: DEFAULT_SHOW_CODE_SNIPPET },
-    { service: "sessionStorage" },
   );
 
   const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord(
     { id: "codeSnippetLanguage", value: DEFAULT_CODE_SNIPPET_LANGUAGE },
-    { service: "sessionStorage" },
   );
 
   const [codeSnippetCopied, setCodeSnippetCopied] = useState(false);
