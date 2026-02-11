@@ -16,10 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
-* maybe CI? ([6e9ac93](https://github.com/leofavre/focal-point-editor/commit/6e9ac93e5211cf3536362a38c49f82e6002327dd))
-* maybe fix auto-release flow ([b2b67ba](https://github.com/leofavre/focal-point-editor/commit/b2b67bae28cc878345552a44c5c2d1a7dcfc66d6))
-* maybe fix CI ([65a2a3b](https://github.com/leofavre/focal-point-editor/commit/65a2a3b8f50b36ce1d5dd30a46776ffe1a0a39cc))
-* maybe fix CI (one day) ([3e69baf](https://github.com/leofavre/focal-point-editor/commit/3e69baf86f10795120969dc539f75f91b1f552dc))
+* fix bug in release workflow ([6e9ac93](https://github.com/leofavre/focal-point-editor/commit/6e9ac93e5211cf3536362a38c49f82e6002327dd))
 
 ## [0.6.1](https://github.com/leofavre/focal-point-editor/compare/focal-point-editor-v0.6.0...focal-point-editor-v0.6.1) (2026-02-06)
 
