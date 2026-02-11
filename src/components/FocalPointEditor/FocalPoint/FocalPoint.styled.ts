@@ -41,10 +41,10 @@ export const Wrapper = styled.div`
     margin-left: -0.5px;
   }
 
-  @supports (backdrop-filter: invert(100%)) and (mask-image: url("/pointer-mask.svg")) {
+  @supports (backdrop-filter: invert(100%)) and (mask-image: url("/reference.svg")) {
     backdrop-filter: invert(100%);
     background-color: transparent;
-    mask-image: url("/pointer-mask.svg");
+    mask-image: url("/reference.svg");
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
