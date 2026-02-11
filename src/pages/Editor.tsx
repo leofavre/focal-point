@@ -67,11 +67,9 @@ const noop = () => {};
  * - Think about animations and transitions.
  * - Improve Landing page.
  * - Improve Full Screen Drop Zone.
- * - Improve Focal Point draggable icon. Is there a way to make it invert the colors of the underlying image?
  * - Improve loading state.
  * - Improve Code snippet.
  * - Improve toasters.
- * - Slider: use polygon instead of SVG. Can I use it in the background-image?
  *
  * ### Basic functionality
  *
