@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0](https://github.com/leofavre/focal-point-editor/compare/focal-point-editor-v0.7.0...focal-point-editor-v0.8.0) (2026-02-11)
+
+
+### Features
+
+* change the appearance of the focal point reference ([638519d](https://github.com/leofavre/focal-point-editor/commit/638519dc617a25d3c9bf7396fa6afa27cafb8cf8))
+
 ## [0.7.0](https://github.com/leofavre/focal-point-editor/compare/focal-point-editor-v0.6.1...focal-point-editor-v0.7.0) (2026-02-11)
 
 
