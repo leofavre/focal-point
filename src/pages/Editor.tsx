@@ -400,6 +400,9 @@ export default function Editor() {
       }
 
       const nextImageState = result.accepted;
+
+
+      console.log(nextImageState)
       safeSetImage(nextImageState);
       setAspectRatio(
         imageRecord.lastKnownAspectRatio ??

@@ -4,26 +4,62 @@ import { createMockImageDraftState, createMockImageRecord } from "../../test-uti
 import type { ImageId, ImageRecord } from "../../types";
 import { usePersistedImages } from "./usePersistedImages";
 
-const { mockAddRecord, mockGetRecord, mockGetAllRecords, mockUpdateRecord, mockDeleteRecord } =
-  vi.hoisted(() => ({
-    mockAddRecord: vi.fn(),
-    mockGetRecord: vi.fn(),
-    mockGetAllRecords: vi.fn(),
-    mockUpdateRecord: vi.fn(),
-    mockDeleteRecord: vi.fn(),
-  }));
+const {
+  mockAddRecord,
+  mockGetRecord,
+  mockGetAllRecords,
+  mockUpdateRecord,
+  mockDeleteRecord,
+  mockUpsertRecord,
+} = vi.hoisted(() => ({
+  mockAddRecord: vi.fn(),
+  mockGetRecord: vi.fn(),
+  mockGetAllRecords: vi.fn(),
+  mockUpdateRecord: vi.fn(),
+  mockDeleteRecord: vi.fn(),
+  mockUpsertRecord: vi.fn(),
+}));
 
-vi.mock("../../services/indexedDBService", () => ({
-  getIndexedDBService: vi.fn(() => ({
-    accepted: {
-      addRecord: mockAddRecord,
-      getRecord: mockGetRecord,
-      getAllRecords: mockGetAllRecords,
-      updateRecord: mockUpdateRecord,
-      deleteRecord: mockDeleteRecord,
+function asResult<T>(value: T): { accepted: T } | { rejected: unknown } {
+  if (value != null && typeof value === "object" && "rejected" in value) {
+    return value as { rejected: unknown };
+  }
+  return { accepted: value };
+}
+
+function createMockResultBasedService() {
+  return {
+    addRecord: async (record: ImageRecord) => {
+      const out = await mockAddRecord(record);
+      return asResult(out ?? undefined);
     },
-    rejected: undefined,
-  })),
+    getRecord: async (id: string | number) => asResult(await mockGetRecord(id)),
+    getAllRecords: async () => asResult(await mockGetAllRecords()),
+    updateRecord: async (record: ImageRecord) => {
+      const out = await mockUpdateRecord(record);
+      return asResult(out ?? undefined);
+    },
+    upsertRecord: async (record: ImageRecord) => {
+      const out = await mockUpsertRecord(record);
+      return asResult(out ?? undefined);
+    },
+    deleteRecord: async (id: string) => {
+      const out = await mockDeleteRecord(id);
+      return asResult(out ?? undefined);
+    },
+  };
+}
+
+vi.mock("../../helpers/indexedDBAvailability", () => ({
+  isIndexedDBAvailable: vi.fn(() => true),
+}));
+
+vi.mock("../../services/indexedDBServiceResultBased", () => ({
+  getIndexedDBServiceResultBased: vi.fn(() => createMockResultBasedService()),
+}));
+
+vi.mock("../../services/inMemoryStorageServiceResultBased", () => ({
+  getInMemoryStorageServiceResultBased: vi.fn(() => createMockResultBasedService()),
 }));
 
 describe("usePersistedImages", () => {
@@ -31,10 +67,11 @@ describe("usePersistedImages", () => {
 
   beforeEach(() => {
     mockGetAllRecords.mockResolvedValue([]);
-    mockAddRecord.mockResolvedValue(undefined);
     mockGetRecord.mockResolvedValue(undefined);
+    mockAddRecord.mockResolvedValue(undefined);
     mockUpdateRecord.mockResolvedValue(undefined);
     mockDeleteRecord.mockResolvedValue(undefined);
+    mockUpsertRecord.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -54,6 +91,18 @@ describe("usePersistedImages", () => {
     });
 
     expect(mockGetAllRecords).toHaveBeenCalled();
+  });
+
+  it("initial load effect does not cause an infinite loop (getAllRecords called exactly once)", async () => {
+    mockGetAllRecords.mockResolvedValue([]);
+
+    const { result } = renderHook(() => usePersistedImages());
+
+    await waitFor(() => {
+      expect(result.current.images).toEqual([]);
+    });
+
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(1);
   });
 
   it("returns persisted images when getAll resolves with data", async () => {
@@ -98,7 +147,7 @@ describe("usePersistedImages", () => {
       ...imageDraft,
       file: testFile,
     });
-    expect(mockGetAllRecords).toHaveBeenCalledTimes(3); // initial load + getAll for id + refresh after add
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(3); // initial load + refresh after add
   });
 
   it("addImage uses collision suffix when filename already exists", async () => {
@@ -130,14 +179,13 @@ describe("usePersistedImages", () => {
     );
   });
 
-  it("addImage with overwrite: true uses base id and overwrites existing record via updateRecord", async () => {
+  it("addImage with overwrite: true uses base id and overwrites existing record via upsertRecord", async () => {
     const existingRecord = createMockImageRecord({
       id: "my-photo",
       ...createMockImageDraftState({ name: "My Photo.jpg", createdAt: 1000 }),
       file: testFile,
     });
     mockGetAllRecords.mockResolvedValue([existingRecord]);
-    mockGetRecord.mockResolvedValue(existingRecord);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -159,8 +207,7 @@ describe("usePersistedImages", () => {
     });
 
     expect(addResult?.accepted).toBe("my-photo");
-    expect(mockGetRecord).toHaveBeenCalledWith("my-photo");
-    expect(mockUpdateRecord).toHaveBeenCalledWith({
+    expect(mockUpsertRecord).toHaveBeenCalledWith({
       id: "my-photo",
       ...imageDraft,
       file: testFile,
@@ -168,9 +215,8 @@ describe("usePersistedImages", () => {
     expect(mockAddRecord).not.toHaveBeenCalled();
   });
 
-  it("addImage with overwrite: true when no existing record calls addRecord", async () => {
+  it("addImage with overwrite: true when no existing record calls upsertRecord", async () => {
     mockGetAllRecords.mockResolvedValue([]);
-    mockGetRecord.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -188,25 +234,21 @@ describe("usePersistedImages", () => {
     });
 
     expect(addResult?.accepted).toBe("new");
-    expect(mockGetRecord).toHaveBeenCalledWith("new");
-    expect(mockAddRecord).toHaveBeenCalledWith({
+    expect(mockUpsertRecord).toHaveBeenCalledWith({
       id: "new",
       ...imageDraft,
       file: testFile,
     });
-    expect(mockUpdateRecord).not.toHaveBeenCalled();
+    expect(mockAddRecord).not.toHaveBeenCalled();
   });
 
-  it("addImages with overwrite: true overwrites existing and adds new", async () => {
+  it("addImages with overwrite: true overwrites existing and adds new via upsertRecord", async () => {
     const existingRecord = createMockImageRecord({
       id: "photo",
       ...createMockImageDraftState({ name: "photo.jpg" }),
       file: testFile,
     });
     mockGetAllRecords.mockResolvedValue([existingRecord]);
-    mockGetRecord
-      .mockResolvedValueOnce(existingRecord) // first draft overwrites "photo"
-      .mockResolvedValueOnce(undefined); // second draft is new
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -228,21 +270,21 @@ describe("usePersistedImages", () => {
     });
 
     expect(addResults?.accepted).toEqual(["photo", "other"]);
-    expect(mockUpdateRecord).toHaveBeenCalledTimes(1);
-    expect(mockUpdateRecord).toHaveBeenCalledWith({
+    expect(mockUpsertRecord).toHaveBeenCalledTimes(2);
+    expect(mockUpsertRecord).toHaveBeenNthCalledWith(1, {
       id: "photo",
       ...draft1,
       file: testFile,
     });
-    expect(mockAddRecord).toHaveBeenCalledTimes(1);
-    expect(mockAddRecord).toHaveBeenCalledWith({
+    expect(mockUpsertRecord).toHaveBeenNthCalledWith(2, {
       id: "other",
       ...draft2,
       file: testFile,
     });
+    expect(mockAddRecord).not.toHaveBeenCalled();
   });
 
-  it("addImage with options.id uses explicit id instead of generating from filename", async () => {
+  it("addImage with options.id uses explicit id and upsertRecord", async () => {
     mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
@@ -262,21 +304,20 @@ describe("usePersistedImages", () => {
     });
 
     expect(addResult?.accepted).toBe("my-custom-id");
-    expect(mockAddRecord).toHaveBeenCalledWith({
+    expect(mockUpsertRecord).toHaveBeenCalledWith({
       id: "my-custom-id",
       ...imageDraft,
       file: testFile,
     });
   });
 
-  it("addImage with options.id overwrites existing record", async () => {
+  it("addImage with options.id overwrites existing record via upsertRecord", async () => {
     const existingRecord = createMockImageRecord({
       id: "custom-id",
       ...createMockImageDraftState({ name: "old.png" }),
       file: testFile,
     });
     mockGetAllRecords.mockResolvedValue([existingRecord]);
-    mockGetRecord.mockResolvedValue(existingRecord);
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -298,12 +339,11 @@ describe("usePersistedImages", () => {
     });
 
     expect(addResult?.accepted).toBe("custom-id");
-    expect(mockUpdateRecord).toHaveBeenCalledWith({
+    expect(mockUpsertRecord).toHaveBeenCalledWith({
       id: "custom-id",
       ...imageDraft,
       file: testFile,
     });
-    expect(mockAddRecord).not.toHaveBeenCalled();
   });
 
   it("addImages generates ids for all items and adds records", async () => {
@@ -435,7 +475,7 @@ describe("usePersistedImages", () => {
     });
 
     expect(mockUpdateRecord).not.toHaveBeenCalled();
-    expect(mockGetAllRecords).toHaveBeenCalledTimes(1); // only initial load
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(1); // initial load only
   });
 
   it("updateImage returns undefined and skips update when current and updated are deeply equal", async () => {
@@ -459,7 +499,7 @@ describe("usePersistedImages", () => {
 
     expect(updateResult?.accepted).toBe(id);
     expect(mockUpdateRecord).not.toHaveBeenCalled();
-    expect(mockGetAllRecords).toHaveBeenCalledTimes(1); // only initial load
+    expect(mockGetAllRecords).toHaveBeenCalledTimes(1); // initial load only
   });
 
   it("deleteImage calls deleteRecord and refreshImages", async () => {
@@ -518,21 +558,24 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toBeDefined();
     });
 
-    mockGetAllRecords.mockRejectedValue(new Error("IndexedDB unavailable"));
+    mockGetAllRecords.mockResolvedValue({
+      rejected: { reason: "IndexedDBUnavailable", error: new Error("unavailable") },
+    });
 
     let refreshResult: Awaited<ReturnType<typeof result.current.refreshImages>> | undefined;
     await act(async () => {
       refreshResult = await result.current.refreshImages();
     });
 
-    expect(refreshResult?.rejected).toEqual({ reason: "RefreshFailed" });
+    expect(refreshResult?.rejected).toBeDefined();
+    expect(refreshResult?.rejected?.reason).toBe("RefreshFailed");
   });
 
   it("returns rejected when addImage fails", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-
     mockGetAllRecords.mockResolvedValue([]);
-    mockAddRecord.mockRejectedValue(new Error("IndexedDB write failed"));
+    mockAddRecord.mockResolvedValue({
+      rejected: { reason: "AddImageFailed", error: new Error("write failed") },
+    });
 
     const { result } = renderHook(() => usePersistedImages());
 
@@ -547,11 +590,14 @@ describe("usePersistedImages", () => {
       addResult = await result.current.addImage({ imageDraft, file: testFile });
     });
 
-    expect(addResult?.rejected).toEqual({ reason: "AddImageFailed" });
+    expect(addResult?.rejected).toBeDefined();
+    expect(addResult?.rejected?.reason).toBe("AddImageFailed");
   });
 
-  it("propagates errors when getImage fails", async () => {
-    mockGetRecord.mockRejectedValue(new Error("IndexedDB read failed"));
+  it("returns undefined when getImage (getRecord) returns rejected", async () => {
+    mockGetRecord.mockResolvedValue({
+      rejected: { reason: "GetImageFailed", error: new Error("read failed") },
+    });
     mockGetAllRecords.mockResolvedValue([]);
 
     const id = "any-id" as ImageId;
@@ -561,11 +607,11 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toBeDefined();
     });
 
-    await expect(
-      act(async () => {
-        await result.current.getImage(id);
-      }),
-    ).rejects.toThrow("IndexedDB read failed");
+    let fetched: ImageRecord | undefined;
+    await act(async () => {
+      fetched = await result.current.getImage(id);
+    });
+    expect(fetched).toBeUndefined();
   });
 
   it("returns rejected when updateImage fails", async () => {
@@ -578,7 +624,9 @@ describe("usePersistedImages", () => {
     });
 
     mockGetRecord.mockResolvedValue(existing);
-    mockUpdateRecord.mockRejectedValue(new Error("IndexedDB update failed"));
+    mockUpdateRecord.mockResolvedValue({
+      rejected: { reason: "UpdateImageFailed", error: new Error("update failed") },
+    });
     mockGetAllRecords.mockResolvedValue([]);
 
     const { result } = renderHook(() => usePersistedImages());
@@ -592,11 +640,14 @@ describe("usePersistedImages", () => {
       updateResult = await result.current.updateImage(id, { name: "new.png" });
     });
 
-    expect(updateResult?.rejected).toEqual({ reason: "UpdateImageFailed" });
+    expect(updateResult?.rejected).toBeDefined();
+    expect(updateResult?.rejected?.reason).toBe("UpdateImageFailed");
   });
 
-  it("propagates errors when deleteImage fails", async () => {
-    mockDeleteRecord.mockRejectedValue(new Error("IndexedDB delete failed"));
+  it("returns undefined when deleteImage (deleteRecord) returns rejected", async () => {
+    mockDeleteRecord.mockResolvedValue({
+      rejected: { reason: "DeleteImageFailed", error: new Error("delete failed") },
+    });
     mockGetAllRecords.mockResolvedValue([]);
 
     const id = "delete-id" as ImageId;
@@ -606,134 +657,33 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toBeDefined();
     });
 
-    await expect(
-      act(async () => {
-        await result.current.deleteImage(id);
-      }),
-    ).rejects.toThrow("IndexedDB delete failed");
+    let deleted: string | undefined;
+    await act(async () => {
+      deleted = await result.current.deleteImage(id);
+    });
+    expect(deleted).toBeUndefined();
   });
 
-  describe("enabled option", () => {
-    it("when enabled is false, images is always undefined", async () => {
-      mockGetAllRecords.mockResolvedValue([
-        createMockImageRecord({
-          id: "any-id",
-          ...createMockImageDraftState({ name: "any.png" }),
-          file: testFile,
-        }),
-      ]);
-
-      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
-
-      expect(result.current.images).toBeUndefined();
-
-      await waitFor(() => {
-        expect(result.current.images).toBeUndefined();
-      });
-
-      await act(async () => {
-        await result.current.refreshImages();
-      });
-      expect(result.current.images).toBeUndefined();
-    });
-
-    it("when enabled is false, does not load images or call getAllRecords", async () => {
+  describe("forceInMemoryStorage option", () => {
+    it("when forceInMemoryStorage is true, uses in-memory storage and operations succeed", async () => {
       mockGetAllRecords.mockResolvedValue([]);
 
-      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
+      const { result } = renderHook(() =>
+        usePersistedImages({ forceInMemoryStorage: true }),
+      );
 
       await waitFor(() => {
-        expect(result.current.images).toBeUndefined();
+        expect(result.current.images).toBeDefined();
       });
 
-      expect(mockGetAllRecords).not.toHaveBeenCalled();
-    });
-
-    it("when enabled is false, refreshImages resolves without calling getAllRecords", async () => {
-      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
-
-      let refreshResult: Awaited<ReturnType<typeof result.current.refreshImages>> | undefined;
-      await act(async () => {
-        refreshResult = await result.current.refreshImages();
-      });
-
-      expect(refreshResult?.accepted).toBeUndefined();
-      expect(refreshResult?.rejected).toBeUndefined();
-      expect(mockGetAllRecords).not.toHaveBeenCalled();
-      expect(result.current.images).toBeUndefined();
-    });
-
-    it("when enabled is false, addImage does not call addRecord and images stay undefined", async () => {
-      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
-
-      const imageDraft = createMockImageDraftState({ name: "no-persist.png" });
+      const imageDraft = createMockImageDraftState({ name: "ephemeral.png" });
       let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
       await act(async () => {
         addResult = await result.current.addImage({ imageDraft, file: testFile });
       });
 
-      expect(addResult?.accepted).toBe("no-persist");
-      expect(mockAddRecord).not.toHaveBeenCalled();
-      expect(mockGetAllRecords).not.toHaveBeenCalled();
-      expect(result.current.images).toBeUndefined();
-    });
-
-    it("when enabled is false, getImage returns undefined without calling getRecord", async () => {
-      const id = "any-id" as ImageId;
-      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
-
-      let fetched: ImageRecord | undefined;
-      await act(async () => {
-        fetched = await result.current.getImage(id);
-      });
-
-      expect(fetched).toBeUndefined();
-      expect(mockGetRecord).not.toHaveBeenCalled();
-    });
-
-    it("when enabled is false, updateImage returns accepted undefined without calling getRecord or updateRecord", async () => {
-      const id = "update-id" as ImageId;
-      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
-
-      let updateResult: Awaited<ReturnType<typeof result.current.updateImage>> | undefined;
-      await act(async () => {
-        updateResult = await result.current.updateImage(id, { name: "ignored.png" });
-      });
-
-      expect(updateResult?.accepted).toBeUndefined();
-      expect(mockGetRecord).not.toHaveBeenCalled();
-      expect(mockUpdateRecord).not.toHaveBeenCalled();
-    });
-
-    it("when enabled is false, deleteImage does not call deleteRecord", async () => {
-      const id = "delete-id" as ImageId;
-      const { result } = renderHook(() => usePersistedImages({ enabled: false }));
-
-      const deleted = await act(async () => result.current.deleteImage(id));
-
-      expect(deleted).toBe(id);
-      expect(mockDeleteRecord).not.toHaveBeenCalled();
-      expect(mockGetAllRecords).not.toHaveBeenCalled();
-    });
-
-    it("when enabled is true explicitly, loads images as when default", async () => {
-      const record = createMockImageRecord({
-        id: "explicit-enabled",
-        ...createMockImageDraftState({ name: "explicit.png" }),
-        file: testFile,
-      });
-      mockGetAllRecords.mockResolvedValue([record]);
-
-      const { result } = renderHook(() => usePersistedImages({ enabled: true }));
-
-      await waitFor(() => {
-        expect(result.current.images).toHaveLength(1);
-        expect(result.current.images?.[0]).toMatchObject({
-          id: "explicit-enabled",
-          name: "explicit.png",
-        });
-      });
-      expect(mockGetAllRecords).toHaveBeenCalled();
+      expect(addResult?.accepted).toBe("ephemeral");
+      expect(mockAddRecord).toHaveBeenCalled();
     });
   });
 });
