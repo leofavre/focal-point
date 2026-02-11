@@ -19,5 +19,6 @@ export type ResultBasedDatabaseService<
   getRecord: (id: number | string) => Promise<Result<T | undefined, R>>;
   getAllRecords: () => Promise<Result<T[], R>>;
   updateRecord: (value: T, key?: K) => Promise<Result<void, R>>;
+  upsertRecord: (value: T, key?: K) => Promise<Result<void, R>>;
   deleteRecord: (key: K) => Promise<Result<void, R>>;
 };

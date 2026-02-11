@@ -8,6 +8,7 @@ import { isIndexedDBAvailable } from "../helpers/indexedDBAvailability";
 import type { Result } from "../helpers/errorHandling";
 import { accept, reject } from "../helpers/errorHandling";
 import { DBConfig } from "./databaseConfig";
+import { getRecordKeyFromValue } from "../helpers/recordKey";
 import type { DatabaseKey, ResultBasedDatabaseService } from "./types";
 
 const UNAVAILABLE = "IndexedDBUnavailable" as const;
@@ -25,6 +26,7 @@ function createUnavailableStub<T, K extends DatabaseKey>(): ResultBasedDatabaseS
     getRecord: async () => rejected,
     getAllRecords: async () => rejected,
     updateRecord: async () => rejected,
+    upsertRecord: async () => rejected,
     deleteRecord: async () => rejected,
   };
 }
@@ -80,6 +82,21 @@ export function getIndexedDBServiceResultBased<T, K extends DatabaseKey = string
     async updateRecord(value: T, key?: K): Promise<Result<void, typeof UNAVAILABLE>> {
       try {
         await indexedDB.update(value, key);
+        return accept(undefined);
+      } catch (error) {
+        return reject({ reason: UNAVAILABLE, error });
+      }
+    },
+
+    async upsertRecord(value: T, key?: K): Promise<Result<void, typeof UNAVAILABLE>> {
+      try {
+        const id = getRecordKeyFromValue(value, key);
+        const existing = await indexedDB.getByID(id);
+        if (existing === undefined || existing === null) {
+          await indexedDB.add(value, key);
+        } else {
+          await indexedDB.update(value, key);
+        }
         return accept(undefined);
       } catch (error) {
         return reject({ reason: UNAVAILABLE, error });

@@ -7,6 +7,7 @@
 import type { Result } from "../helpers/errorHandling";
 import { accept, reject } from "../helpers/errorHandling";
 import { isSessionStorageAvailable } from "../helpers/sessionStorageAvailability";
+import { getRecordKeyFromValue } from "../helpers/recordKey";
 import type { DatabaseKey, ResultBasedDatabaseService } from "./types";
 
 const SESSION_PREFIX = "fpe_session_";
@@ -14,15 +15,6 @@ const UNAVAILABLE = "SessionStorageUnavailable" as const;
 
 function keyFor(tableName: string, recordKey: string | number): string {
   return `${SESSION_PREFIX}${tableName}_${String(recordKey)}`;
-}
-
-function hasId(obj: unknown): obj is { id: unknown } {
-  return typeof obj === "object" && obj != null && "id" in obj;
-}
-
-function getRecordKeyFromValue<T>(value: T, key?: DatabaseKey): string {
-  const id = hasId(value) ? value.id : key;
-  return String(id);
 }
 
 function createUnavailableStub<T, K extends DatabaseKey>(): ResultBasedDatabaseService<
@@ -36,6 +28,7 @@ function createUnavailableStub<T, K extends DatabaseKey>(): ResultBasedDatabaseS
     getRecord: async () => rejected,
     getAllRecords: async () => rejected,
     updateRecord: async () => rejected,
+    upsertRecord: async () => rejected,
     deleteRecord: async () => rejected,
   };
 }
@@ -95,6 +88,16 @@ export function getSessionStorageServiceResultBased<T, K extends DatabaseKey = s
     },
 
     async updateRecord(value: T, key?: K): Promise<Result<void, typeof UNAVAILABLE>> {
+      try {
+        const recordKey = getRecordKeyFromValue(value, key);
+        storage.setItem(keyFor(tableName, recordKey), JSON.stringify(value));
+        return accept(undefined);
+      } catch (error) {
+        return reject({ reason: UNAVAILABLE, error });
+      }
+    },
+
+    async upsertRecord(value: T, key?: K): Promise<Result<void, typeof UNAVAILABLE>> {
       try {
         const recordKey = getRecordKeyFromValue(value, key);
         storage.setItem(keyFor(tableName, recordKey), JSON.stringify(value));
