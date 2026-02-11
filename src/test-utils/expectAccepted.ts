@@ -2,7 +2,7 @@ import type { Result } from "../helpers/errorHandling";
 
 /**
  * Awaits a Promise<Result<T, R>> and returns the accepted value, or throws if the result is rejected.
- * Useful in tests when calling result-based service methods and expecting success.
+ * Useful in tests when calling storage service methods and expecting success.
  */
 export async function expectAccepted<T, R extends string>(
   promise: Promise<Result<T, R>>,

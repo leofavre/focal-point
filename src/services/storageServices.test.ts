@@ -1,5 +1,5 @@
 /**
- * Contract tests for result-based storage services (sessionStorage, in-memory, IndexedDB).
+ * Contract tests for storage services (sessionStorage, in-memory, IndexedDB).
  * IndexedDB tests depend on the fake IndexedDB provided by the test environment: vitest.setup.ts
  * imports "fake-indexeddb/auto", so the global indexedDB in tests is the fake implementation.
  */
@@ -10,10 +10,10 @@ import type { IndexedDBProps } from "react-indexed-db-hook";
 import { clearIndexedDBStores } from "../test-utils/clearIndexedDBStores";
 import { createUniqueTableNameGenerator } from "../test-utils/createUniqueTableNameGenerator";
 import { expectAccepted } from "../test-utils/expectAccepted";
-import { getInMemoryStorageServiceResultBased } from "./inMemoryStorageServiceResultBased";
-import { getIndexedDBServiceResultBased } from "./indexedDBServiceResultBased";
-import { getSessionStorageServiceResultBased } from "./sessionStorageServiceResultBased";
-import type { ResultBasedDatabaseService } from "./types";
+import { getInMemoryStorageService } from "./inMemoryStorageService";
+import { getIndexedDBService } from "./indexedDBService";
+import { getSessionStorageService } from "./sessionStorageService";
+import type { DatabaseService } from "./types";
 
 /**
  * Test-specific IndexedDB configuration.
@@ -39,19 +39,19 @@ type ServiceConfig = {
   name: string;
   getService: <T, K extends string = string>(
     tableName: string,
-  ) => ResultBasedDatabaseService<T, K, string>;
+  ) => DatabaseService<T, K, string>;
   getTableName: () => string;
 };
 
 const serviceConfigs: ServiceConfig[] = [
   {
     name: "sessionStorage",
-    getService: (tableName) => getSessionStorageServiceResultBased(tableName),
+    getService: (tableName) => getSessionStorageService(tableName),
     getTableName: getUniqueTableName,
   },
   {
     name: "inMemory",
-    getService: (tableName) => getInMemoryStorageServiceResultBased(tableName),
+    getService: (tableName) => getInMemoryStorageService(tableName),
     getTableName: getUniqueTableName,
   },
   {
@@ -59,15 +59,15 @@ const serviceConfigs: ServiceConfig[] = [
     getService: <T, K extends string = string>(tableName: string) => {
       // Use the table name directly since testDBConfig has stores matching the pattern
       const { result } = renderHook(() =>
-        getIndexedDBServiceResultBased<T, K>(testDBConfig, tableName),
+        getIndexedDBService<T, K>(testDBConfig, tableName),
       );
-      return result.current as ResultBasedDatabaseService<T, K, string>;
+      return result.current as DatabaseService<T, K, string>;
     },
     getTableName: getUniqueTableName,
   },
 ];
 
-describe("result-based services (shared contract)", () => {
+describe("storage services (shared contract)", () => {
   beforeEach(async () => {
     try {
       await clearIndexedDBStores(testDBConfig.name, testDBConfig.version);

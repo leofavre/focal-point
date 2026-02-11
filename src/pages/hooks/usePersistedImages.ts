@@ -5,8 +5,8 @@ import type { Err, Result } from "../../helpers/errorHandling";
 import { accept, processResults, reject } from "../../helpers/errorHandling";
 import { isIndexedDBAvailable } from "../../helpers/indexedDBAvailability";
 import { DBConfig } from "../../services/databaseConfig";
-import { getIndexedDBServiceResultBased } from "../../services/indexedDBServiceResultBased";
-import { getInMemoryStorageServiceResultBased } from "../../services/inMemoryStorageServiceResultBased";
+import { getIndexedDBService } from "../../services/indexedDBService";
+import { getInMemoryStorageService } from "../../services/inMemoryStorageService";
 import type { ImageDraftStateAndFile, ImageId, ImageRecord } from "../../types";
 import { createImageId } from "../helpers/createImageId";
 
@@ -81,8 +81,8 @@ export type UsePersistedImagesReturn = {
 export function usePersistedImages(options?: UsePersistedImagesOptions): UsePersistedImagesReturn {
   const { forceInMemoryStorage = false, onRefreshImagesError } = options ?? {};
 
-  const indexedDBService = getIndexedDBServiceResultBased<ImageRecord>(DBConfig, "images");
-  const inMemoryService = getInMemoryStorageServiceResultBased<ImageRecord>("images");
+  const indexedDBService = getIndexedDBService<ImageRecord>(DBConfig, "images");
+  const inMemoryService = getInMemoryStorageService<ImageRecord>("images");
   const useIndexedDB = !forceInMemoryStorage && isIndexedDBAvailable();
   const service = useIndexedDB ? indexedDBService : inMemoryService;
 

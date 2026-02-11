@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { UIRecord, UIState } from "../../types";
 import { usePersistedUIRecord } from "./usePersistedUIRecord";
 
-/** SessionStorage key prefix used by the "ui" table in sessionStorageServiceResultBased. */
+/** SessionStorage key prefix used by the "ui" table in sessionStorageService. */
 const UI_TABLE_PREFIX = "fpe_session_ui_";
 
 function keyFor(id: string): string {

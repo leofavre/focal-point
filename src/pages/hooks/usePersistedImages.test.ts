@@ -7,8 +7,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { DBConfig } from "../../services/databaseConfig";
-import { getIndexedDBServiceResultBased } from "../../services/indexedDBServiceResultBased";
-import { __clearTableForTesting } from "../../services/inMemoryStorageServiceResultBased";
+import { getIndexedDBService } from "../../services/indexedDBService";
+import { __clearTableForTesting } from "../../services/inMemoryStorageService";
 import { clearIndexedDBStores } from "../../test-utils/clearIndexedDBStores";
 import { expectAccepted } from "../../test-utils/expectAccepted";
 import { createMockImageDraftState, createMockImageRecord } from "../../test-utils/mocks";
@@ -20,7 +20,7 @@ const testFile = new Blob(["test"], { type: "image/png" });
 /** Seeds the IndexedDB "images" store with the given records (used for tests that need pre-seeded data). */
 async function seedImagesStore(records: ImageRecord[]): Promise<void> {
   const { result, unmount } = renderHook(() =>
-    getIndexedDBServiceResultBased<ImageRecord>(DBConfig, "images"),
+    getIndexedDBService<ImageRecord>(DBConfig, "images"),
   );
   for (const record of records) {
     await act(async () => {
@@ -436,7 +436,7 @@ describe("usePersistedImages", () => {
       file: testFile,
     });
     const { result: serviceResult, unmount } = renderHook(() =>
-      getIndexedDBServiceResultBased<ImageRecord>(DBConfig, "images"),
+      getIndexedDBService<ImageRecord>(DBConfig, "images"),
     );
     await act(async () => {
       await serviceResult.current.addRecord(record2);

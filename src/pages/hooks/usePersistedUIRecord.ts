@@ -1,8 +1,8 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useEffectEvent, useState } from "react";
 import useDebouncedEffect from "use-debounced-effect";
-import { getInMemoryStorageServiceResultBased } from "../../services/inMemoryStorageServiceResultBased";
-import { getSessionStorageServiceResultBased } from "../../services/sessionStorageServiceResultBased";
+import { getInMemoryStorageService } from "../../services/inMemoryStorageService";
+import { getSessionStorageService } from "../../services/sessionStorageService";
 import { isSessionStorageAvailable } from "../../helpers/sessionStorageAvailability";
 import type { UIRecord, UIState } from "../../types";
 
@@ -21,7 +21,7 @@ export type UsePersistedUIRecordReturn<K extends keyof UIState> = [
  * Custom React hook for syncing a UI state value with sessionStorage or in-memory storage.
  * Retrieves the persisted value for the given id from the "ui" store (if available),
  * falls back to a provided default value, and writes updates (debounced).
- * Uses result-based services: getRecord returns a Result; failures are handled by falling back to the default value.
+ * Uses storage services: getRecord returns a Result; failures are handled by falling back to the default value.
  *
  * Storage: sessionStorage when available (unless forceInMemoryStorage is true), else in-memory.
  *
@@ -34,8 +34,8 @@ export function usePersistedUIRecord<K extends keyof UIState>(
 ): UsePersistedUIRecordReturn<K> {
   const useSessionStorage = !forceInMemoryStorage && isSessionStorageAvailable();
   const service = useSessionStorage
-    ? getSessionStorageServiceResultBased<UIRecord<K>>("ui")
-    : getInMemoryStorageServiceResultBased<UIRecord<K>>("ui");
+    ? getSessionStorageService<UIRecord<K>>("ui")
+    : getInMemoryStorageService<UIRecord<K>>("ui");
 
   const [value, setter] = useState<UIState[K]>();
 
