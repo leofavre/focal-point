@@ -78,7 +78,7 @@ const noop = () => {};
 * ### Basic functionality
 *
 *  - Make the app use the same routing for every persistence mode.
-*  - With an unique routing logic, it will be possible to split Editor.tsx in two files and take advantage of BrowserRouter's routes '/' and '/:imageId'.
+*  - Split Editor.tsx in two files and take advantage of BrowserRouter's routes '/' and '/:imageId'.
 *  - Then next step will be code splitting.
  * - Handle errors with toaster.
  * - Remove all deprecated and dead code.
