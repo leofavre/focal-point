@@ -82,7 +82,6 @@ const noop = () => {};
  *
  * ### DevOps
  *
- * - Fix broken pre-release pipeline. Maybe add PAT?
  * - Control cache invalidation, given it's a PWA.
  * - Add Storybook tests (to see how it works?).
  *

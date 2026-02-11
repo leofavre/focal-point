@@ -2,29 +2,36 @@ name: "Copilot Setup Steps"
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/copilot-setup-steps.yml
-  pull_request:
-    paths:
-      - .github/workflows/copilot-setup-steps.yml
+  workflow_call:
+    inputs:
+      node-version:
+        required: false
+        type: string
+      yarn-version:
+        required: false
+        type: string
 
 permissions:
   contents: read
 
 jobs:
   copilot-setup-steps:
-    name: Setup
+    name: Setup and E2E
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Extract versions from package.json
+      - name: Set versions
         id: versions
         run: |
-          NODE_VERSION=$(jq -r '.volta.node' package.json)
-          YARN_VERSION=$(jq -r '.volta.yarn' package.json)
-          echo "node-version=$NODE_VERSION" >> $GITHUB_OUTPUT
-          echo "yarn-version=$YARN_VERSION" >> $GITHUB_OUTPUT
+          if [ -n "${{ inputs.node-version }}" ]; then
+            echo "node-version=${{ inputs.node-version }}" >> $GITHUB_OUTPUT
+            echo "yarn-version=${{ inputs.yarn-version }}" >> $GITHUB_OUTPUT
+          else
+            NODE_VERSION=$(jq -r '.volta.node' package.json)
+            YARN_VERSION=$(jq -r '.volta.yarn' package.json)
+            echo "node-version=$NODE_VERSION" >> $GITHUB_OUTPUT
+            echo "yarn-version=$YARN_VERSION" >> $GITHUB_OUTPUT
+          fi
       - uses: volta-cli/action@v4
         with:
           node-version: ${{ steps.versions.outputs.node-version }}
@@ -37,5 +44,8 @@ jobs:
         run: yarn install --immutable
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Run E2E tests
+        run: yarn test:e2e
       - name: Build application
+        if: github.event_name == 'workflow_dispatch'
         run: yarn build
