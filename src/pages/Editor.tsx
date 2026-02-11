@@ -430,6 +430,13 @@ export default function Editor() {
     setIsLoading(isLoading, !isLoading ? MINIMAL_LOADING_DURATION_MS : 0);
   }, [setIsLoading, pageState, imageNotFoundConfirmed, isProcessingImageUpload]);
 
+  const showBottomBar = pageState === "editing" || pageState === "imageNotFound"
+
+  const bottomBarPositioning = {
+    transform: showBottomBar ? "translateY(0)" : "translateY(8rem)",
+    transition: "transform 220ms ease-in-out"
+  }
+
   return (
     <>
       <FullScreenDropZone onImageUpload={handleImageUpload} onImageUploadError={noop} />
@@ -476,47 +483,48 @@ export default function Editor() {
         ) : (
           <Message>Critical error...</Message>
         )}
-        {pageState === "editing" || pageState === "imageNotFound" ? (
-          <>
-            <ToggleButton
-              type="button"
-              data-component="FocalPointButton"
-              toggled={showFocalPoint ?? false}
-              onToggle={(toggled) => setShowFocalPoint(!toggled)}
-              titleOn="Focal point"
-              titleOff="Focal point"
-              icon={<IconReference />}
-            />
-            <ToggleButton
-              type="button"
-              data-component="ImageOverflowButton"
-              toggled={showImageOverflow ?? false}
-              onToggle={(toggled) => setShowImageOverflow(!toggled)}
-              titleOn="Overflow"
-              titleOff="Overflow"
-              icon={<IconMask />}
-            />
-            <ToggleButton
-              type="button"
-              data-component="CodeSnippetButton"
-              toggled={showCodeSnippet ?? false}
-              onToggle={(toggled) => setShowCodeSnippet(!toggled)}
-              titleOn="Code"
-              titleOff="Code"
-              icon={<IconCode />}
-            />
-            <ImageUploaderButton
-              ref={uploaderButtonRef}
-              onImageUpload={handleImageUpload}
-              onImageUploadError={noop}
-            />
-            <AspectRatioSlider
-              aspectRatio={aspectRatio}
-              aspectRatioList={aspectRatioList}
-              onAspectRatioChange={setAspectRatio}
-            />
-          </>
-        ) : null}
+        <ToggleButton
+          type="button"
+          data-component="FocalPointButton"
+          toggled={showFocalPoint ?? false}
+          onToggle={(toggled) => setShowFocalPoint(!toggled)}
+          titleOn="Focal point"
+          titleOff="Focal point"
+          icon={<IconReference />}
+          css={bottomBarPositioning}
+        />
+        <ToggleButton
+          type="button"
+          data-component="ImageOverflowButton"
+          toggled={showImageOverflow ?? false}
+          onToggle={(toggled) => setShowImageOverflow(!toggled)}
+          titleOn="Overflow"
+          titleOff="Overflow"
+          icon={<IconMask />}
+          css={bottomBarPositioning}
+        />
+        <ToggleButton
+          type="button"
+          data-component="CodeSnippetButton"
+          toggled={showCodeSnippet ?? false}
+          onToggle={(toggled) => setShowCodeSnippet(!toggled)}
+          titleOn="Code"
+          titleOff="Code"
+          icon={<IconCode />}
+          css={bottomBarPositioning}
+        />
+        <ImageUploaderButton
+          ref={uploaderButtonRef}
+          onImageUpload={handleImageUpload}
+          onImageUploadError={noop}
+          css={bottomBarPositioning}
+        />
+        <AspectRatioSlider
+          aspectRatio={aspectRatio}
+          aspectRatioList={aspectRatioList}
+          onAspectRatioChange={setAspectRatio}
+          css={bottomBarPositioning}
+        />
       </EditorGrid>
     </>
   );
