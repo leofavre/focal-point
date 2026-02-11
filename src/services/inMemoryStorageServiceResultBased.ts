@@ -13,6 +13,16 @@ const UNAVAILABLE = "StateUpdateFailed" as const;
 const storage = new Map<string, unknown>();
 
 /**
+ * Clears all entries for a table name. Only for use in tests (e.g. to avoid leakage between tests).
+ */
+export function __clearTableForTesting(tableName: string): void {
+  const prefix = `${tableName}_`;
+  for (const key of Array.from(storage.keys())) {
+    if (key.startsWith(prefix)) storage.delete(key);
+  }
+}
+
+/**
  * Returns a ResultBasedDatabaseService backed by a shared in-memory storage.
  * Each method returns Result<..., "StateUpdateFailed">.
  * tableName namespaces the storage so multiple tables can coexist.

@@ -1,7 +1,15 @@
+/**
+ * Contract tests for result-based storage services (sessionStorage, in-memory, IndexedDB).
+ * IndexedDB tests depend on the fake IndexedDB provided by the test environment: vitest.setup.ts
+ * imports "fake-indexeddb/auto", so the global indexedDB in tests is the fake implementation.
+ */
+
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { IndexedDBProps } from "react-indexed-db-hook";
-import type { Result } from "../helpers/errorHandling";
+import { clearIndexedDBStores } from "../test-utils/clearIndexedDBStores";
+import { createUniqueTableNameGenerator } from "../test-utils/createUniqueTableNameGenerator";
+import { expectAccepted } from "../test-utils/expectAccepted";
 import { getInMemoryStorageServiceResultBased } from "./inMemoryStorageServiceResultBased";
 import { getIndexedDBServiceResultBased } from "./indexedDBServiceResultBased";
 import { getSessionStorageServiceResultBased } from "./sessionStorageServiceResultBased";
@@ -25,78 +33,7 @@ const testDBConfig: IndexedDBProps = {
   })),
 };
 
-/**
- * Clears the IndexedDB stores used by tests.
- * This ensures tests start with empty stores and don't leak state.
- * If the DB doesn't exist yet, this is a no-op (initDB will create it when needed).
- */
-/**
- * Clears the IndexedDB stores used by tests.
- * This ensures tests start with empty stores and don't leak state.
- * If the DB doesn't exist yet, this is a no-op (initDB will create it when needed).
- */
-async function clearIndexedDBStores(): Promise<void> {
-  return new Promise((resolve) => {
-    const request = indexedDB.open(testDBConfig.name, testDBConfig.version);
-
-    request.onsuccess = () => {
-      const db = request.result;
-      const storeNames = Array.from(db.objectStoreNames);
-      if (storeNames.length === 0) {
-        db.close();
-        resolve();
-        return;
-      }
-
-      const transaction = db.transaction(storeNames, "readwrite");
-
-      transaction.oncomplete = () => {
-        db.close();
-        resolve();
-      };
-
-      transaction.onerror = () => {
-        db.close();
-        // Ignore errors - stores might not exist yet
-        resolve();
-      };
-
-      for (const storeName of storeNames) {
-        transaction.objectStore(storeName).clear();
-      }
-    };
-
-    request.onerror = () => {
-      // DB doesn't exist yet, which is fine
-      resolve();
-    };
-
-    request.onupgradeneeded = () => {
-      // DB doesn't exist yet or needs upgrade, but we'll let initDB handle that
-      request.transaction?.abort();
-      resolve();
-    };
-  });
-}
-
-async function expectAccepted<T, R extends string>(
-  promise: Promise<Result<T, R>>,
-): Promise<T> {
-  const result = await promise;
-  if (result.rejected != null) {
-    throw new Error(`Expected accepted result but got rejected: ${result.rejected.reason}`);
-  }
-  return result.accepted as T;
-}
-
-let tableCounter = 0;
-
-function getUniqueTableName(): string {
-  tableCounter += 1;
-  // For indexedDB, cycle through the available test stores
-  // For other services, use unique names to avoid collisions
-  return `test_table_${tableCounter}`;
-}
+const getUniqueTableName = createUniqueTableNameGenerator("test_table_");
 
 type ServiceConfig = {
   name: string;
@@ -132,9 +69,8 @@ const serviceConfigs: ServiceConfig[] = [
 
 describe("result-based services (shared contract)", () => {
   beforeEach(async () => {
-    // Clear IndexedDB stores before each test to prevent state leakage
     try {
-      await clearIndexedDBStores();
+      await clearIndexedDBStores(testDBConfig.name, testDBConfig.version);
     } catch (error) {
       // Ignore errors if DB doesn't exist yet (first test)
       // The error will be handled when initDB is called

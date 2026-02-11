@@ -1,3 +1,9 @@
+/**
+ * Tests for usePersistedUIRecord.
+ * This suite uses sessionStorage (and in-memory when forceInMemoryStorage is true), not IndexedDB.
+ * For tests that use IndexedDB, the fake IndexedDB is provided by vitest.setup.ts ("fake-indexeddb/auto").
+ */
+
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { UIRecord, UIState } from "../../types";
