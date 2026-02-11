@@ -49,6 +49,10 @@ export function getIndexedDBServiceResultBased<T, K extends DatabaseKey = string
     databaseInitialized = true;
   }
 
+  /**
+   * Running a React hook conditionally is not ideal, but it's needed to provide support
+   *  for the case where IndexedDB is unavailable. It's been working in practice so far.
+   */
   const indexedDB = useIndexedDB(tableName);
 
   return {
