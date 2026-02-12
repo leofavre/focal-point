@@ -1,25 +1,16 @@
-import styled from "@emotion/styled";
-import type { PropsWithChildren } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
 import { useAspectRatioList } from "../components/AspectRatioSlider/hooks/useAspectRatioList";
-import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
-import { Dialog } from "../components/Dialog/Dialog";
-import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
 import { FullScreenDropZone } from "../components/ImageUploader/FullScreenDropZone";
 import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
-import type { ObjectPositionString } from "../types";
 import { useEditorContext } from "../contexts/EditorContext";
 import { EditorGrid } from "./Editor.styled";
 import { createKeyboardShortcutHandler } from "./helpers/createKeyboardShortcutHandler";
-import { Landing } from "./Landing/Landing";
-
-const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
-const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
 
 const noop = () => {};
 
@@ -65,11 +56,8 @@ const noop = () => {};
  * - Maybe make a native custom element?
  */
 export default function Editor() {
-  const uploaderButtonRef = useRef<HTMLButtonElement>(null);
-
   const {
     image,
-    imageCount,
     aspectRatio,
     setAspectRatio,
     showFocalPoint,
@@ -78,18 +66,9 @@ export default function Editor() {
     setShowImageOverflow,
     showCodeSnippet,
     setShowCodeSnippet,
-    codeSnippetLanguage,
-    setCodeSnippetLanguage,
-    codeSnippetCopied,
-    setCodeSnippetCopied,
-    currentObjectPosition,
-    pageState,
-    isLoading,
-    isEditingSingleImage,
     bottomBarPositioning,
     handleImageUpload,
-    handleImageError,
-    handleObjectPositionChange,
+    uploaderButtonRef,
   } = useEditorContext();
 
   const aspectRatioList = useAspectRatioList(image?.naturalAspectRatio);
@@ -130,58 +109,14 @@ export default function Editor() {
     });
 
     window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [setShowCodeSnippet, setShowFocalPoint, setShowImageOverflow]);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [uploaderButtonRef, setShowCodeSnippet, setShowFocalPoint, setShowImageOverflow]);
 
   return (
     <>
       <FullScreenDropZone onImageUpload={handleImageUpload} onImageUploadError={noop} />
       <EditorGrid>
-        {isLoading ? (
-          <Message>Loading...</Message>
-        ) : pageState === "landing" ? (
-          <Landing
-            uploaderButtonRef={uploaderButtonRef}
-            onImageUpload={handleImageUpload}
-            onImageUploadError={noop}
-          />
-        ) : pageState === "editing" && image != null && aspectRatio != null ? (
-          <>
-            <FocalPointEditor
-              imageUrl={image.url}
-              aspectRatio={aspectRatio}
-              initialAspectRatio={image.naturalAspectRatio}
-              objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-              showFocalPoint={showFocalPoint ?? false}
-              showImageOverflow={showImageOverflow ?? false}
-              onObjectPositionChange={handleObjectPositionChange}
-              onImageError={handleImageError}
-            />
-            <Dialog transparent open={showCodeSnippet} onOpenChange={setShowCodeSnippet}>
-              <CodeSnippet
-                src={image.name}
-                objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-                language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-                onLanguageChange={setCodeSnippetLanguage}
-                copied={codeSnippetCopied}
-                onCopiedChange={setCodeSnippetCopied}
-              />
-            </Dialog>
-          </>
-        ) : pageState === "pageNotFound" ? (
-          <Message>Page not found...</Message>
-        ) : pageState === "imageNotFound" ? (
-          <Message>
-            {isEditingSingleImage && imageCount === 0
-              ? "Start by uploading an image..."
-              : "Image not found..."}
-          </Message>
-        ) : (
-          <Message>Critical error...</Message>
-        )}
+        <Outlet />
         <ToggleButton
           type="button"
           data-component="FocalPointButton"
@@ -227,14 +162,4 @@ export default function Editor() {
       </EditorGrid>
     </>
   );
-}
-
-const MessageStyled = styled.h3`
-  grid-column: 1 / -1;
-  grid-row: 1 / -2;
-  margin: auto;
-`;
-
-function Message({ children, ...rest }: PropsWithChildren) {
-  return <MessageStyled {...rest}>{children}</MessageStyled>;
 }

@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useEffectEvent,
+  useRef,
   useState,
 } from "react";
 import toast from "react-hot-toast";
@@ -68,6 +69,7 @@ export type EditorContextValue = {
   handleImageUpload: (draftAndFile: ImageDraftStateAndFile | undefined) => Promise<void>;
   handleImageError: () => void;
   handleObjectPositionChange: (objectPosition: ObjectPositionString) => void;
+  uploaderButtonRef: React.RefObject<HTMLButtonElement | null>;
 };
 
 const EditorContext = createContext<EditorContextValue | null>(null);
@@ -82,6 +84,7 @@ function getImageIdFromPathname(pathname: string): ImageId | undefined {
 
 export function EditorContextProvider({ children }: PropsWithChildren) {
   const persistenceMode = PERSISTENCE_MODE;
+  const uploaderButtonRef = useRef<HTMLButtonElement>(null);
   const { pathname } = useLocation();
   const imageId = getImageIdFromPathname(pathname);
   const navigate = useNavigate();
@@ -379,6 +382,7 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
     handleImageUpload,
     handleImageError,
     handleObjectPositionChange,
+    uploaderButtonRef,
   };
 
   return (
