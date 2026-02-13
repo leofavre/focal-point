@@ -26,19 +26,12 @@ const noop = () => {};
  * - Improve loading state.
  * - Improve Code snippet.
  * - Improve toasters.
- * - Mobile: remove glow from iOS when clicking on buttons.
- * - Mobile: always use &:active instead of &:hover for touch devices.
+ * - Mobile: tap highlight removed via -webkit-tap-highlight-color: transparent on buttons/slider.
  *
  * ### Basic functionality
  *
- * - Then next step will be code splitting.
  * - Handle errors with toaster.
  * - Remove all deprecated and dead code.
- *
- * ### DevOps
- *
- * - Control cache invalidation, given it's a PWA.
- * - Add Storybook tests (to see how it works?).
  *
  * ### Advanced functionality
  *

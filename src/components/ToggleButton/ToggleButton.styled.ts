@@ -27,18 +27,30 @@ export const Button = styled.button`
   color: rgb(from var(--color-neutral) r g b);
   box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   font: inherit;
   font-size: calc(14 / 16 * 1rem * var(--scale));
   white-space: nowrap;
   width: 100%;
   transition: var(--transition-prop);
 
-  &:hover {
-    background-color: rgb(from var(--color-neutral) r g b / 10%);
-    border-color: rgb(from var(--color-neutral) r g b);
-    color: rgb(from var(--color-neutral) r g b);
-    box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
-    transition: var(--transition-prop);
+  @media (hover: hover) {
+    &:hover {
+      background-color: rgb(from var(--color-neutral) r g b / 10%);
+      border-color: rgb(from var(--color-neutral) r g b);
+      color: rgb(from var(--color-neutral) r g b);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
+      transition: var(--transition-prop);
+    }
+  }
+  @media (hover: none) {
+    &:active {
+      background-color: rgb(from var(--color-neutral) r g b / 10%);
+      border-color: rgb(from var(--color-neutral) r g b);
+      color: rgb(from var(--color-neutral) r g b);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
+      transition: var(--transition-prop);
+    }
   }
 
   &:focus-visible {
@@ -55,12 +67,23 @@ export const Button = styled.button`
     transform: translate(var(--shadow-offset), var(--shadow-offset));
     transition: var(--transition-prop);
 
-    &:hover {
-      background-color: rgb(from var(--color-loud) r g b / 20%);
-      border-color: rgb(from var(--color-loud) r g b);
-      color: rgb(from var(--color-loud) r g b);
-      box-shadow: 0px 0px 0px 0px var(--color-neutral);
-      transition: var(--transition-prop);
+    @media (hover: hover) {
+      &:hover {
+        background-color: rgb(from var(--color-loud) r g b / 20%);
+        border-color: rgb(from var(--color-loud) r g b);
+        color: rgb(from var(--color-loud) r g b);
+        box-shadow: 0px 0px 0px 0px var(--color-neutral);
+        transition: var(--transition-prop);
+      }
+    }
+    @media (hover: none) {
+      &:active {
+        background-color: rgb(from var(--color-loud) r g b / 20%);
+        border-color: rgb(from var(--color-loud) r g b);
+        color: rgb(from var(--color-loud) r g b);
+        box-shadow: 0px 0px 0px 0px var(--color-neutral);
+        transition: var(--transition-prop);
+      }
     }
   }
 
