@@ -82,6 +82,11 @@ export default function Layout() {
           titleOff="Overflow"
           icon={<IconMask />}
         />
+        <AspectRatioSlider
+          aspectRatio={aspectRatio}
+          defaultAspectRatio={image?.naturalAspectRatio}
+          onAspectRatioChange={setAspectRatio}
+        />
         <ToggleButton
           type="button"
           data-component="CodeSnippetButton"
@@ -95,11 +100,6 @@ export default function Layout() {
           ref={uploaderButtonRef}
           onImageUpload={handleImageUpload}
           onImageUploadError={noop}
-        />
-        <AspectRatioSlider
-          aspectRatio={aspectRatio}
-          defaultAspectRatio={image?.naturalAspectRatio}
-          onAspectRatioChange={setAspectRatio}
         />
       </LayoutGrid>
     </>
