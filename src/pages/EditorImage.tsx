@@ -1,32 +1,18 @@
-import styled from "@emotion/styled";
-import type { PropsWithChildren } from "react";
 import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
 import { Dialog } from "../components/Dialog/Dialog";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
 import { useEditorContext } from "../contexts/EditorContext";
 import type { ObjectPositionString } from "../types";
-import { Landing } from "./Landing/Landing";
+import { EditorMessage } from "./Editor.styled";
 
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
 const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
 
-const noop = () => {};
-
-const MessageStyled = styled.h3`
-  grid-column: 1 / -1;
-  grid-row: 1 / -2;
-  margin: auto;
-`;
-
-function Message({ children, ...rest }: PropsWithChildren) {
-  return <MessageStyled {...rest}>{children}</MessageStyled>;
-}
-
 /**
- * Route-specific content rendered inside the Editor layout. Shows Landing, editing view,
- * or appropriate messages based on pageState and loading state.
+ * Content for the image route (/:imageId). Renders the editing view or error messages
+ * (image not found, page not found). Loading is handled by the shared Editor layout.
  */
-export function EditorContent() {
+export function EditorImage() {
   const {
     image,
     imageCount,
@@ -41,27 +27,10 @@ export function EditorContent() {
     setCodeSnippetCopied,
     currentObjectPosition,
     pageState,
-    isLoading,
     isEditingSingleImage,
-    handleImageUpload,
     handleImageError,
     handleObjectPositionChange,
-    uploaderButtonRef,
   } = useEditorContext();
-
-  if (isLoading) {
-    return <Message>Loading...</Message>;
-  }
-
-  if (pageState === "landing") {
-    return (
-      <Landing
-        uploaderButtonRef={uploaderButtonRef}
-        onImageUpload={handleImageUpload}
-        onImageUploadError={noop}
-      />
-    );
-  }
 
   if (pageState === "editing" && image != null && aspectRatio != null) {
     return (
@@ -91,18 +60,18 @@ export function EditorContent() {
   }
 
   if (pageState === "pageNotFound") {
-    return <Message>Page not found...</Message>;
+    return <EditorMessage>Page not found...</EditorMessage>;
   }
 
   if (pageState === "imageNotFound") {
     return (
-      <Message>
+      <EditorMessage>
         {isEditingSingleImage && imageCount === 0
           ? "Start by uploading an image..."
           : "Image not found..."}
-      </Message>
+      </EditorMessage>
     );
   }
 
-  return <Message>Critical error...</Message>;
+  return <EditorMessage>Critical error...</EditorMessage>;
 }

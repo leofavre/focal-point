@@ -8,7 +8,7 @@ import { parseBooleanAttr } from "../helpers/parseBooleanAttr";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
-import { EditorGrid } from "./Editor.styled";
+import { EditorGrid, EditorMessage } from "./Editor.styled";
 
 const noop = () => {};
 
@@ -30,8 +30,6 @@ const noop = () => {};
  *
  * ### Basic functionality
  *
- * - Make the app use the same routing for every persistence mode.
- * - Split Editor.tsx in two files and take advantage of BrowserRouter's routes '/' and '/:imageId'.
  * - Then next step will be code splitting.
  * - Handle errors with toaster.
  * - Remove all deprecated and dead code.
@@ -62,6 +60,7 @@ export default function Editor() {
     showCodeSnippet,
     setShowCodeSnippet,
     showBottomBar,
+    isLoading,
     handleImageUpload,
     uploaderButtonRef,
   } = useEditorContext();
@@ -70,7 +69,7 @@ export default function Editor() {
     <>
       <FullScreenDropZone onImageUpload={handleImageUpload} onImageUploadError={noop} />
       <EditorGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
-        <Outlet />
+        {isLoading ? <EditorMessage>Loading...</EditorMessage> : <Outlet />}
         <ToggleButton
           type="button"
           data-component="FocalPointButton"

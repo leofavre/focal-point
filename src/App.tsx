@@ -2,7 +2,8 @@ import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { EditorContextProvider } from "./contexts/EditorContext";
 import Editor from "./pages/Editor";
-import { EditorContent } from "./pages/EditorContent";
+import { EditorImage } from "./pages/EditorImage";
+import { EditorLanding } from "./pages/EditorLanding";
 
 export default function App() {
   return (
@@ -11,8 +12,8 @@ export default function App() {
       <EditorContextProvider>
         <Routes>
           <Route path="/" element={<Editor />}>
-            <Route index element={<EditorContent />} />
-            <Route path=":imageId" element={<EditorContent />} />
+            <Route index element={<EditorLanding />} />
+            <Route path=":imageId" element={<EditorImage />} />
           </Route>
         </Routes>
       </EditorContextProvider>

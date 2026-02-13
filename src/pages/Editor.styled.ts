@@ -1,5 +1,12 @@
 import styled from "@emotion/styled";
 
+/** Shared full-width message (loading, errors) in the main content area. */
+export const EditorMessage = styled.h3`
+  grid-column: 1 / -1;
+  grid-row: 1 / -2;
+  margin: auto;
+`;
+
 export const EditorGrid = styled.main`
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 12ch) minmax(0, 12ch) minmax(8rem, 50rem) minmax(0, 12ch) minmax(0, 12ch) minmax(0, 1fr);
@@ -41,6 +48,7 @@ export const EditorGrid = styled.main`
     margin-right: auto;
     max-width: 1200px;
     z-index: 1;
+    transition: top 132ms ease-in-out;
   }
 
   > [data-component="FocalPointButton"] {
@@ -49,6 +57,7 @@ export const EditorGrid = styled.main`
     grid-row: 3;
     grid-column: 2;
     margin-bottom: auto;
+    transition: top 132ms ease-in-out;
   }
 
   > [data-component="ImageOverflowButton"] {
@@ -57,6 +66,7 @@ export const EditorGrid = styled.main`
     grid-row: 3;
     grid-column: 3;
     margin-bottom: auto;
+    transition: top 132ms ease-in-out;
   }
 
   > [data-component="CodeSnippetButton"] {
@@ -65,6 +75,7 @@ export const EditorGrid = styled.main`
     grid-row: 3;
     grid-column: 5;
     margin-bottom: auto;
+    transition: top 132ms ease-in-out;
   }
 
   > [data-component="ImageUploaderButton"] {
@@ -73,6 +84,7 @@ export const EditorGrid = styled.main`
     grid-row: 3;
     grid-column: 6;
     margin-bottom: auto;
+    transition: top 132ms ease-in-out;
   }
 
   &[data-has-bottom-bar] {
