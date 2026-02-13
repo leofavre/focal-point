@@ -30,7 +30,6 @@ const noop = () => {};
  * ### Basic functionality
  *
  * - Handle errors with toaster.
- * - Remove all deprecated and dead code.
  *
  * ### Advanced functionality
  *

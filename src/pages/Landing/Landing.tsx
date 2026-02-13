@@ -11,12 +11,11 @@ const noop = () => {};
  * The layout (toolbar, drop zone, etc.) is provided by the parent route.
  */
 export function Landing({ ref, ...rest }: LandingProps) {
-  const { handleImageUpload, uploaderButtonRef } = useEditorContext();
+  const { handleImageUpload } = useEditorContext();
 
   return (
     <LandingWrapper ref={ref} data-component="Landing" {...rest}>
       <ImageUploaderButton
-        ref={uploaderButtonRef}
         size="medium"
         onImageUpload={handleImageUpload}
         onImageUploadError={noop}
