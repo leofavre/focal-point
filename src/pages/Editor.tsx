@@ -27,17 +27,14 @@ const noop = () => {};
  * - Improve loading state.
  * - Improve Code snippet.
  * - Improve toasters.
- * - Fix weird shadow in buttons.
- * - Mobile: fix text overflowing buttons on mobile Chrome. Maybe related to container queries?
- * - Mobile: fix mobile functionality again. Review scroll event being activated sometimes.
  * - Mobile: remove glow from iOS when clicking on buttons.
  * - Mobile: always use &:active instead of &:hover for touch devices.
  *
  * ### Basic functionality
  *
- *  - Make the app use the same routing for every persistence mode.
- *  - Split Editor.tsx in two files and take advantage of BrowserRouter's routes '/' and '/:imageId'.
- *  - Then next step will be code splitting.
+ * - Make the app use the same routing for every persistence mode.
+ * - Split Editor.tsx in two files and take advantage of BrowserRouter's routes '/' and '/:imageId'.
+ * - Then next step will be code splitting.
  * - Handle errors with toaster.
  * - Remove all deprecated and dead code.
  *

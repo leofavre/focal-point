@@ -44,20 +44,24 @@ export const EditorGrid = styled.main`
   > [data-component="FocalPointButton"] {
     grid-row: 3;
     grid-column: 2;
+    margin-bottom: auto;
   }
 
   > [data-component="ImageOverflowButton"] {
     grid-row: 3;
     grid-column: 3;
+    margin-bottom: auto;
   }
 
   > [data-component="CodeSnippetButton"] {
     grid-row: 3;
     grid-column: 5;
+    margin-bottom: auto;
   }
 
   > [data-component="ImageUploaderButton"] {
     grid-row: 3;
     grid-column: 6;
+    margin-bottom: auto;
   }
 `;

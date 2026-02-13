@@ -18,26 +18,23 @@ export const Button = styled.button`
   min-width: calc((var(--base-line) + var(--base-line-05x)) * var(--scale));
   height: calc(2rem * var(--scale));
   padding: 0 calc(var(--base-line-025x) * var(--scale));
-  border: calc(1px * var(--scale)) solid rgb(from var(--color-neutral) r g b);
-  background-color: white;
   box-sizing: border-box;
+  background-color: white;
+  border: calc(1px * var(--scale)) solid rgb(from var(--color-neutral) r g b);
   color: rgb(from var(--color-neutral) r g b);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
   cursor: pointer;
   font: inherit;
   font-size: calc(14 / 16 * 1rem * var(--scale));
   white-space: nowrap;
-
-  transition:
-    background-color 100ms ease-in-out,
-    border-color 100ms ease-in-out,
-    color 100ms ease-in-out,
-    box-shadow 100ms ease-in-out,
-    transform 100ms ease-in-out;
+  transition: all 66ms ease-in-out;
 
   &:hover {
     background-color: rgb(from var(--color-neutral) r g b / 10%);
     border-color: rgb(from var(--color-neutral) r g b);
     color: rgb(from var(--color-neutral) r g b);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
+    transition: all 66ms ease-in-out;
   }
 
   &:focus-visible {
@@ -50,12 +47,16 @@ export const Button = styled.button`
     background-color: rgb(from var(--color-loud) r g b / 10%);
     border-color: rgb(from var(--color-loud) r g b);
     color: rgb(from var(--color-loud) r g b);
+    box-shadow: 0px 0px 0px 0px var(--color-neutral);
     transform: translate(var(--shadow-offset), var(--shadow-offset));
+    transition: all 66ms ease-in-out;
 
     &:hover {
       background-color: rgb(from var(--color-loud) r g b / 20%);
       border-color: rgb(from var(--color-loud) r g b);
       color: rgb(from var(--color-loud) r g b);
+      box-shadow: 0px 0px 0px 0px var(--color-neutral);
+      transition: all 66ms ease-in-out;
     }
   }
 

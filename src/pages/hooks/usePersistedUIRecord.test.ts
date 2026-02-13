@@ -98,9 +98,9 @@ describe("usePersistedUIRecord", () => {
     });
 
     await waitFor(() => {
-      const raw = window.sessionStorage.getItem(keyFor("aspectRatio"));
+      const raw = window.sessionStorage.getItem(keyFor("aspectRatio")) ?? "";
       expect(raw).not.toBeNull();
-      expect(JSON.parse(raw!).value).toBe(4 / 5);
+      expect(JSON.parse(raw).value).toBe(4 / 5);
     });
   });
 
@@ -125,9 +125,9 @@ describe("usePersistedUIRecord", () => {
     });
 
     await waitFor(() => {
-      const raw = window.sessionStorage.getItem(keyFor("aspectRatio"));
+      const raw = window.sessionStorage.getItem(keyFor("aspectRatio")) ?? "";
       expect(raw).not.toBeNull();
-      expect(JSON.parse(raw!).value).toBe((1 / 2) * 5);
+      expect(JSON.parse(raw).value).toBe((1 / 2) * 5);
     });
   });
 
@@ -162,7 +162,8 @@ describe("usePersistedUIRecord", () => {
     });
 
     expect(window.sessionStorage.getItem(keyFor("aspectRatio"))).not.toBeNull();
-    expect(JSON.parse(window.sessionStorage.getItem(keyFor("aspectRatio"))!).value).toBe(4 / 5);
+    const raw = window.sessionStorage.getItem(keyFor("aspectRatio")) ?? "";
+    expect(JSON.parse(raw).value).toBe(4 / 5);
   });
 
   it("handles multiple instances with different IDs independently", async () => {

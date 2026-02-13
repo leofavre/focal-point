@@ -41,11 +41,12 @@ export function usePersistedUIRecord<K extends keyof UIState>(
 
   const stableIdGetter = useEffectEvent(() => id);
   const stableDefaultValueGetter = useEffectEvent(() => defaultValue);
+  const stableServiceGetRecord = useEffectEvent(service.getRecord);
 
   // Initial load: unwrap Result from getRecord.
   useEffect(() => {
     const load = async () => {
-      const result = await service.getRecord(stableIdGetter());
+      const result = await stableServiceGetRecord(stableIdGetter());
       if (result.rejected != null) {
         setter(stableDefaultValueGetter());
         return;

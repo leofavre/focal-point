@@ -309,7 +309,7 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
     }
 
     asyncSetImageState();
-  }, [imageId, imageCount, persistenceMode, setAspectRatio]);
+  }, [imageId, imageCount, setAspectRatio]);
 
   useEffect(() => {
     const loading =
@@ -323,7 +323,7 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
 
   const bottomBarPositioning = {
     transform: showBottomBar ? "translateY(0)" : "translateY(8rem)",
-    transition: "transform 100ms ease-in-out",
+    transition: "transform 66ms ease-in-out",
   };
 
   const value: EditorContextValue = {

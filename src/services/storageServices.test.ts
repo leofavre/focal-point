@@ -67,7 +67,7 @@ describe("storage services (shared contract)", () => {
   beforeEach(async () => {
     try {
       await clearIndexedDBStores(testDBConfig.name, testDBConfig.version);
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors if DB doesn't exist yet (first test)
       // The error will be handled when initDB is called
     }
@@ -114,7 +114,7 @@ describe("storage services (shared contract)", () => {
     const all = await expectAccepted(service.getAllRecords());
 
     expect(all).toHaveLength(2);
-    expect(all!.map((r) => r.id).sort()).toEqual(["a", "b"]);
+    expect(all?.map((r) => r.id).sort()).toEqual(["a", "b"]);
   });
 
   it.each(serviceConfigs)("updateRecord overwrites existing record ($name)", async ({
@@ -206,8 +206,8 @@ describe("storage services (shared contract)", () => {
     const fromB = await expectAccepted(serviceB.getAllRecords());
 
     expect(fromA).toHaveLength(1);
-    expect(fromA![0].id).toBe("only-in-a");
+    expect(fromA?.[0].id).toBe("only-in-a");
     expect(fromB).toHaveLength(1);
-    expect(fromB![0].id).toBe("only-in-b");
+    expect(fromB?.[0].id).toBe("only-in-b");
   });
 });
