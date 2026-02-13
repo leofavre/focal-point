@@ -6,8 +6,6 @@ export const Button = styled.button`
   --shadow-offset: calc(0.25rem * var(--scale));
 
   --transition-prop:
-    /* Top is needed for bottom bar animation. Not the component's responsibility, but works. */
-    top 132ms ease-in-out, 
     color 66ms ease-in-out,
     background-color 66ms ease-in-out,
     border-color 66ms ease-in-out,
@@ -32,6 +30,7 @@ export const Button = styled.button`
   font: inherit;
   font-size: calc(14 / 16 * 1rem * var(--scale));
   white-space: nowrap;
+  width: 100%;
   transition: var(--transition-prop);
 
   &:hover {

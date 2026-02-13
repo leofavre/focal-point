@@ -48,7 +48,8 @@ export const LayoutGrid = styled.main`
     margin-right: auto;
     max-width: 1200px;
     z-index: 1;
-    transition: top 132ms ease-in-out;
+    visibility: hidden;
+    transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
   > [data-component="FocalPointButton"] {
@@ -57,7 +58,8 @@ export const LayoutGrid = styled.main`
     grid-row: 3;
     grid-column: 2;
     margin-bottom: auto;
-    transition: top 132ms ease-in-out;
+    visibility: hidden;
+    transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
   > [data-component="ImageOverflowButton"] {
@@ -66,7 +68,8 @@ export const LayoutGrid = styled.main`
     grid-row: 3;
     grid-column: 3;
     margin-bottom: auto;
-    transition: top 132ms ease-in-out;
+    visibility: hidden;
+    transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
   > [data-component="CodeSnippetButton"] {
@@ -75,7 +78,8 @@ export const LayoutGrid = styled.main`
     grid-row: 3;
     grid-column: 5;
     margin-bottom: auto;
-    transition: top 132ms ease-in-out;
+    visibility: hidden;
+    transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
   > [data-component="ImageUploaderButton"] {
@@ -84,7 +88,8 @@ export const LayoutGrid = styled.main`
     grid-row: 3;
     grid-column: 6;
     margin-bottom: auto;
-    transition: top 132ms ease-in-out;
+    visibility: hidden;
+    transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
   &[data-has-bottom-bar] {
@@ -94,6 +99,8 @@ export const LayoutGrid = styled.main`
     > [data-component="CodeSnippetButton"],
     > [data-component="ImageUploaderButton"] {
       top: 0;
+      visibility: visible;
+      transition: top 132ms ease-in-out 0s, visibility 132ms linear 0s;
     }
   }
 `;
