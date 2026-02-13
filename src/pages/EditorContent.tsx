@@ -4,8 +4,8 @@ import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
 import { Dialog } from "../components/Dialog/Dialog";
 import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
 import { useEditorContext } from "../contexts/EditorContext";
-import { Landing } from "./Landing/Landing";
 import type { ObjectPositionString } from "../types";
+import { Landing } from "./Landing/Landing";
 
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
 const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;

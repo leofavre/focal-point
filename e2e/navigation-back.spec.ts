@@ -1,10 +1,10 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { test as testWithFixtures } from "./fixtures";
 import {
-  SAMPLE_IMAGE_PATH,
   expectEditorWithControlsVisible,
   expectLandingVisible,
+  SAMPLE_IMAGE_PATH,
 } from "./helpers";
-import { test as testWithFixtures } from "./fixtures";
 
 test.describe("Navigation and back button", () => {
   test("with IndexedDB: upload redirects to /edit, back returns to / with Landing visible", async ({

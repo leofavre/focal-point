@@ -1,8 +1,8 @@
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { EditorContextProvider } from "./contexts/EditorContext";
-import { EditorContent } from "./pages/EditorContent";
 import Editor from "./pages/Editor";
+import { EditorContent } from "./pages/EditorContent";
 
 export default function App() {
   return (

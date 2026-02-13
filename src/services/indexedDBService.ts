@@ -2,10 +2,10 @@
  * IndexedDB-backed DatabaseService. Each method returns a Result.
  * Must be called from a React component (uses useIndexedDB hook).
  */
-import { initDB, useIndexedDB, type IndexedDBProps } from "react-indexed-db-hook";
-import { isIndexedDBAvailable } from "../helpers/indexedDBAvailability";
+import { type IndexedDBProps, initDB, useIndexedDB } from "react-indexed-db-hook";
 import type { Result } from "../helpers/errorHandling";
 import { accept, reject } from "../helpers/errorHandling";
+import { isIndexedDBAvailable } from "../helpers/indexedDBAvailability";
 import { getRecordKeyFromValue } from "../helpers/recordKey";
 import type { DatabaseKey, DatabaseService } from "./types";
 
@@ -50,10 +50,7 @@ export function getIndexedDBService<T, K extends DatabaseKey = string>(
     initializedDatabases.add(dbKey);
   }
 
-  /**
-   * Running a React hook conditionally is not ideal, but it's needed to provide support
-   *  for the case where IndexedDB is unavailable. It's been working in practice so far.
-   */
+  // biome-ignore lint/correctness/useHookAtTopLevel: Needed for when IndexedDB is unavailable
   const indexedDB = useIndexedDB(tableName);
 
   return {

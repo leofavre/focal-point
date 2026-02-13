@@ -1,11 +1,11 @@
 import fs from "node:fs";
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { test as testWithFixtures } from "./fixtures";
 import {
-  SAMPLE_IMAGE_PATH,
   expectEditorWithControlsVisible,
   expectLandingVisible,
+  SAMPLE_IMAGE_PATH,
 } from "./helpers";
-import { test as testWithFixtures } from "./fixtures";
 
 /**
  * Simulate a file drop. react-dropzone's onDrop runs only when the drop event targets

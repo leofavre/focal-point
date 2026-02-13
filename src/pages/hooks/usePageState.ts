@@ -20,6 +20,9 @@ export function usePageState({
   isEditingSingleImage: boolean;
 }): UIPageState {
   if (imageId == null) return "landing";
-  if (image == null) return persistenceMode === "singleImage"&& isEditingSingleImage ? "imageNotFound" : "pageNotFound";
+  if (image == null)
+    return persistenceMode === "singleImage" && isEditingSingleImage
+      ? "imageNotFound"
+      : "pageNotFound";
   return "editing";
 }

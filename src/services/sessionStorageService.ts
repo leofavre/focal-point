@@ -5,8 +5,8 @@
  */
 import type { Result } from "../helpers/errorHandling";
 import { accept, reject } from "../helpers/errorHandling";
-import { isSessionStorageAvailable } from "../helpers/sessionStorageAvailability";
 import { getRecordKeyFromValue } from "../helpers/recordKey";
+import { isSessionStorageAvailable } from "../helpers/sessionStorageAvailability";
 import type { DatabaseKey, DatabaseService } from "./types";
 
 const SESSION_PREFIX = "fpe_session_";

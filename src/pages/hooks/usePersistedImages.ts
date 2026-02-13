@@ -155,7 +155,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       }
       return processResults(results);
     },
-    [service, stableRefreshImages],
+    [service],
   );
 
   const addImage: UsePersistedImagesReturn["addImage"] = useCallback(
@@ -187,7 +187,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       if (id != null) return accept(id);
       return reject({ reason: "AddImageFailed" });
     },
-    [service, addImages, stableRefreshImages],
+    [service, addImages],
   );
 
   const getImage: UsePersistedImagesReturn["getImage"] = useCallback(
@@ -225,7 +225,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       }
       return accept(id);
     },
-    [service, stableRefreshImages],
+    [service],
   );
 
   const deleteImage: UsePersistedImagesReturn["deleteImage"] = useCallback(
@@ -235,7 +235,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       await stableRefreshImages();
       return id;
     },
-    [service, stableRefreshImages],
+    [service],
   );
 
   return {

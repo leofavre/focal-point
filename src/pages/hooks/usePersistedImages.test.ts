@@ -220,10 +220,7 @@ describe("usePersistedImages", () => {
     const explicitId = "my-custom-id" as ImageId;
     let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
     await act(async () => {
-      addResult = await result.current.addImage(
-        { imageDraft, file: testFile },
-        { id: explicitId },
-      );
+      addResult = await result.current.addImage({ imageDraft, file: testFile }, { id: explicitId });
     });
 
     expect(addResult?.accepted).toBe("my-custom-id");
@@ -252,10 +249,7 @@ describe("usePersistedImages", () => {
     const explicitId = "custom-id" as ImageId;
     let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
     await act(async () => {
-      addResult = await result.current.addImage(
-        { imageDraft, file: testFile },
-        { id: explicitId },
-      );
+      addResult = await result.current.addImage({ imageDraft, file: testFile }, { id: explicitId });
     });
 
     expect(addResult?.accepted).toBe("custom-id");
@@ -448,14 +442,15 @@ describe("usePersistedImages", () => {
     });
 
     expect(result.current.images).toHaveLength(2);
-    expect(result.current.images?.map((img) => img.id).sort()).toEqual(["refreshed-id", "second-id"]);
+    expect(result.current.images?.map((img) => img.id).sort()).toEqual([
+      "refreshed-id",
+      "second-id",
+    ]);
   });
 
   describe("forceInMemoryStorage option", () => {
     it("when forceInMemoryStorage is true, uses in-memory storage and operations succeed", async () => {
-      const { result } = renderHook(() =>
-        usePersistedImages({ forceInMemoryStorage: true }),
-      );
+      const { result } = renderHook(() => usePersistedImages({ forceInMemoryStorage: true }));
 
       await waitFor(() => {
         expect(result.current.images).toBeDefined();

@@ -1,15 +1,13 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { test as testWithFixtures } from "./fixtures";
 import {
-  SAMPLE_IMAGE_PATH,
   expectEditorWithControlsVisible,
   expectLandingVisible,
+  SAMPLE_IMAGE_PATH,
 } from "./helpers";
-import { test as testWithFixtures } from "./fixtures";
 
 test.describe("Landing upload", () => {
-  test("with IndexedDB: image upload redirects to /edit and shows editor", async ({
-    page,
-  }) => {
+  test("with IndexedDB: image upload redirects to /edit and shows editor", async ({ page }) => {
     await page.goto("/");
     await expectLandingVisible(page);
 

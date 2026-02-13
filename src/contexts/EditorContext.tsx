@@ -12,6 +12,11 @@ import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
 import { useDelayedState } from "use-delay-follow-state";
+import { createImageStateFromDraftAndFile } from "../pages/helpers/createImageStateFromDraftAndFile";
+import { createImageStateFromRecord } from "../pages/helpers/createImageStateFromRecord";
+import { usePageState } from "../pages/hooks/usePageState";
+import { usePersistedImages } from "../pages/hooks/usePersistedImages";
+import { usePersistedUIRecord } from "../pages/hooks/usePersistedUIRecord";
 import type {
   ImageDraftStateAndFile,
   ImageId,
@@ -21,11 +26,6 @@ import type {
   UIPageState,
   UIPersistenceMode,
 } from "../types";
-import { createImageStateFromDraftAndFile } from "../pages/helpers/createImageStateFromDraftAndFile";
-import { createImageStateFromRecord } from "../pages/helpers/createImageStateFromRecord";
-import { usePageState } from "../pages/hooks/usePageState";
-import { usePersistedImages } from "../pages/hooks/usePersistedImages";
-import { usePersistedUIRecord } from "../pages/hooks/usePersistedUIRecord";
 
 const DEFAULT_SHOW_FOCAL_POINT = false;
 const DEFAULT_SHOW_IMAGE_OVERFLOW = false;
@@ -96,14 +96,9 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
   const [image, setImage] = useState<ImageState | null>(null);
 
   const safeSetImage = useEffectEvent(
-    (
-      valueOrFn:
-        | ImageState | null
-        | ((prev: ImageState | null) => ImageState | null),
-    ) => {
+    (valueOrFn: ImageState | null | ((prev: ImageState | null) => ImageState | null)) => {
       setImage((prevValue) => {
-        const nextValue =
-          typeof valueOrFn === "function" ? valueOrFn(prevValue) : valueOrFn;
+        const nextValue = typeof valueOrFn === "function" ? valueOrFn(prevValue) : valueOrFn;
 
         if (prevValue != null && prevValue.url !== nextValue?.url) {
           URL.revokeObjectURL(prevValue.url);
@@ -119,21 +114,25 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
     { debounceTimeout: INTERACTION_DEBOUNCE_MS },
   );
 
-  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord(
-    { id: "showFocalPoint", value: DEFAULT_SHOW_FOCAL_POINT },
-  );
+  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord({
+    id: "showFocalPoint",
+    value: DEFAULT_SHOW_FOCAL_POINT,
+  });
 
-  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord(
-    { id: "showImageOverflow", value: DEFAULT_SHOW_IMAGE_OVERFLOW },
-  );
+  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord({
+    id: "showImageOverflow",
+    value: DEFAULT_SHOW_IMAGE_OVERFLOW,
+  });
 
-  const [showCodeSnippet, setShowCodeSnippet] = usePersistedUIRecord(
-    { id: "showCodeSnippet", value: DEFAULT_SHOW_CODE_SNIPPET },
-  );
+  const [showCodeSnippet, setShowCodeSnippet] = usePersistedUIRecord({
+    id: "showCodeSnippet",
+    value: DEFAULT_SHOW_CODE_SNIPPET,
+  });
 
-  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord(
-    { id: "codeSnippetLanguage", value: DEFAULT_CODE_SNIPPET_LANGUAGE },
-  );
+  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord({
+    id: "codeSnippetLanguage",
+    value: DEFAULT_CODE_SNIPPET_LANGUAGE,
+  });
 
   const [codeSnippetCopied, setCodeSnippetCopied] = useState(false);
   const [isProcessingImageUpload, setIsProcessingImageUpload] = useState(false);
@@ -164,21 +163,16 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
 
       setIsProcessingImageUpload(true);
 
-      const imageStateResult =
-        await createImageStateFromDraftAndFile(draftAndFile);
+      const imageStateResult = await createImageStateFromDraftAndFile(draftAndFile);
 
       if (imageStateResult.rejected != null) {
-        toast.error(
-          `Error creating image state: ${String(imageStateResult.rejected.reason)}`,
-        );
+        toast.error(`Error creating image state: ${String(imageStateResult.rejected.reason)}`);
         setIsProcessingImageUpload(false);
         return;
       }
 
       safeSetImage(imageStateResult.accepted);
-      setAspectRatio(
-        imageStateResult.accepted.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO,
-      );
+      setAspectRatio(imageStateResult.accepted.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
 
       const addResult = await addImage(
         { imageDraft: draftAndFile.imageDraft, file: draftAndFile.file },
@@ -205,14 +199,9 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
     safeSetImage(null);
   }, []);
 
-  const handleObjectPositionChange = useCallback(
-    (objectPosition: ObjectPositionString) => {
-      safeSetImage((prev) =>
-        prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null,
-      );
-    },
-    [],
-  );
+  const handleObjectPositionChange = useCallback((objectPosition: ObjectPositionString) => {
+    safeSetImage((prev) => (prev != null ? { ...prev, breakpoints: [{ objectPosition }] } : null));
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -245,18 +234,11 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
         breakpoints: [{ objectPosition: currentObjectPosition }],
       }).then((result) => {
         if (result.rejected != null) {
-          toast.error(
-            `Error saving position to database: ${String(result.rejected.reason)}`,
-          );
+          toast.error(`Error saving position to database: ${String(result.rejected.reason)}`);
           return;
         }
         if (result.accepted != null) {
-          console.log(
-            "updated image",
-            imageId,
-            "with object position",
-            currentObjectPosition,
-          );
+          console.log("updated image", imageId, "with object position", currentObjectPosition);
         }
       });
     },
@@ -268,24 +250,15 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
     () => {
       if (imageId == null || aspectRatio == null) return;
 
-      updateImage(imageId, { lastKnownAspectRatio: aspectRatio }).then(
-        (result) => {
-          if (result.rejected != null) {
-            toast.error(
-              `Error saving aspect ratio to database: ${String(result.rejected.reason)}`,
-            );
-            return;
-          }
-          if (result.accepted != null) {
-            console.log(
-              "updated image",
-              imageId,
-              "with lastKnownAspectRatio",
-              aspectRatio,
-            );
-          }
-        },
-      );
+      updateImage(imageId, { lastKnownAspectRatio: aspectRatio }).then((result) => {
+        if (result.rejected != null) {
+          toast.error(`Error saving aspect ratio to database: ${String(result.rejected.reason)}`);
+          return;
+        }
+        if (result.accepted != null) {
+          console.log("updated image", imageId, "with lastKnownAspectRatio", aspectRatio);
+        }
+      });
     },
     { timeout: INTERACTION_DEBOUNCE_MS },
     [imageId, aspectRatio, persistenceMode, updateImage],
@@ -321,9 +294,7 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
 
       if (result.rejected != null) {
         safeSetImage(null);
-        toast.error(
-          `Error loading saved image: ${String(result.rejected.reason)}`,
-        );
+        toast.error(`Error loading saved image: ${String(result.rejected.reason)}`);
         return;
       }
 
@@ -348,11 +319,11 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
     setIsLoading(loading, !loading ? MINIMAL_LOADING_DURATION_MS : 0);
   }, [setIsLoading, pageState, imageNotFoundConfirmed, isProcessingImageUpload]);
 
-  const showBottomBar =
-    pageState === "editing" || pageState === "imageNotFound";
+  const showBottomBar = pageState === "editing" || pageState === "imageNotFound";
+
   const bottomBarPositioning = {
     transform: showBottomBar ? "translateY(0)" : "translateY(8rem)",
-    transition: "transform 220ms ease-in-out",
+    transition: "transform 100ms ease-in-out",
   };
 
   const value: EditorContextValue = {
@@ -385,9 +356,7 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
     uploaderButtonRef,
   };
 
-  return (
-    <EditorContext.Provider value={value}>{children}</EditorContext.Provider>
-  );
+  return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>;
 }
 
 export function useEditorContext(): EditorContextValue {

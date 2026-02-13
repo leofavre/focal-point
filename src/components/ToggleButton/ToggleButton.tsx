@@ -44,7 +44,7 @@ export function ToggleButton({
       onClick={handleClick}
       onFocus={onFocus}
       onBlur={onBlur}
-      css={{ "--scale": scale }}
+      data-scale={scale}
       {...rest}
     >
       {icon}

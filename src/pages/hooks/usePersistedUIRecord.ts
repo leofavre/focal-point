@@ -1,9 +1,9 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useEffectEvent, useState } from "react";
 import useDebouncedEffect from "use-debounced-effect";
+import { isSessionStorageAvailable } from "../../helpers/sessionStorageAvailability";
 import { getInMemoryStorageService } from "../../services/inMemoryStorageService";
 import { getSessionStorageService } from "../../services/sessionStorageService";
-import { isSessionStorageAvailable } from "../../helpers/sessionStorageAvailability";
 import type { UIRecord, UIState } from "../../types";
 
 export type UsePersistedUIRecordOptions = {
