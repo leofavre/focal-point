@@ -1,18 +1,18 @@
-import { useEditorContext } from "../AppContext";
-import { CodeSnippet } from "../components/CodeSnippet/CodeSnippet";
-import { Dialog } from "../components/Dialog/Dialog";
-import { FocalPointEditor } from "../components/FocalPointEditor/FocalPointEditor";
-import type { ObjectPositionString } from "../types";
-import { LayoutMessage } from "./Layout.styled";
+import { useEditorContext } from "../../AppContext";
+import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
+import { Dialog } from "../../components/Dialog/Dialog";
+import { FocalPointEditor } from "../../components/FocalPointEditor/FocalPointEditor";
+import type { ObjectPositionString } from "../../types";
+import { LayoutMessage } from "../Layout.styled";
 
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
 const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
 
 /**
  * Content for the image route (/:imageId). Renders the editing view or error messages
- * (image not found, page not found). Loading is handled by the shared Editor layout.
+ * (image not found, page not found). Loading is handled by the shared Layout.
  */
-export function EditorImage() {
+export function Editor() {
   const {
     image,
     imageCount,

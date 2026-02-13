@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import { useEditorContext } from "../AppContext";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
@@ -60,7 +61,6 @@ export default function Layout() {
     showCodeSnippet,
     setShowCodeSnippet,
     showBottomBar,
-    isLoading,
     handleImageUpload,
     uploaderButtonRef,
   } = useEditorContext();
@@ -69,7 +69,9 @@ export default function Layout() {
     <>
       <FullScreenDropZone onImageUpload={handleImageUpload} onImageUploadError={noop} />
       <LayoutGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
-        {isLoading ? <LayoutMessage>Loading...</LayoutMessage> : <Outlet />}
+        <Suspense fallback={<LayoutMessage>Loading...</LayoutMessage>}>
+          <Outlet />
+        </Suspense>
         <ToggleButton
           type="button"
           data-component="FocalPointButton"
