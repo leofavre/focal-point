@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&family=Sono:wght,MONO@200..800,1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Sono:wght,MONO@200..800,1&display=swap");
 
 :root {
   --color-loud: #eb8552;
@@ -12,7 +12,9 @@
   --base-line-025x: calc(var(--base-line) * 0.25);
   --base-line-05x: calc(var(--base-line) * 0.5);
   --base-line-1x: calc(var(--base-line) * 1);
+  --base-line-15x: calc(var(--base-line) * 1.5);
   --base-line-2x: calc(var(--base-line) * 2);
+  --base-line-3x: calc(var(--base-line) * 3);
   --base-line-4x: calc(var(--base-line) * 4);
 
   --thumb-radius: max(11px, var(--base-line-05x));
@@ -21,7 +23,7 @@
 }
 
 html {
-  font-family: "Red Hat Text", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-optical-sizing: auto;
   height: 100%;
   margin: 0;

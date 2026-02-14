@@ -14,11 +14,19 @@ export const Content = styled.div`
   }
 
   h1 {
-    display: none;
+    font-size: calc(63 / 16 * 1rem);
+    line-height: var(--base-line-3x);
+    font-weight: 500;
+    color: var(--color-loud);
   }
 
   h1 + p {
-    display: none;
+    font-size: calc(22 / 16 * 1rem);
+    line-height: var(--base-line-15x);
+    font-weight: 300;
+    margin-top: var(--base-line-025x);
+    margin-bottom: var(--base-line-2x);
+    color: var(--color-neutral);
   }
 
   h2 {
