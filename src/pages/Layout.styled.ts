@@ -16,7 +16,7 @@ export const LayoutGrid = styled.main`
   gap: var(--base-line-05x);
   margin: 0;
   width: 100dvw;
-  height: 100dvh;
+  min-height: 100dvh;
 
   [data-component="Landing"] {
     grid-column: 1 / -1;

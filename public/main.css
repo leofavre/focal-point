@@ -15,7 +15,7 @@
   --base-line-2x: calc(var(--base-line) * 2);
   --base-line-4x: calc(var(--base-line) * 4);
 
-  --thumb-radius: var(--base-line-05x);
+  --thumb-radius: max(11px, var(--base-line-05x));
   --thumb-diameter: calc(2 * var(--thumb-radius));
   --runner-thickness: 4px;
 }
@@ -23,11 +23,15 @@
 html {
   font-family: "Red Hat Text", sans-serif;
   font-optical-sizing: auto;
-  font-size: 16px;
   height: 100%;
   margin: 0;
   padding: 0;
   color: var(--color-body);
+  font-size: 16px;
+
+  @media screen and (max-width: 950px) {
+    font-size: 14px;
+  }
 }
 
 body {
