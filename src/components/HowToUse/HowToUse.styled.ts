@@ -18,6 +18,7 @@ export const Content = styled.div`
     line-height: var(--base-line-3x);
     font-weight: 500;
     color: var(--color-loud);
+    display: none;
   }
 
   h1 + p {
@@ -27,6 +28,7 @@ export const Content = styled.div`
     margin-top: var(--base-line-025x);
     margin-bottom: var(--base-line-2x);
     color: var(--color-neutral);
+    display: none;
   }
 
   h2 {

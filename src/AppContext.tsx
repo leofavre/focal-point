@@ -358,9 +358,7 @@ export function AppContext({ children }: PropsWithChildren) {
     setIsLoading(loading, !loading ? MINIMAL_LOADING_DURATION_MS : 0);
   }, [setIsLoading, pageState, imageNotFoundConfirmed, isProcessingImageUpload]);
 
-  const showBottomBar = !isLoading && (pageState === "editing" || pageState === "imageNotFound");
-
-  console.log({ isLoading, pageState, showBottomBar });
+  const showBottomBar = true; /* !isLoading && (pageState === "editing" || pageState === "imageNotFound"); */
 
   const value: EditorContextValue = {
     persistenceMode,
