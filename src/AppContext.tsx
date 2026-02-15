@@ -14,12 +14,14 @@ import useDebouncedEffect from "use-debounced-effect";
 import { useDelayedState } from "use-delay-follow-state";
 import { createImageStateFromDraftAndFile } from "./pages/helpers/createImageStateFromDraftAndFile";
 import { createImageStateFromRecord } from "./pages/helpers/createImageStateFromRecord";
+import { createImageStateFromUrl } from "./pages/helpers/createImageStateFromUrl";
 import { createKeyboardShortcutHandler } from "./pages/helpers/createKeyboardShortcutHandler";
 import { usePageState } from "./pages/hooks/usePageState";
 import { usePersistedImages } from "./pages/hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./pages/hooks/usePersistedUIRecord";
 import type {
   ImageDraftStateAndFile,
+  ImageDraftStateAndUrl,
   ImageId,
   ImageRecord,
   ImageState,
@@ -27,6 +29,7 @@ import type {
   UIPageState,
   UIPersistenceMode,
 } from "./types";
+import { hasUrl, isImageDraftStateAndUrl } from "./types";
 
 const DEFAULT_SHOW_FOCAL_POINT = false;
 const DEFAULT_SHOW_IMAGE_OVERFLOW = false;
@@ -66,7 +69,9 @@ export type EditorContextValue = {
   isLoading: boolean;
   isEditingSingleImage: boolean;
   showBottomBar: boolean;
-  handleImageUpload: (draftAndFile: ImageDraftStateAndFile | undefined) => Promise<void>;
+  handleImageUpload: (
+    draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl | undefined,
+  ) => Promise<void>;
   handleImageError: () => void;
   handleObjectPositionChange: (objectPosition: ObjectPositionString) => void;
   uploaderButtonRef: React.RefObject<HTMLButtonElement | null>;
@@ -101,7 +106,9 @@ export function AppContext({ children }: PropsWithChildren) {
         const nextValue = typeof valueOrFn === "function" ? valueOrFn(prevValue) : valueOrFn;
 
         if (prevValue != null && prevValue.url !== nextValue?.url) {
-          URL.revokeObjectURL(prevValue.url);
+          if (prevValue.url.startsWith("blob:")) {
+            URL.revokeObjectURL(prevValue.url);
+          }
         }
 
         return nextValue;
@@ -158,12 +165,14 @@ export function AppContext({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useDelayedState(pageState === "imageNotFound");
 
   const handleImageUpload = useCallback(
-    async (draftAndFile: ImageDraftStateAndFile | undefined) => {
-      if (draftAndFile == null) return;
+    async (draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl | undefined) => {
+      if (draftAndFileOrUrl == null) return;
 
       setIsProcessingImageUpload(true);
 
-      const imageStateResult = await createImageStateFromDraftAndFile(draftAndFile);
+      const imageStateResult = isImageDraftStateAndUrl(draftAndFileOrUrl)
+        ? await createImageStateFromUrl(draftAndFileOrUrl)
+        : await createImageStateFromDraftAndFile(draftAndFileOrUrl);
 
       if (imageStateResult.rejected != null) {
         toast.error(`Error creating image state: ${String(imageStateResult.rejected.reason)}`);
@@ -174,12 +183,9 @@ export function AppContext({ children }: PropsWithChildren) {
       safeSetImage(imageStateResult.accepted);
       setAspectRatio(imageStateResult.accepted.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
 
-      const addResult = await addImage(
-        { imageDraft: draftAndFile.imageDraft, file: draftAndFile.file },
-        {
-          id: persistenceMode === "singleImage" ? SINGLE_IMAGE_MODE_ID : undefined,
-        },
-      );
+      const addResult = await addImage(draftAndFileOrUrl, {
+        id: persistenceMode === "singleImage" ? SINGLE_IMAGE_MODE_ID : undefined,
+      });
 
       const nextImageId = addResult.accepted;
       const shouldNavigate = nextImageId != null && imageId !== nextImageId;
@@ -308,13 +314,13 @@ export function AppContext({ children }: PropsWithChildren) {
       if (imageId == null) return;
 
       if (imageCount == null) {
-        console.log("database is loading");
+        console.log("persistence layer is loading");
         safeSetImage(null);
         return;
       }
 
       if (imageCount === 0) {
-        console.log("database is empty");
+        console.log("persistence layer is empty");
         safeSetImage(null);
         setImageNotFoundConfirmed(true);
         return;
@@ -323,13 +329,23 @@ export function AppContext({ children }: PropsWithChildren) {
       const imageRecord = stableImageRecordGetter(imageId);
 
       if (imageRecord == null) {
-        console.log("image not found in the database");
+        console.log("image not found in the persistence layer");
         safeSetImage(null);
         setImageNotFoundConfirmed(true);
         return;
       }
 
-      const result = await createImageStateFromRecord(imageRecord);
+      const result = hasUrl(imageRecord)
+        ? await createImageStateFromUrl({
+            imageDraft: {
+              name: imageRecord.name,
+              type: imageRecord.type,
+              createdAt: imageRecord.createdAt,
+              breakpoints: imageRecord.breakpoints,
+            },
+            url: imageRecord.url,
+          })
+        : await createImageStateFromRecord(imageRecord);
 
       if (result.rejected != null) {
         safeSetImage(null);

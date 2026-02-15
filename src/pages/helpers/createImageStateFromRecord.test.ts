@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { accept, reject } from "../../helpers/errorHandling";
-import { createMockImageRecord } from "../../test-utils/mocks";
+import { createMockImageRecordWithFile } from "../../test-utils/mocks";
 import { createImageStateFromRecord } from "./createImageStateFromRecord";
 import { getNaturalAspectRatioFromImageSrc } from "./getNaturalAspectRatioFromImageSrc";
 
@@ -24,7 +24,7 @@ describe("createImageStateFromRecord", () => {
   });
 
   it("returns accepted ImageState with url and naturalAspectRatio when successful", async () => {
-    const record = createMockImageRecord();
+    const record = createMockImageRecordWithFile();
 
     const result = await createImageStateFromRecord(record);
 
@@ -40,7 +40,7 @@ describe("createImageStateFromRecord", () => {
 
   it("creates blob URL from record file", async () => {
     const file = new Blob(["content"], { type: "image/jpeg" });
-    const record = createMockImageRecord({ file });
+    const record = createMockImageRecordWithFile({ file });
 
     await createImageStateFromRecord(record);
 
@@ -49,7 +49,7 @@ describe("createImageStateFromRecord", () => {
   });
 
   it("gets natural aspect ratio from blob URL", async () => {
-    const record = createMockImageRecord();
+    const record = createMockImageRecordWithFile();
 
     await createImageStateFromRecord(record);
 
@@ -60,7 +60,7 @@ describe("createImageStateFromRecord", () => {
   });
 
   it("preserves all record metadata in result", async () => {
-    const record = createMockImageRecord({
+    const record = createMockImageRecordWithFile({
       name: "custom-name.jpg",
       type: "image/jpeg",
       createdAt: 999,
@@ -80,7 +80,7 @@ describe("createImageStateFromRecord", () => {
       reject({ reason: "ImageLoadFailed" }),
     );
 
-    const result = await createImageStateFromRecord(createMockImageRecord());
+    const result = await createImageStateFromRecord(createMockImageRecordWithFile());
 
     expect(result.rejected).toEqual({ reason: "ImageLoadFailed" });
     expect(mockRevokeObjectURL).toHaveBeenCalledTimes(1);
@@ -92,7 +92,7 @@ describe("createImageStateFromRecord", () => {
       throw new Error("Quota exceeded");
     });
 
-    const result = await createImageStateFromRecord(createMockImageRecord());
+    const result = await createImageStateFromRecord(createMockImageRecordWithFile());
 
     expect(result.rejected).toEqual({ reason: "BlobCreateFailed" });
     expect(mockRevokeObjectURL).not.toHaveBeenCalled();

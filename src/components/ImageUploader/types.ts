@@ -1,18 +1,20 @@
 import type { Ref } from "react";
 import type { Err } from "../../helpers/errorHandling";
-import type { ImageDraftStateAndFile } from "../../types";
+import type { ImageDraftStateAndFile, ImageDraftStateAndUrl } from "../../types";
 
 export type SingleImageUploaderProps = {
   onImagesUpload?: never;
   onImagesUploadError?: never;
-  onImageUpload: (draftAndFile: ImageDraftStateAndFile) => void;
+  onImageUpload: (draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl) => void;
   onImageUploadError?: (error: Err<string>) => void;
 };
 
 export type MultipleImagesUploaderProps = {
   onImageUpload?: never;
   onImageUploadError?: never;
-  onImagesUpload: (draftsAndFiles: ImageDraftStateAndFile[]) => void;
+  onImagesUpload: (
+    draftsAndFilesOrUrls: (ImageDraftStateAndFile | ImageDraftStateAndUrl)[],
+  ) => void;
   onImagesUploadError?: (errors: Err<string>[]) => void;
 };
 
