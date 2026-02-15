@@ -5,61 +5,32 @@ export const IconCode = (props: SVGProps<SVGSVGElement>) => {
     /* biome-ignore lint/a11y/noSvgWithoutTitle: Decorative icon, hidden from screen readers */
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve"
       viewBox="0 0 22 22"
       aria-hidden
       {...props}
     >
-      <defs>
-        <clipPath id="a" clipPathUnits="userSpaceOnUse">
-          <use xlinkHref="#reuse-0" />
-        </clipPath>
-        <clipPath id="b" clipPathUnits="userSpaceOnUse">
-          <use xlinkHref="#reuse-0" />
-        </clipPath>
-        <path id="reuse-0" d="M0 16.5h16.5V0H0Z" />
-      </defs>
-      <g clipPath="url(#a)" transform="matrix(1.33333 0 0 -1.33333 0 22)">
-        <path
-          d="m0 0-2.919 4.094L.75 8.187"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          strokeLinecap="butt"
-          strokeLinejoin="miter"
-          strokeMiterlimit={10}
-          strokeDasharray="none"
-          strokeOpacity={1}
-          transform="translate(4.794 4.175)"
-        />
-      </g>
       <path
-        d="m0 0-1.877-8.901"
+        d="M 6.39 16.43 L 2.5 10.97 L 7.39 5.5"
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
-        strokeLinecap="butt"
-        strokeLinejoin="miter"
+        strokeWidth={2}
         strokeMiterlimit={10}
-        strokeDasharray="none"
-        strokeOpacity={1}
-        transform="matrix(1.33333 0 0 -1.33333 12.251 4.833)"
       />
-      <g clipPath="url(#b)" transform="matrix(1.33333 0 0 -1.33333 0 22)">
-        <path
-          d="m0 0 2.919-4.094L-.75-8.187"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          strokeLinecap="butt"
-          strokeLinejoin="miter"
-          strokeMiterlimit={10}
-          strokeDasharray="none"
-          strokeOpacity={1}
-          transform="translate(11.706 12.363)"
-        />
-      </g>
+      <path
+        d="M 12.25 4.83 L 9.75 16.7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeMiterlimit={10}
+      />
+      <path
+        d="M 15.6 5.5 L 19.5 10.97 L 14.6 16.43"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeMiterlimit={10}
+      />
     </svg>
   );
 };
