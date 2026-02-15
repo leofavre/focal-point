@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { mergeRefs } from "react-merge-refs";
-import { DialogWrapper } from "./Dialog.styled";
+import { IconClose } from "../../icons/IconClose";
+import { DialogButton, DialogWrapper } from "./Dialog.styled";
 import type { DialogProps } from "./types";
 
 export function Dialog({
@@ -57,6 +58,9 @@ export function Dialog({
       css={{ backgroundColor: transparent ? "transparent" : "white" }}
       {...rest}
     >
+      <DialogButton type="button" onClick={() => setIsOpen(false)}>
+        <IconClose />
+      </DialogButton>
       {children}
     </DialogWrapper>
   );

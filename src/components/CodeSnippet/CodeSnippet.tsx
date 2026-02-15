@@ -12,6 +12,7 @@ import {
   TabButton,
   Wrapper,
 } from "./CodeSnippet.styled";
+import { codeSnippetTheme } from "./codeSnippetTheme";
 import { normalizeWhitespaceInQuotes } from "./helpers/normalizeWhitespaceInQuotes";
 import type { CodeSnippetProps } from "./types";
 
@@ -187,7 +188,7 @@ export function CodeSnippet({
       <CopyButton type="button" onClick={handleCopy}>
         {copied ? "Copied!" : "Copy"}
       </CopyButton>
-      <CodeBlock code={codeSnippet} language={codeBlockLanguage}>
+      <CodeBlock code={codeSnippet} language={codeBlockLanguage} theme={codeSnippetTheme}>
         <Code ref={ref} className="notranslate">
           <Line>
             <LineNumber />

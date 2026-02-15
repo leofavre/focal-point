@@ -1,9 +1,72 @@
 import styled from "@emotion/styled";
 
 export const DialogWrapper = styled.dialog`
-    border: none;
-    padding: 0;
-    margin: auto;
-    box-sizing: border-box;
-    background: none;
+  border: none;
+  padding: 0;
+  margin: auto;
+  box-sizing: border-box;
+  background: none;
+  display: grid;
+  grid-template-rows: var(--base-line) 1fr;
+  max-width: 100%;
+  max-height: 100%;
+
+  opacity: 0;
+  transition:
+    opacity 132ms ease-in-out,
+    display 132ms ease-in-out allow-discrete,
+    overlay 132ms ease-in-out allow-discrete;
+
+  &:not([open]) {
+    display: none;
+    opacity: 0;
+  }
+
+  &[open] {
+    display: grid;
+    opacity: 1;
+  }
+
+  @starting-style {
+    &[open] {
+      opacity: 0;
+    }
+  }
+
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0);
+    transition:
+      background-color 132ms ease-in-out,
+      display 132ms ease-in-out allow-discrete,
+      overlay 132ms ease-in-out allow-discrete;
+  }
+
+  &:not([open])::backdrop {
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  &[open]::backdrop {
+    background-color: rgb(from var(--color-zero) r g b / 75%);
+  }
+
+  @starting-style {
+    &[open]::backdrop {
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
+`;
+
+export const DialogButton = styled.button`
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  height: var(--base-line);
+
+  > svg {
+    height: var(--base-line);
+  }
 `;

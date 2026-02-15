@@ -18,35 +18,35 @@ export const TabButton = styled.button`
   padding: 0.25rem 0.5rem;
   font-size: 0.8125rem;
   font-family: inherit;
-  color: #9ca3af;
-  background-color: #1f2937;
-  border: 1px solid #374151;
+  color: var(--color-neutral);
+  background-color: var(--color-body);
+  border: 1px solid var(--color-neutral);
   border-radius: 0.375rem 0.375rem 0 0;
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 
   &[aria-selected="true"] {
-    color: #e5e7eb;
-    background-color: #111827;
-    border: 1px solid #111827;
+    color: var(--color-zero);
+    background-color: var(--color-body);
+    border: 1px solid var(--color-body);
   }
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
-      color: #e5e7eb;
-      background-color: #111827;
+      color: var(--color-zero);
+      background-color: var(--color-body);
     }
   }
   @media (hover: none) {
     &:active:not(:disabled) {
-      color: #e5e7eb;
-      background-color: #111827;
+      color: var(--color-zero);
+      background-color: var(--color-body);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid var(--color-glow);
   }
 `;
 
@@ -54,9 +54,8 @@ export const Code = styled(CodeBlock.Code)`
   font-size: 1rem;
   margin: 0;
   box-sizing: border-box;
-  background-color: #111827;
-  padding: 1.5rem;
-  border-radius: 0 0.75rem 0 0;
+  background-color: var(--color-body);
+  padding: var(--base-line);
   overflow: auto;
   transition: opacity 0.15s ease;
   flex-grow: 1;
@@ -70,7 +69,7 @@ export const LineNumber = styled(CodeBlock.LineNumber)`
   display: table-cell;
   padding-right: 1rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-neutral);
   text-align: right;
   user-select: none;
 `;
@@ -80,15 +79,12 @@ export const LineContent = styled(CodeBlock.LineContent)`
 `;
 
 export const CopyButton = styled.button`
-  position: absolute;
-  top: 2.5rem;
-  right: 0.5rem;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
   font-family: inherit;
-  color: #9ca3af;
-  background-color: #1f2937;
-  border: 1px solid #374151;
+  color: var(--color-neutral);
+  background-color: var(--color-body);
+  border: 1px solid var(--color-neutral);
   border-radius: 0.375rem;
   cursor: pointer;
   user-select: none;
@@ -97,20 +93,20 @@ export const CopyButton = styled.button`
 
   @media (hover: hover) {
     &:hover {
-      color: #e5e7eb;
-      background-color: #374151;
-      border-color: #4b5563;
+      color: var(--color-zero);
+      background-color: rgb(from var(--color-neutral) r g b / 30%);
+      border-color: var(--color-neutral);
     }
   }
   @media (hover: none) {
     &:active {
-      color: #e5e7eb;
-      background-color: #374151;
-      border-color: #4b5563;
+      color: var(--color-zero);
+      background-color: rgb(from var(--color-neutral) r g b / 30%);
+      border-color: var(--color-neutral);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid var(--color-glow);
   }
 `;
