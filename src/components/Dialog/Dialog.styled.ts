@@ -46,7 +46,7 @@ export const DialogWrapper = styled.dialog`
   }
 
   &[open]::backdrop {
-    background-color: rgb(from var(--color-zero) r g b / 75%);
+    background-color: var(--color-dialog-backdrop);
   }
 
   @starting-style {

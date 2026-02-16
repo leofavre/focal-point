@@ -94,14 +94,14 @@ export const CopyButton = styled.button`
   @media (hover: hover) {
     &:hover {
       color: var(--color-zero);
-      background-color: rgb(from var(--color-neutral) r g b / 30%);
+      background-color: var(--color-neutral-tint-30);
       border-color: var(--color-neutral);
     }
   }
   @media (hover: none) {
     &:active {
       color: var(--color-zero);
-      background-color: rgb(from var(--color-neutral) r g b / 30%);
+      background-color: var(--color-neutral-tint-30);
       border-color: var(--color-neutral);
     }
   }
