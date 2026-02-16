@@ -1,0 +1,41 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { copyToClipboard } from "../helpers/copyToClipboard";
+import { normalizeWhitespaceInQuotes } from "../helpers/normalizeWhitespaceInQuotes";
+
+const COPY_RESET_MS = 2_000;
+
+export function useCopyToClipboardWithTimeout(
+  text: string,
+  options?: { copied?: boolean; onCopiedChange?: (copied: boolean) => void },
+): { copied: boolean; copy: () => Promise<void> } {
+  const { copied: copiedProp = false, onCopiedChange } = options ?? {};
+  const [copied, setCopied] = useState(copiedProp);
+  const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setCopied(copiedProp);
+  }, [copiedProp]);
+
+  const copy = useCallback(async () => {
+    const textToCopy = normalizeWhitespaceInQuotes(text);
+    const success = await copyToClipboard(textToCopy);
+
+    if (success) {
+      if (copyResetTimeoutRef.current) {
+        clearTimeout(copyResetTimeoutRef.current);
+      }
+      setCopied(true);
+      onCopiedChange?.(true);
+      copyResetTimeoutRef.current = setTimeout(() => {
+        setCopied(false);
+        onCopiedChange?.(false);
+        copyResetTimeoutRef.current = null;
+      }, COPY_RESET_MS);
+    } else {
+      setCopied(false);
+      onCopiedChange?.(false);
+    }
+  }, [text, onCopiedChange]);
+
+  return { copied, copy };
+}

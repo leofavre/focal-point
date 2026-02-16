@@ -6,7 +6,4 @@ export type CodeSnippetProps = {
   src: string;
   objectPosition: ObjectPositionString;
   language?: CodeSnippetLanguage;
-  onLanguageChange?: (language: CodeSnippetLanguage) => void;
-  copied?: boolean;
-  onCopiedChange?: (copied: boolean) => void;
 };

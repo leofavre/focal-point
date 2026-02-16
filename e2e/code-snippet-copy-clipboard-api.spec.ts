@@ -56,8 +56,8 @@ test.describe("Code snippet copy – Clipboard API available", () => {
     const expectedObjectPosition = objectPositionMatch?.[1]?.trim() ?? "";
     expect(expectedObjectPosition).toBeTruthy();
 
-    await codeSnippet.getByRole("button", { name: "Copy" }).click();
-    await expect(codeSnippet.getByRole("button", { name: "Copied!" })).toBeVisible();
+    await page.getByRole("button", { name: "Copy" }).click();
+    await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
 
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     expect(clipboardText).toContain(expectedObjectPosition);

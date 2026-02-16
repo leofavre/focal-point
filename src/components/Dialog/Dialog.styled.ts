@@ -7,7 +7,10 @@ export const DialogWrapper = styled.dialog`
   box-sizing: border-box;
   background: none;
   display: grid;
-  grid-template-rows: var(--base-line) 1fr;
+  grid-template-rows: min-content 1fr;
+  grid-template-columns: 1fr var(--base-line);
+  gap: var(--base-line-05x);
+  padding: var(--base-line-05x);
   max-width: 100%;
   max-height: 100%;
 
@@ -57,6 +60,8 @@ export const DialogWrapper = styled.dialog`
 `;
 
 export const DialogButton = styled.button`
+  grid-column: 2;
+  grid-row: 1;
   appearance: none;
   -webkit-tap-highlight-color: transparent;
   border: none;
@@ -69,4 +74,16 @@ export const DialogButton = styled.button`
   > svg {
     height: var(--base-line);
   }
+`;
+
+/** Exposed as sub-component of Dialog */
+export const DialogContent = styled.div`
+  grid-column: 1 / -1;
+  grid-row: 2;
+`;
+
+/** Exposed as sub-component of Dialog */
+export const DialogHeader = styled.div`
+  grid-column: 1;
+  grid-row: 1;
 `;
