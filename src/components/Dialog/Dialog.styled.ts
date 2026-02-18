@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 export const DialogWrapper = styled.dialog`
   border: none;
   padding: 0;
-  margin: auto;
+  margin: auto !important;
   box-sizing: border-box;
   background: none;
   display: grid;
@@ -64,7 +64,6 @@ export const DialogButton = styled.button`
   grid-column: 2;
   grid-row: 1;
   appearance: none;
-  -webkit-tap-highlight-color: transparent;
   border: none;
   padding: 0;
   margin: var(--base-line-05x);

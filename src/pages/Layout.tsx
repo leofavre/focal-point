@@ -18,6 +18,7 @@ const noop = () => {};
  *
  * ### MELHORIZE™ UI.
  *
+ * - Show position within the focal point icon.
  * - Make the AspectRatioSlider's height smaller if "original" is removed. Delegate the height to the component instead of the grid.
  * - Verify accessibility.
  * - Review aria labels.

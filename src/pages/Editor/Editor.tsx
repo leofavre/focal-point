@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useEditorContext } from "../../AppContext";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
 import { CodeSnippetHeader } from "../../components/CodeSnippetHeader/CodeSnippetHeader";
@@ -33,6 +34,12 @@ export function Editor() {
     handleObjectPositionChange,
   } = useEditorContext();
 
+  const openCountRef = useRef(0);
+
+  if (showCodeSnippet) {
+    openCountRef.current++;
+  }
+
   if (pageState === "editing" && image != null && aspectRatio != null) {
     return (
       <>
@@ -59,6 +66,8 @@ export function Editor() {
           </Dialog.Header>
           <Dialog.Content>
             <CodeSnippet
+              // Force re-render when the dialog is opened
+              key={openCountRef.current}
               src={image.name}
               objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
               language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}

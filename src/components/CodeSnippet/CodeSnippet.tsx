@@ -37,18 +37,16 @@ export function CodeSnippet({
   const copyButtonRef = useRef<HTMLButtonElement>(null);
   const mergedCodeRef = useMergeRefs([codeRef, ref]);
 
+  /**
+   * Automatically focus the copy button after a short delay.
+   */
   useEffect(() => {
-    const codeElement = codeRef.current;
-    if (codeElement) {
-      const selection = window.getSelection();
-      if (selection) {
-        const range = document.createRange();
-        range.selectNodeContents(codeElement);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    }
-    copyButtonRef.current?.focus();
+    const asyncAutoFocus = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      copyButtonRef.current?.focus();
+    };
+
+    asyncAutoFocus();
   }, []);
 
   const handleCopyCapture = useCallback((event: ClipboardEvent) => {

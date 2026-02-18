@@ -9,6 +9,7 @@
   --color-neutral-tint-30: color-mix(in srgb, var(--color-neutral) 30%, var(--color-zero));
   --color-body: #2a2828;
   --color-glow: rgb(from var(--color-loud) r g b / 40%);
+  --color-light-glow: rgb(from var(--color-loud) r g b / 20%);
   --color-background: color-mix(in srgb, var(--color-body) 4%, var(--color-zero));
   --color-dialog-backdrop: rgb(from var(--color-neutral) r g b / 75%);
 
@@ -45,6 +46,10 @@ html {
   @media screen and (max-width: 950px) {
     font-size: 14px;
   }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 body {
@@ -54,7 +59,7 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-glow);
+  background-color: var(--color-light-glow);
 }
 
 :focus-visible {

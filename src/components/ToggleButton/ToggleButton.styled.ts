@@ -35,7 +35,6 @@ export const Button = styled.button`
   border: calc(1px * var(--scale)) solid var(--button-color-solid);
   color: var(--button-color-solid);
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
   font: inherit;
   font-size: calc(14 / 16 * 1rem * var(--scale));
   white-space: nowrap;
