@@ -67,8 +67,3 @@ body {
   border-radius: 0rem;
   outline-offset: 0;
 }
-
-input[type="checkbox"] {
-  margin: 0;
-  padding: 0;
-}
