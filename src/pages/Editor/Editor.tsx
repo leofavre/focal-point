@@ -1,55 +1,27 @@
 import { useEditorContext } from "../../AppContext";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
-import {
-  getCodeSnippet,
-  getLanguageFromOptions,
-} from "../../components/CodeSnippet/helpers/getCodeSnippet";
-import { useCopyToClipboardWithTimeout } from "../../components/CodeSnippet/hooks/useCopyToClipboardWithTimeout";
+import { getLanguageFromOptions } from "../../components/CodeSnippet/helpers/getCodeSnippet";
 import { Dialog } from "../../components/Dialog/Dialog";
 import { FocalPointEditor } from "../../components/FocalPointEditor/FocalPointEditor";
-import { ToggleButton } from "../../components/ToggleButton/ToggleButton";
-import { IconCopy } from "../../icons/IconCopy";
-import type { CodeSnippetLanguage, ObjectPositionString } from "../../types";
+import type { ObjectPositionString } from "../../types";
 import { LayoutMessage } from "../Layout.styled";
+import { Actions } from "./Editor.styled";
+import type { EditorCodeSnippetHeaderProps } from "./types";
 
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
 const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
 
-type EditorCodeSnippetHeaderProps = {
-  codeSnippetLanguage: CodeSnippetLanguage;
-  setCodeSnippetLanguage: (language: CodeSnippetLanguage) => void;
-  codeSnippetCopied: boolean;
-  setCodeSnippetCopied: (copied: boolean) => void;
-  imageName: string;
-  objectPosition: ObjectPositionString;
-};
-
 function EditorCodeSnippetHeader({
   codeSnippetLanguage,
   setCodeSnippetLanguage,
-  codeSnippetCopied,
-  setCodeSnippetCopied,
-  imageName,
-  objectPosition,
 }: EditorCodeSnippetHeaderProps) {
   const useReact = codeSnippetLanguage === "react" || codeSnippetLanguage === "react-tailwind";
 
   const useTailwind =
     codeSnippetLanguage === "tailwind" || codeSnippetLanguage === "react-tailwind";
 
-  const snippetText = getCodeSnippet({
-    language: codeSnippetLanguage,
-    src: imageName,
-    objectPosition,
-  });
-
-  const { copied, copy } = useCopyToClipboardWithTimeout(snippetText, {
-    copied: codeSnippetCopied,
-    onCopiedChange: setCodeSnippetCopied,
-  });
-
   return (
-    <div css={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+    <Actions>
       <label>
         <input
           type="checkbox"
@@ -70,11 +42,7 @@ function EditorCodeSnippetHeader({
         />{" "}
         Tailwind
       </label>
-      <ToggleButton type="button" toggleable={false} toggled={copied} onClick={copy}>
-        <IconCopy />
-        <ToggleButton.ButtonText>{copied ? "Copied!" : "Copy"}</ToggleButton.ButtonText>
-      </ToggleButton>
-    </div>
+    </Actions>
   );
 }
 
@@ -125,10 +93,6 @@ export function Editor() {
             <EditorCodeSnippetHeader
               codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
               setCodeSnippetLanguage={setCodeSnippetLanguage}
-              codeSnippetCopied={codeSnippetCopied}
-              setCodeSnippetCopied={setCodeSnippetCopied}
-              imageName={image.name}
-              objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
             />
           </Dialog.Header>
           <Dialog.Content>
@@ -136,6 +100,8 @@ export function Editor() {
               src={image.name}
               objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
               language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+              codeSnippetCopied={codeSnippetCopied}
+              setCodeSnippetCopied={setCodeSnippetCopied}
             />
           </Dialog.Content>
         </Dialog>

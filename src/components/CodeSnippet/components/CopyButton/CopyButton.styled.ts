@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
-import { ToggleButton } from "../../../components/ToggleButton/ToggleButton";
+import { ToggleButton } from "../../../ToggleButton/ToggleButton";
 
 export const Button = styled(ToggleButton)`
   margin-left: auto;
-  width: 8rem;
+  width: 7rem;
 `;

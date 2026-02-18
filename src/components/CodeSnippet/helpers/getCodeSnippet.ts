@@ -68,6 +68,7 @@ export type GetCodeSnippetOptions = {
 
 export function getCodeSnippet(options: GetCodeSnippetOptions): string {
   const { language, src, objectPosition } = options;
+
   switch (language) {
     case "tailwind":
       return getCodeSnippetTailwind(src, objectPosition);

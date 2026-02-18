@@ -10,7 +10,7 @@
   --color-body: #2a2828;
   --color-glow: rgb(from var(--color-loud) r g b / 40%);
   --color-background: color-mix(in srgb, var(--color-body) 4%, var(--color-zero));
-  --color-dialog-backdrop: rgb(from var(--color-zero) r g b / 75%);
+  --color-dialog-backdrop: rgb(from var(--color-neutral) r g b / 75%);
 
   /* CodeSnippet syntax colors - fewer, more distinct colors */
   --color-codesnippet-comment: var(--color-neutral);
@@ -61,4 +61,9 @@ body {
   outline: 0.25rem solid var(--color-glow);
   border-radius: 0rem;
   outline-offset: 0;
+}
+
+input[type="checkbox"] {
+  margin: 0;
+  padding: 0;
 }

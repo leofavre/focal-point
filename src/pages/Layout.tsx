@@ -18,6 +18,7 @@ const noop = () => {};
  *
  * ### MELHORIZE™ UI.
  *
+ * - Make the AspectRatioSlider's height smaller if "original" is removed. Delegate the height to the component instead of the grid.
  * - Verify accessibility.
  * - Review aria labels.
  * - Think about animations and transitions.

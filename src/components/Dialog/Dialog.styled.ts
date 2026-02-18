@@ -8,11 +8,12 @@ export const DialogWrapper = styled.dialog`
   background: none;
   display: grid;
   grid-template-rows: min-content 1fr;
-  grid-template-columns: 1fr var(--base-line);
+  grid-template-columns: 1fr min-content;
   gap: var(--base-line-05x);
-  padding: var(--base-line-05x);
+  // padding: var(--base-line-05x);
   max-width: 100%;
   max-height: 100%;
+  overflow: hidden;
 
   opacity: 0;
   transition:
@@ -66,10 +67,11 @@ export const DialogButton = styled.button`
   -webkit-tap-highlight-color: transparent;
   border: none;
   padding: 0;
-  margin: 0;
+  margin: var(--base-line-05x);
   background: none;
   cursor: pointer;
   height: var(--base-line);
+  color: var(--color-neutral);
 
   > svg {
     height: var(--base-line);
