@@ -17,6 +17,7 @@ export function CodeSnippet({
   language = "html",
   codeSnippetCopied,
   setCodeSnippetCopied,
+  triggerAutoFocus = false,
   ...rest
 }: CodeSnippetProps) {
   const snippetText = getCodeSnippet({
@@ -41,13 +42,15 @@ export function CodeSnippet({
    * Automatically focus the copy button after a short delay.
    */
   useEffect(() => {
+    if (!triggerAutoFocus) return;
+
     const asyncAutoFocus = async () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
       copyButtonRef.current?.focus();
     };
 
     asyncAutoFocus();
-  }, []);
+  }, [triggerAutoFocus]);
 
   const handleCopyCapture = useCallback((event: ClipboardEvent) => {
     const { clipboardData } = event;
