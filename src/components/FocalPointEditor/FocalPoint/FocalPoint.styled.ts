@@ -6,14 +6,14 @@ export const Wrapper = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: var(--pointer-size);
-  height: var(--pointer-size);
-  margin: calc(var(--pointer-size) * -0.5) 0 0 calc(var(--pointer-size) * -0.5);
+  width: calc(var(--pointer-size) * 0.5);
+  height: calc(var(--pointer-size) * 0.5);
+  margin: calc(var(--pointer-size) * -0.25) 0 0 calc(var(--pointer-size) * -0.25);
   pointer-events: auto;
   touch-action: none;
   user-select: none;
   cursor: grab;
-  z-index: 10;
+  z-index: 2;
 
   @supports (anchor-name: --focal-center) {
     anchor-name: --focal-center;
@@ -22,7 +22,7 @@ export const Wrapper = styled.div`
 
 export const Cross = styled.div`
   position: absolute;
-  inset: 0;
+  inset: calc(var(--pointer-size) * -0.25);
   transition: opacity 66ms ease;
 
   &::before,
@@ -72,15 +72,14 @@ export const Badge = styled.span`
     position: fixed;
     position-anchor: --focal-center;
     position-area: top right;
-    margin: -1rem;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    position-try-order: most-width;
-    padding: var(--base-line-025x) var(--base-line-05x);
+    margin: 0rem;
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    padding: 0 var(--base-line-05x);
     background-color: var(--color-body);
     color: var(--color-neutral-tint-30);
     font-family: "Sono", monospace;
-    font-size: 0.75rem;
-    line-height: 1.2;
+    font-size: calc(12 / 16 * 1rem);
+    line-height: var(--base-line);
     white-space: pre;
     pointer-events: none;
     z-index: 11;

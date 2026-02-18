@@ -18,7 +18,6 @@ const noop = () => {};
  *
  * ### MELHORIZE™ UI.
  *
- * - Show position within the focal point icon.
  * - Verify accessibility.
  * - Review aria labels.
  * - Think about animations and transitions.
