@@ -2,10 +2,24 @@ import type { PointerEvent } from "react";
 import { useCallback, useEffectEvent, useRef } from "react";
 import { clamp } from "../helpers/clamp";
 import { cssObjectPositionObjectToString } from "../helpers/cssObjectPositionObjectToString";
-import { Cross, Wrapper } from "./FocalPoint.styled";
+import { Badge, Cross, Wrapper } from "./FocalPoint.styled";
 import type { FocalPointProps } from "./types";
 
-export function FocalPoint({ onObjectPositionChange, ...rest }: FocalPointProps) {
+function formatPositionValue(value: number): string {
+  const normalized = Number.isInteger(value) ? `${value}%` : `${value.toFixed(2)}%`;
+  return normalized.padEnd(6, " ");
+}
+
+function formatPositionBadge(x: number, y: number): string {
+  return `${formatPositionValue(x)} ${formatPositionValue(y)}`;
+}
+
+export function FocalPoint({
+  onObjectPositionChange,
+  objectPositionX,
+  objectPositionY,
+  ...rest
+}: FocalPointProps) {
   const isDraggingRef = useRef(false);
   const crossRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +77,7 @@ export function FocalPoint({ onObjectPositionChange, ...rest }: FocalPointProps)
       {...rest}
     >
       <Cross />
+      <Badge aria-hidden>{formatPositionBadge(objectPositionX, objectPositionY)}</Badge>
     </Wrapper>
   );
 }

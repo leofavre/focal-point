@@ -208,6 +208,8 @@ export function FocalPointEditor({
           pointerEvents: showFocalPoint ? "auto" : "none",
         }}
         aria-hidden={!showFocalPoint}
+        objectPositionX={objectPositionX ?? 0}
+        objectPositionY={objectPositionY ?? 0}
         onObjectPositionChange={stableOnObjectPositionChange}
       />
     </FocalPointEditorWrapper>
