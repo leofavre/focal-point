@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-export const Cross = styled.div`
+export const Wrapper = styled.div`
   --pointer-size: 4rem;
 
   position: absolute;
@@ -12,10 +12,14 @@ export const Cross = styled.div`
   pointer-events: auto;
   touch-action: none;
   user-select: none;
-  transition: opacity 66ms ease;
-  z-index: 2;
   cursor: grab;
   z-index: 10;
+`;
+
+export const Cross = styled.div`
+  position: absolute;
+  inset: 0;
+  transition: opacity 66ms ease;
 
   &::before,
   &::after {

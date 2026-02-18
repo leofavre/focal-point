@@ -2,7 +2,7 @@ import type { PointerEvent } from "react";
 import { useCallback, useEffectEvent, useRef } from "react";
 import { clamp } from "../helpers/clamp";
 import { cssObjectPositionObjectToString } from "../helpers/cssObjectPositionObjectToString";
-import { Cross } from "./FocalPoint.styled";
+import { Cross, Wrapper } from "./FocalPoint.styled";
 import type { FocalPointProps } from "./types";
 
 export function FocalPoint({ onObjectPositionChange, ...rest }: FocalPointProps) {
@@ -54,13 +54,15 @@ export function FocalPoint({ onObjectPositionChange, ...rest }: FocalPointProps)
   }, []);
 
   return (
-    <Cross
+    <Wrapper
       ref={crossRef}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
       {...rest}
-    />
+    >
+      <Cross />
+    </Wrapper>
   );
 }
