@@ -52,3 +52,13 @@ body {
   padding: 0;
   background-color: var(--color-background);
 }
+
+::selection {
+  background-color: var(--color-glow);
+}
+
+:focus-visible {
+  outline: 0.25rem solid var(--color-glow);
+  border-radius: 0rem;
+  outline-offset: 0;
+}
