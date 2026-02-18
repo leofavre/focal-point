@@ -10,8 +10,11 @@ export const DialogWrapper = styled.dialog`
   grid-template-rows: min-content 1fr;
   grid-template-columns: 1fr min-content;
   gap: var(--base-line-05x);
+  width: fit-content;
+  height: 0px;
   max-width: 100%;
   max-height: 100%;
+  min-height: fit-content;
   overflow: hidden;
 
   opacity: 0;

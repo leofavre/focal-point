@@ -26,7 +26,6 @@ const noop = () => {};
  * - Improve Landing page.
  * - Improve Full Screen Drop Zone.
  * - Improve loading state.
- * - Improve Code snippet.
  * - Improve toasters.
  *
  * ### Basic functionality
