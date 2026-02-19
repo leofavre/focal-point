@@ -18,7 +18,7 @@ const noop = () => {};
  *
  * ### MELHORIZE™ UI.
  *
- * - Fix first transition in buttons and aspect ratio after reload.
+ * - Prevent first transition in buttons and aspect ratio after reload.
  * - Verify accessibility.
  * - Review aria labels.
  * - Think about animations and transitions.
