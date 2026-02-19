@@ -11,7 +11,7 @@ import { getIndexedDBService } from "../../services/indexedDBService";
 import { __clearTableForTesting } from "../../services/inMemoryStorageService";
 import { clearIndexedDBStores } from "../../test-utils/clearIndexedDBStores";
 import { expectAccepted } from "../../test-utils/expectAccepted";
-import { createMockImageDraftState, createMockImageRecord } from "../../test-utils/mocks";
+import { createMockImageDraftState, createMockImageRecordWithFile } from "../../test-utils/mocks";
 import type { ImageId, ImageRecord } from "../../types";
 import { usePersistedImages } from "./usePersistedImages";
 
@@ -55,7 +55,7 @@ describe("usePersistedImages", () => {
   });
 
   it("returns persisted images when store has data", async () => {
-    const record = createMockImageRecord({
+    const record = createMockImageRecordWithFile({
       id: "saved-id",
       ...createMockImageDraftState({ name: "saved.png" }),
       file: testFile,
@@ -95,7 +95,7 @@ describe("usePersistedImages", () => {
   });
 
   it("addImage uses collision suffix when filename already exists", async () => {
-    const existingRecord = createMockImageRecord({
+    const existingRecord = createMockImageRecordWithFile({
       id: "my-photo",
       ...createMockImageDraftState({ name: "My Photo.jpg" }),
       file: testFile,
@@ -120,7 +120,7 @@ describe("usePersistedImages", () => {
   });
 
   it("addImage with overwrite: true uses base id and overwrites existing record", async () => {
-    const existingRecord = createMockImageRecord({
+    const existingRecord = createMockImageRecordWithFile({
       id: "my-photo",
       ...createMockImageDraftState({ name: "My Photo.jpg", createdAt: 1000 }),
       file: testFile,
@@ -177,7 +177,7 @@ describe("usePersistedImages", () => {
   });
 
   it("addImages with overwrite: true overwrites existing and adds new", async () => {
-    const existingRecord = createMockImageRecord({
+    const existingRecord = createMockImageRecordWithFile({
       id: "photo",
       ...createMockImageDraftState({ name: "photo.jpg" }),
       file: testFile,
@@ -209,6 +209,32 @@ describe("usePersistedImages", () => {
     expect(result.current.images?.some((img) => img.id === "other")).toBe(true);
   });
 
+  it("addImage with ImageDraftStateAndUrl adds url-based record and refreshes", async () => {
+    const { result } = renderHook(() => usePersistedImages());
+
+    await waitFor(() => {
+      expect(result.current.images).toEqual([]);
+    });
+
+    const imageDraft = createMockImageDraftState({ name: "external.png" });
+    const imageUrl = "https://example.com/image.png";
+    let addResult: Awaited<ReturnType<typeof result.current.addImage>> | undefined;
+    await act(async () => {
+      addResult = await result.current.addImage({ imageDraft, url: imageUrl });
+    });
+
+    expect(addResult?.accepted).toBe("external");
+    expect(result.current.images).toHaveLength(1);
+    const addedRecord = result.current.images?.[0];
+    expect(addedRecord).toBeDefined();
+    expect(addedRecord).toMatchObject({
+      id: "external",
+      ...imageDraft,
+      url: imageUrl,
+    });
+    expect("file" in (addedRecord ?? {})).toBe(false);
+  });
+
   it("addImage with options.id uses explicit id", async () => {
     const { result } = renderHook(() => usePersistedImages());
 
@@ -229,7 +255,7 @@ describe("usePersistedImages", () => {
   });
 
   it("addImage with options.id overwrites existing record", async () => {
-    const existingRecord = createMockImageRecord({
+    const existingRecord = createMockImageRecordWithFile({
       id: "custom-id",
       ...createMockImageDraftState({ name: "old.png" }),
       file: testFile,
@@ -285,7 +311,7 @@ describe("usePersistedImages", () => {
 
   it("getImage returns record when present", async () => {
     const id = "lookup-id" as ImageId;
-    const record = createMockImageRecord({
+    const record = createMockImageRecordWithFile({
       id,
       ...createMockImageDraftState({ name: "lookup.png" }),
       file: testFile,
@@ -324,7 +350,7 @@ describe("usePersistedImages", () => {
 
   it("updateImage merges updates and refreshes list", async () => {
     const id = "update-id" as ImageId;
-    const existing = createMockImageRecord({
+    const existing = createMockImageRecordWithFile({
       id,
       ...createMockImageDraftState({ name: "old.png", createdAt: 1000 }),
       file: testFile,
@@ -369,7 +395,7 @@ describe("usePersistedImages", () => {
 
   it("updateImage returns accepted and skips write when current and updated are deeply equal", async () => {
     const id = "update-id" as ImageId;
-    const existing = createMockImageRecord({
+    const existing = createMockImageRecordWithFile({
       id,
       ...createMockImageDraftState({ name: "same.png", createdAt: 1000 }),
       file: testFile,
@@ -390,7 +416,7 @@ describe("usePersistedImages", () => {
 
   it("deleteImage removes record and refreshes list", async () => {
     const id = "delete-id" as ImageId;
-    const record = createMockImageRecord({
+    const record = createMockImageRecordWithFile({
       id,
       ...createMockImageDraftState({ name: "to-delete.png" }),
       file: testFile,
@@ -411,7 +437,7 @@ describe("usePersistedImages", () => {
   });
 
   it("refreshImages reloads images from store", async () => {
-    const record1 = createMockImageRecord({
+    const record1 = createMockImageRecordWithFile({
       id: "refreshed-id",
       ...createMockImageDraftState({ name: "refreshed.png" }),
       file: testFile,
@@ -424,7 +450,7 @@ describe("usePersistedImages", () => {
       expect(result.current.images).toHaveLength(1);
     });
 
-    const record2 = createMockImageRecord({
+    const record2 = createMockImageRecordWithFile({
       id: "second-id",
       ...createMockImageDraftState({ name: "second.png" }),
       file: testFile,

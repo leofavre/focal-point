@@ -69,14 +69,17 @@ export function AspectRatioControl({
         ({ position }) => position < positionFromEventNumber - POSITION_SNAP_THRESHOLD,
       );
 
-      if (event.key === "ArrowRight" && nextItem != null) {
+      const nextArrowKey = event.currentTarget.matches(":dir(rtl)") ? "ArrowLeft" : "ArrowRight";
+      const prevArrowKey = event.currentTarget.matches(":dir(rtl)") ? "ArrowRight" : "ArrowLeft";
+
+      if (event.key === nextArrowKey && nextItem != null) {
         const nextAspectRatio = toAspectRatio(nextItem.position, minValue, maxValue);
         stableOnAspectRatioChange(nextAspectRatio);
       }
 
-      if (event.key === "ArrowLeft" && previousItem != null) {
-        const previousAspectRatio = toAspectRatio(previousItem.position, minValue, maxValue);
-        stableOnAspectRatioChange(previousAspectRatio);
+      if (event.key === prevArrowKey && previousItem != null) {
+        const prevAspectRatio = toAspectRatio(previousItem.position, minValue, maxValue);
+        stableOnAspectRatioChange(prevAspectRatio);
       }
     },
     [aspectRatioList, minValue, maxValue],

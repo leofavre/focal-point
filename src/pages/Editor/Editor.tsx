@@ -1,5 +1,6 @@
 import { useEditorContext } from "../../AppContext";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
+import { CodeSnippetHeader } from "../../components/CodeSnippetHeader/CodeSnippetHeader";
 import { Dialog } from "../../components/Dialog/Dialog";
 import { FocalPointEditor } from "../../components/FocalPointEditor/FocalPointEditor";
 import type { ObjectPositionString } from "../../types";
@@ -45,15 +46,27 @@ export function Editor() {
           onObjectPositionChange={handleObjectPositionChange}
           onImageError={handleImageError}
         />
-        <Dialog transparent open={showCodeSnippet} onOpenChange={setShowCodeSnippet}>
-          <CodeSnippet
-            src={image.name}
-            objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-            language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-            onLanguageChange={setCodeSnippetLanguage}
-            copied={codeSnippetCopied}
-            onCopiedChange={setCodeSnippetCopied}
-          />
+        <Dialog
+          open={showCodeSnippet}
+          onOpenChange={setShowCodeSnippet}
+          css={{ backgroundColor: "var(--color-background)" }}
+        >
+          <Dialog.Header>
+            <CodeSnippetHeader
+              codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+              setCodeSnippetLanguage={setCodeSnippetLanguage}
+            />
+          </Dialog.Header>
+          <Dialog.Content>
+            <CodeSnippet
+              src={image.name}
+              objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+              language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+              codeSnippetCopied={codeSnippetCopied}
+              setCodeSnippetCopied={setCodeSnippetCopied}
+              triggerAutoFocus={showCodeSnippet}
+            />
+          </Dialog.Content>
         </Dialog>
       </>
     );

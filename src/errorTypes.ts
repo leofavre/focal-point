@@ -11,7 +11,11 @@ export type ImageUploadValidationReason = NoFilesProvidedReason | NotImageReason
 /** Image load / create-image-state flows. */
 export type ImageLoadFailedReason = "ImageLoadFailed";
 export type BlobCreateFailedReason = "BlobCreateFailed";
-export type CreateImageStateReason = ImageLoadFailedReason | BlobCreateFailedReason;
+export type InvalidUrlReason = "InvalidUrl";
+export type CreateImageStateReason =
+  | ImageLoadFailedReason
+  | BlobCreateFailedReason
+  | InvalidUrlReason;
 
 /** Persistence (IndexedDB / images). */
 export type RefreshFailedReason = "RefreshFailed";

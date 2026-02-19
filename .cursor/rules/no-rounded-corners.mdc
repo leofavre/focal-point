@@ -1,0 +1,10 @@
+---
+description: Disallow rounded corners in this project
+alwaysApply: true
+---
+
+# No Rounded Corners
+
+- Do not add `border-radius` in new or modified styles.
+- If touching existing styles that include rounded corners, remove the rounding unless the user explicitly asks to keep it.
+- Prefer square corners for all components and UI surfaces.

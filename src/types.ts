@@ -27,6 +27,11 @@ export type ImageDraftStateAndFile = {
   file: Blob;
 };
 
+export type ImageDraftStateAndUrl = {
+  imageDraft: ImageDraftState;
+  url: string;
+};
+
 export type ImageState = Simplify<
   ImageDraftState & {
     url: string;
@@ -34,13 +39,37 @@ export type ImageState = Simplify<
   }
 >;
 
-export type ImageRecord = Simplify<
+export type ImageRecordWithFile = Simplify<
   ImageDraftState & {
     id: ImageId;
     file: Blob;
     lastKnownAspectRatio?: number;
   }
 >;
+
+export type ImageRecordWithUrl = Simplify<
+  ImageDraftState & {
+    id: ImageId;
+    url: string;
+    lastKnownAspectRatio?: number;
+  }
+>;
+
+export type ImageRecord = ImageRecordWithFile | ImageRecordWithUrl;
+
+export function hasFile(record: ImageRecord): record is ImageRecordWithFile {
+  return "file" in record && record.file != null;
+}
+
+export function hasUrl(record: ImageRecord): record is ImageRecordWithUrl {
+  return "url" in record && typeof record.url === "string";
+}
+
+export function isImageDraftStateAndUrl(
+  x: ImageDraftStateAndFile | ImageDraftStateAndUrl,
+): x is ImageDraftStateAndUrl {
+  return "url" in x && x.url != null;
+}
 
 export type CodeSnippetLanguage = "html" | "tailwind" | "react" | "react-tailwind";
 

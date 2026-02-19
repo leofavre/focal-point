@@ -24,13 +24,11 @@ const noop = () => {};
  * - Improve Landing page.
  * - Improve Full Screen Drop Zone.
  * - Improve loading state.
- * - Improve Code snippet.
  * - Improve toasters.
  *
  * ### Basic functionality
  *
  * - Handle errors with toaster.
- * - Remove all deprecated and dead code.
  *
  * ### Advanced functionality
  *
@@ -67,39 +65,43 @@ export default function Layout() {
         <ToggleButton
           type="button"
           data-component="FocalPointButton"
+          toggleable
           toggled={showFocalPoint ?? false}
           onToggle={(toggled) => setShowFocalPoint(!toggled)}
-          titleOn="Focal point"
-          titleOff="Focal point"
-          icon={<IconReference />}
-        />
+        >
+          <IconReference />
+          <ToggleButton.ButtonText>Focal point</ToggleButton.ButtonText>
+        </ToggleButton>
         <ToggleButton
           type="button"
           data-component="ImageOverflowButton"
+          toggleable
           toggled={showImageOverflow ?? false}
           onToggle={(toggled) => setShowImageOverflow(!toggled)}
-          titleOn="Overflow"
-          titleOff="Overflow"
-          icon={<IconMask />}
-        />
-        <ToggleButton
-          type="button"
-          data-component="CodeSnippetButton"
-          toggled={showCodeSnippet ?? false}
-          onToggle={(toggled) => setShowCodeSnippet(!toggled)}
-          titleOn="Code"
-          titleOff="Code"
-          icon={<IconCode />}
-        />
-        <ImageUploaderButton
-          ref={uploaderButtonRef}
-          onImageUpload={handleImageUpload}
-          onImageUploadError={noop}
-        />
+        >
+          <IconMask />
+          <ToggleButton.ButtonText>Overflow</ToggleButton.ButtonText>
+        </ToggleButton>
         <AspectRatioSlider
           aspectRatio={aspectRatio}
           defaultAspectRatio={image?.naturalAspectRatio}
           onAspectRatioChange={setAspectRatio}
+        />
+        <ToggleButton
+          type="button"
+          data-component="CodeSnippetButton"
+          toggleable
+          toggled={showCodeSnippet ?? false}
+          onToggle={(toggled) => setShowCodeSnippet(!toggled)}
+        >
+          <IconCode />
+          <ToggleButton.ButtonText>Code</ToggleButton.ButtonText>
+        </ToggleButton>
+        <ImageUploaderButton
+          ref={uploaderButtonRef}
+          label="Upload"
+          onImageUpload={handleImageUpload}
+          onImageUploadError={noop}
         />
       </LayoutGrid>
     </>

@@ -6,16 +6,24 @@ export const Wrapper = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: var(--pointer-size);
-  height: var(--pointer-size);
-  margin: calc(var(--pointer-size) * -0.5) 0 0 calc(var(--pointer-size) * -0.5);
+  width: calc(var(--pointer-size) * 0.5);
+  height: calc(var(--pointer-size) * 0.5);
+  margin: calc(var(--pointer-size) * -0.25) 0 0 calc(var(--pointer-size) * -0.25);
   pointer-events: auto;
   touch-action: none;
   user-select: none;
-  transition: opacity 66ms ease;
-  z-index: 2;
   cursor: grab;
-  z-index: 10;
+  z-index: 2;
+
+  @supports (anchor-name: --focal-center) {
+    anchor-name: --focal-center;
+  }
+`;
+
+export const Cross = styled.div`
+  position: absolute;
+  inset: calc(var(--pointer-size) * -0.25);
+  transition: opacity 66ms ease;
 
   &::before,
   &::after {
@@ -52,6 +60,34 @@ export const Wrapper = styled.div`
     &::before,
     &::after {
       display: none;
+    }
+  }
+`;
+
+export const Badge = styled.span`
+  display: none;
+
+  @supports (position-anchor: --focal-center) and (position-try-fallbacks: flip-block) {
+    display: inline-block;
+    position: fixed;
+    position-anchor: --focal-center;
+    position-area: top right;
+    margin: 0rem;
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    padding: 0 var(--base-line-05x);
+    background-color: var(--color-body);
+    color: var(--color-neutral-tint-30);
+    font-family: "Sono", monospace;
+    font-size: calc(12 / 16 * 1rem);
+    line-height: var(--base-line);
+    white-space: pre;
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  [dir="rtl"] & {
+    @supports (position-anchor: --focal-center) and (position-try-fallbacks: flip-block) {
+      position-area: top left;
     }
   }
 `;

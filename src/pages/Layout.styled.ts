@@ -10,17 +10,17 @@ export const LayoutMessage = styled.h3`
 export const LayoutGrid = styled.main`
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 12ch) minmax(0, 12ch) minmax(8rem, 50rem) minmax(0, 12ch) minmax(0, 12ch) minmax(0, 1fr);
-  grid-template-rows: 7rem 1fr 7rem;
+  grid-template-rows: 7rem 1fr auto;
   overflow: hidden;
   isolation: isolate;
   gap: var(--base-line-05x);
   margin: 0;
   width: 100dvw;
-  height: 100dvh;
+  min-height: 100dvh;
 
   [data-component="Landing"] {
     grid-column: 1 / -1;
-    grid-row: 1 / -1;
+    grid-row: 1 / -2;
     margin: auto;
   }
 
@@ -35,7 +35,7 @@ export const LayoutGrid = styled.main`
     grid-row: 2 / 4;
     grid-column: 2 / -2;
     margin: auto auto 0 auto;
-    max-width: 40rem;
+    width: clamp(25rem, 100dvw, 40rem);
     z-index: 2;
   }
 

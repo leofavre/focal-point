@@ -10,6 +10,8 @@ Each scenario is run **twice**: once with IndexedDB available, once with Indexed
 
 ### 1. Landing page
 
+#### 1.1. Landing shows description and upload button
+
 **File:** `e2e/landing.spec.ts`
 
 **Steps (same with or without IndexedDB):**

@@ -1,17 +1,11 @@
+import type { ComponentPropsWithoutRef } from "react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { mergeRefs } from "react-merge-refs";
-import { DialogWrapper } from "./Dialog.styled";
+import { IconClose } from "../../icons/IconClose";
+import { DialogButton, DialogContent, DialogHeader, DialogWrapper } from "./Dialog.styled";
 import type { DialogProps } from "./types";
 
-export function Dialog({
-  ref,
-  transparent,
-  open,
-  defaultOpen,
-  onOpenChange,
-  children,
-  ...rest
-}: DialogProps) {
+export function Dialog({ ref, open, defaultOpen, onOpenChange, children, ...rest }: DialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const mergedRefs = mergeRefs([dialogRef, ref]);
 
@@ -52,12 +46,22 @@ export function Dialog({
   }, []);
 
   return (
-    <DialogWrapper
-      ref={mergedRefs}
-      css={{ backgroundColor: transparent ? "transparent" : "white" }}
-      {...rest}
-    >
+    <DialogWrapper ref={mergedRefs} {...rest}>
       {children}
+      <DialogButton type="button" onClick={() => setIsOpen(false)}>
+        <IconClose />
+      </DialogButton>
     </DialogWrapper>
   );
 }
+
+Dialog.Content = DialogContent;
+Dialog.Header = DialogHeader;
+
+export type DialogComponent = typeof Dialog & {
+  Content: typeof DialogContent;
+  Header: typeof DialogHeader;
+};
+
+export type DialogContentProps = ComponentPropsWithoutRef<typeof DialogContent>;
+export type DialogHeaderProps = ComponentPropsWithoutRef<typeof DialogHeader>;

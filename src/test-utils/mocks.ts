@@ -1,4 +1,10 @@
-import type { ImageDraftState, ImageId, ImageRecord, ImageState } from "../types";
+import type {
+  ImageDraftState,
+  ImageId,
+  ImageRecordWithFile,
+  ImageRecordWithUrl,
+  ImageState,
+} from "../types";
 
 const defaultBreakpoints: ImageDraftState["breakpoints"] = [{ objectPosition: "50% 50%" }];
 
@@ -23,18 +29,35 @@ export function createMockImageState(overrides: Partial<ImageState> = {}): Image
   };
 }
 
-type createMockImageRecordOverrides = Omit<Partial<ImageRecord>, "id"> & { id?: string };
+type createMockImageRecordWithFileOverrides = Omit<Partial<ImageRecordWithFile>, "id"> & {
+  id?: string;
+};
 
-export function createMockImageRecord({
+export function createMockImageRecordWithFile({
   id,
   ...overrides
-}: createMockImageRecordOverrides = {}): ImageRecord {
+}: createMockImageRecordWithFileOverrides = {}): ImageRecordWithFile {
   const typedId = (id ?? "mock-record-1") as ImageId;
 
   return {
     ...createMockImageDraftState(overrides),
     id: typedId,
     file: new Blob(["mock"], { type: "image/png" }),
+    ...overrides,
+  };
+}
+
+export function createMockImageRecordWithUrl({
+  id,
+  url = "https://example.com/image.png",
+  ...overrides
+}: Omit<Partial<ImageRecordWithUrl>, "id"> & { id?: string } = {}): ImageRecordWithUrl {
+  const typedId = (id ?? "mock-url-record-1") as ImageId;
+
+  return {
+    ...createMockImageDraftState(overrides),
+    id: typedId,
+    url,
     ...overrides,
   };
 }

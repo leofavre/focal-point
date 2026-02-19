@@ -15,13 +15,10 @@ export const Slider = styled.div`
     margin: 0;
     padding: 0;
     width: 100%;
-    height: calc(var(--thumb-diameter));
+    height: var(--thumb-diameter);
     background: transparent;
     border-radius: 0;
     appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    -webkit-tap-highlight-color: transparent;
     cursor: pointer;
     outline: none;
 
@@ -29,7 +26,7 @@ export const Slider = styled.div`
       content: "";
       position: absolute;
       display: block;
-      inset: calc(var(--base-line-05x) - (var(--runner-thickness) / 2)) calc(var(--thumb-radius));
+      inset: calc(var(--thumb-radius) - (var(--runner-thickness) / 2)) var(--thumb-radius);
       z-index: 0;
       outline: 0.25rem solid var(--color-glow);
       border-radius: 0rem;

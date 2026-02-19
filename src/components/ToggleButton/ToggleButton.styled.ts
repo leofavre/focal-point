@@ -1,17 +1,26 @@
 import styled from "@emotion/styled";
 
-export const Button = styled.button`
+export const ButtonWrapper = styled.span`
   --scale: 1;
-  &[data-scale="2"] { --scale: 2; }
+
+  &[data-scale="2"] {
+    --scale: 2;
+  }
+
   --shadow-offset: calc(0.25rem * var(--scale));
+  --transform-in: translate(0, 0);
+  --transform-out: translate(var(--shadow-offset), var(--shadow-offset));
 
-  --transition-prop:
-    color 66ms ease-in-out,
-    background-color 66ms ease-in-out,
-    border-color 66ms ease-in-out,
-    box-shadow 66ms ease-in-out,
-    transform 66ms ease-in-out;
+  --button-color-solid: var(--color-neutral);
+  --button-color-background: var(--color-zero);
+  --button-color-hover: var(--color-neutral-tint-10);
+  --button-color-disabled: var(--color-neutral-tint-30);
+  
+  position: relative;
+  display: block;
+`;
 
+export const Button = styled.button`
   container-type: inline-size;
   position: relative;
   display: flex;
@@ -22,69 +31,56 @@ export const Button = styled.button`
   height: calc(2rem * var(--scale));
   padding: 0 calc(var(--base-line-025x) * var(--scale));
   box-sizing: border-box;
-  background-color: white;
-  border: calc(1px * var(--scale)) solid rgb(from var(--color-neutral) r g b);
-  color: rgb(from var(--color-neutral) r g b);
-  box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
+  background-color: var(--button-color-background);
+  border: calc(1px * var(--scale)) solid var(--button-color-solid);
+  color: var(--button-color-solid);
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
   font: inherit;
   font-size: calc(14 / 16 * 1rem * var(--scale));
   white-space: nowrap;
   width: 100%;
-  transition: var(--transition-prop);
+  appearance: none;
+  user-select: none;
+  touch-action: none;
+  transition: background-color 66ms ease-in-out, transform 66ms ease-in-out;
+  transform: var(--transform-in);
+  z-index: 1;
 
   @media (hover: hover) {
-    &:hover {
-      background-color: rgb(from var(--color-neutral) r g b / 10%);
-      border-color: rgb(from var(--color-neutral) r g b);
-      color: rgb(from var(--color-neutral) r g b);
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
-      transition: var(--transition-prop);
+    &:hover:not(:disabled) {
+      background-color: var(--button-color-hover);
+    }
+  
+    &:active:not(:disabled) {
+      transform: var(--transform-out);
     }
   }
-  @media (hover: none) {
-    &:active {
-      background-color: rgb(from var(--color-neutral) r g b / 10%);
-      border-color: rgb(from var(--color-neutral) r g b);
-      color: rgb(from var(--color-neutral) r g b);
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px var(--color-neutral);
-      transition: var(--transition-prop);
+
+  &:not([data-toggleable]):active {
+    transform: var(--transform-out);
+  }
+
+  &[data-toggleable][aria-pressed="true"] {
+    transform: var(--transform-out);
+
+    @media (hover: hover) {
+      &:active:not(:disabled) {
+        transform: var(--transform-in);
+      }
     }
+  }
+
+  &:disabled {
+    transition: none;
+    border-color: var(--button-color-disabled);
+    color: var(--button-color-disabled);
+    cursor: default;
   }
 
   &:focus-visible {
     outline: calc(0.25rem * var(--scale)) solid var(--color-glow);
     border-radius: 0rem;
     outline-offset: 0;
-  }
-
-  &[aria-pressed="true"] {
-    background-color: rgb(from var(--color-loud) r g b / 10%);
-    border-color: rgb(from var(--color-loud) r g b);
-    color: rgb(from var(--color-loud) r g b);
-    box-shadow: 0px 0px 0px 0px var(--color-neutral);
-    transform: translate(var(--shadow-offset), var(--shadow-offset));
-    transition: var(--transition-prop);
-
-    @media (hover: hover) {
-      &:hover {
-        background-color: rgb(from var(--color-loud) r g b / 20%);
-        border-color: rgb(from var(--color-loud) r g b);
-        color: rgb(from var(--color-loud) r g b);
-        box-shadow: 0px 0px 0px 0px var(--color-neutral);
-        transition: var(--transition-prop);
-      }
-    }
-    @media (hover: none) {
-      &:active {
-        background-color: rgb(from var(--color-loud) r g b / 20%);
-        border-color: rgb(from var(--color-loud) r g b);
-        color: rgb(from var(--color-loud) r g b);
-        box-shadow: 0px 0px 0px 0px var(--color-neutral);
-        transition: var(--transition-prop);
-      }
-    }
   }
 
   svg {
@@ -107,3 +103,18 @@ export const Button = styled.button`
     }
   }
 `;
+
+export const Shadow = styled.span`
+  display: block;
+  position: absolute;
+  inset: 0;
+  transform: var(--transform-out);
+  background-color: var(--button-color-solid);
+  z-index: 0;
+
+  *:disabled + & {
+    background-color: var(--button-color-disabled);
+  }
+`;
+
+export const ButtonText = styled.span``;

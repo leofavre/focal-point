@@ -11,40 +11,25 @@ export const IconUpload = (props: SVGProps<SVGSVGElement>) => {
       {...props}
     >
       <path
-        d="m0 0 4.591 4.591L9.181 0"
+        d="M 4.88 10.12 L 11 4 L 17.12 10.12"
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
-        strokeLinecap="butt"
-        strokeLinejoin="miter"
+        strokeWidth={2}
         strokeMiterlimit={10}
-        strokeDasharray="none"
-        strokeOpacity={1}
-        transform="matrix(1.33333 0 0 -1.33333 4.88 10.12)"
       />
       <path
-        d="M0 0v-8.25"
+        d="M 11 4 v 11"
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
-        strokeLinecap="butt"
-        strokeLinejoin="miter"
+        strokeWidth={2}
         strokeMiterlimit={10}
-        strokeDasharray="none"
-        strokeOpacity={1}
-        transform="matrix(1.33333 0 0 -1.33333 11 4)"
       />
       <path
-        d="M0 0h9"
+        d="M 5 18 h 12"
         fill="none"
         stroke="currentColor"
-        strokeWidth={1.5}
-        strokeLinecap="butt"
-        strokeLinejoin="miter"
+        strokeWidth={2}
         strokeMiterlimit={10}
-        strokeDasharray="none"
-        strokeOpacity={1}
-        transform="matrix(1.33333 0 0 -1.33333 5 18)"
       />
     </svg>
   );

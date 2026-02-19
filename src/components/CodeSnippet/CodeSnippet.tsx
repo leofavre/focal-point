@@ -1,110 +1,58 @@
-import copy from "copy-to-clipboard";
 import type { ClipboardEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { CodeBlock } from "react-code-block";
-import {
-  Code,
-  CopyButton,
-  Line,
-  LineContent,
-  LineNumber,
-  TabBar,
-  TabButton,
-  Wrapper,
-} from "./CodeSnippet.styled";
+import { useMergeRefs } from "react-merge-refs";
+import { Code, Container, Line, LineContent, LineNumber, Wrapper } from "./CodeSnippet.styled";
+import { codeSnippetTheme } from "./codeSnippetTheme";
+import { CopyButton } from "./components/CopyButton/CopyButton";
+import { getCodeBlockLanguage, getCodeSnippet } from "./helpers/getCodeSnippet";
 import { normalizeWhitespaceInQuotes } from "./helpers/normalizeWhitespaceInQuotes";
+import { useCopyToClipboardWithTimeout } from "./hooks/useCopyToClipboardWithTimeout";
 import type { CodeSnippetProps } from "./types";
-
-function getCodeSnippetHtml(src: string, objectPosition: string): string {
-  return `<img
-  src="${src}"
-  style="
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: ${objectPosition};
-  "
-/>`;
-}
-
-function getCodeSnippetReact(src: string, objectPosition: string): string {
-  return `<img
-  src="${src}"
-  style={{
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    objectPosition: '${objectPosition}',
-  }}
-/>`;
-}
-
-function getCodeSnippetTailwind(src: string, objectPosition: string): string {
-  const objectPositionClass = objectPosition.replace(/ /g, "_");
-  return `<img
-  src="${src}"
-  class="
-    w-full
-    h-full
-    object-cover
-    object-[${objectPositionClass}]
-  "
-/>`;
-}
-
-function getCodeSnippetReactTailwind(src: string, objectPosition: string): string {
-  const objectPositionClass = objectPosition.replace(/ /g, "_");
-  return `<img
-  src="${src}"
-  className="
-    w-full
-    h-full
-    object-cover
-    object-[${objectPositionClass}]
-  "
-/>`;
-}
-
-function getCodeSnippet(
-  language: CodeSnippetProps["language"],
-  src: string,
-  objectPosition: string,
-): string {
-  switch (language) {
-    case "tailwind":
-      return getCodeSnippetTailwind(src, objectPosition);
-    case "react":
-      return getCodeSnippetReact(src, objectPosition);
-    case "react-tailwind":
-      return getCodeSnippetReactTailwind(src, objectPosition);
-    default:
-      return getCodeSnippetHtml(src, objectPosition);
-  }
-}
-
-const COPY_RESET_MS = 2_000;
 
 export function CodeSnippet({
   ref,
   src,
   objectPosition,
   language = "html",
-  onLanguageChange,
-  copied: copiedProp = false,
-  onCopiedChange,
+  codeSnippetCopied,
+  setCodeSnippetCopied,
+  triggerAutoFocus = false,
   ...rest
 }: CodeSnippetProps) {
-  const codeSnippet = getCodeSnippet(language, src, objectPosition);
-  const codeBlockLanguage = language === "react" || language === "react-tailwind" ? "jsx" : "html";
+  const snippetText = getCodeSnippet({
+    language,
+    src,
+    objectPosition,
+  });
 
-  const [copied, setCopied] = useState(copiedProp);
-  const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { copied, onCopy } = useCopyToClipboardWithTimeout(snippetText, {
+    copied: codeSnippetCopied,
+    onCopiedChange: setCodeSnippetCopied,
+  });
 
+  const codeSnippet = getCodeSnippet({ language, src, objectPosition });
+  const codeBlockLanguage = getCodeBlockLanguage(language);
+
+  const codeRef = useRef<HTMLPreElement>(null);
+  const copyButtonRef = useRef<HTMLButtonElement>(null);
+  const mergedCodeRef = useMergeRefs([codeRef, ref]);
+
+  /**
+   * Automatically focus the copy button after a short delay.
+   */
   useEffect(() => {
-    setCopied(copiedProp);
-  }, [copiedProp]);
+    if (!triggerAutoFocus) return;
 
-  const handleCopyCapture = (event: ClipboardEvent) => {
+    const asyncAutoFocus = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      copyButtonRef.current?.focus();
+    };
+
+    asyncAutoFocus();
+  }, [triggerAutoFocus]);
+
+  const handleCopyCapture = useCallback((event: ClipboardEvent) => {
     const { clipboardData } = event;
     if (clipboardData == null) return;
 
@@ -115,88 +63,23 @@ export function CodeSnippet({
     event.preventDefault();
     clipboardData.clearData();
     clipboardData.setData("text/plain", normalizeWhitespaceInQuotes(selectedText));
-  };
-
-  const handleCopy = () => {
-    const textToCopy = normalizeWhitespaceInQuotes(codeSnippet);
-    const success = copy(textToCopy, { format: "text/plain" });
-
-    if (success) {
-      if (copyResetTimeoutRef.current) {
-        clearTimeout(copyResetTimeoutRef.current);
-      }
-      setCopied(true);
-      onCopiedChange?.(true);
-
-      copyResetTimeoutRef.current = setTimeout(() => {
-        setCopied(false);
-        onCopiedChange?.(false);
-        copyResetTimeoutRef.current = null;
-      }, COPY_RESET_MS);
-    } else {
-      /**
-       * @todo
-       *
-       * Handle copy error.
-       */
-      setCopied(false);
-      onCopiedChange?.(false);
-    }
-  };
+  }, []);
 
   return (
-    <Wrapper data-component="CodeSnippet" onCopy={handleCopyCapture} {...rest}>
-      <TabBar role="tablist" aria-label="Code snippet format">
-        <TabButton
-          type="button"
-          role="tab"
-          aria-selected={language === "html"}
-          onClick={() => onLanguageChange?.("html")}
-          className="notranslate"
-        >
-          HTML
-        </TabButton>
-        <TabButton
-          type="button"
-          role="tab"
-          aria-selected={language === "tailwind"}
-          onClick={() => onLanguageChange?.("tailwind")}
-          className="notranslate"
-        >
-          Tailwind
-        </TabButton>
-        <TabButton
-          type="button"
-          role="tab"
-          aria-selected={language === "react"}
-          onClick={() => onLanguageChange?.("react")}
-          className="notranslate"
-        >
-          React
-        </TabButton>
-        <TabButton
-          type="button"
-          role="tab"
-          aria-selected={language === "react-tailwind"}
-          onClick={() => onLanguageChange?.("react-tailwind")}
-          className="notranslate"
-        >
-          React + Tailwind
-        </TabButton>
-      </TabBar>
-      <CopyButton type="button" onClick={handleCopy}>
-        {copied ? "Copied!" : "Copy"}
-      </CopyButton>
-      <CodeBlock code={codeSnippet} language={codeBlockLanguage}>
-        <Code ref={ref} className="notranslate">
-          <Line>
-            <LineNumber />
-            <LineContent>
-              <CodeBlock.Token />
-            </LineContent>
-          </Line>
-        </Code>
-      </CodeBlock>
-    </Wrapper>
+    <Container data-component="CodeSnippet" {...rest}>
+      <Wrapper onCopy={handleCopyCapture}>
+        <CopyButton ref={copyButtonRef} copied={copied} onCopy={onCopy} />
+        <CodeBlock code={codeSnippet} language={codeBlockLanguage} theme={codeSnippetTheme}>
+          <Code data-component="CodeBlock" ref={mergedCodeRef} className="notranslate">
+            <Line>
+              <LineNumber aria-hidden="true" />
+              <LineContent>
+                <CodeBlock.Token />
+              </LineContent>
+            </Line>
+          </Code>
+        </CodeBlock>
+      </Wrapper>
+    </Container>
   );
 }

@@ -8,6 +8,7 @@ import type { ImageUploaderButtonProps } from "./types";
 
 export function ImageUploaderButton({
   ref,
+  label,
   size = "small",
   onImageUpload,
   onImagesUpload,
@@ -50,13 +51,14 @@ export function ImageUploaderButton({
         <ToggleButton
           ref={mergedRefs}
           type="button"
+          toggleable
           toggled={isOpened}
           onClick={handleButtonClick}
-          titleOn="Upload"
-          titleOff="Upload"
-          icon={<IconUpload />}
           scale={size === "medium" ? 2 : size === "large" ? 4 : 1}
-        />
+        >
+          <IconUpload />
+          <ToggleButton.ButtonText>{label}</ToggleButton.ButtonText>
+        </ToggleButton>
       </InvisibleLabel>
     </InvisibleForm>
   );

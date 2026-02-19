@@ -2,12 +2,26 @@ import type { PointerEvent } from "react";
 import { useCallback, useEffectEvent, useRef } from "react";
 import { clamp } from "../helpers/clamp";
 import { cssObjectPositionObjectToString } from "../helpers/cssObjectPositionObjectToString";
-import { Wrapper } from "./FocalPoint.styled";
+import { Badge, Cross, Wrapper } from "./FocalPoint.styled";
 import type { FocalPointProps } from "./types";
 
-export function FocalPoint({ onObjectPositionChange, ...rest }: FocalPointProps) {
+function formatPositionValue(value: number): string {
+  const normalized = Number.isInteger(value) ? `${value}%` : `${value.toFixed(2)}%`;
+  return normalized.padEnd(6, " ");
+}
+
+function formatPositionBadge(x: number, y: number): string {
+  return `${formatPositionValue(x)} ${formatPositionValue(y)}`;
+}
+
+export function FocalPoint({
+  onObjectPositionChange,
+  objectPositionX,
+  objectPositionY,
+  ...rest
+}: FocalPointProps) {
   const isDraggingRef = useRef(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const crossRef = useRef<HTMLDivElement>(null);
 
   const handlePointerDown = useCallback((event: PointerEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -20,12 +34,12 @@ export function FocalPoint({ onObjectPositionChange, ...rest }: FocalPointProps)
   const stableOnObjectPositionChange = useEffectEvent(onObjectPositionChange);
 
   const handlePointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || wrapperRef.current == null) return;
+    if (!isDraggingRef.current || crossRef.current == null) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    const parent = wrapperRef.current.parentElement;
+    const parent = crossRef.current.parentElement;
     if (parent == null) return;
 
     const parentRect = parent.getBoundingClientRect();
@@ -55,12 +69,15 @@ export function FocalPoint({ onObjectPositionChange, ...rest }: FocalPointProps)
 
   return (
     <Wrapper
-      ref={wrapperRef}
+      ref={crossRef}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
       {...rest}
-    />
+    >
+      <Cross />
+      <Badge aria-hidden>{formatPositionBadge(objectPositionX, objectPositionY)}</Badge>
+    </Wrapper>
   );
 }

@@ -7,7 +7,13 @@ import { isIndexedDBAvailable } from "../../helpers/indexedDBAvailability";
 import { DBConfig } from "../../services/databaseConfig";
 import { getIndexedDBService } from "../../services/indexedDBService";
 import { getInMemoryStorageService } from "../../services/inMemoryStorageService";
-import type { ImageDraftStateAndFile, ImageId, ImageRecord } from "../../types";
+import type {
+  ImageDraftStateAndFile,
+  ImageDraftStateAndUrl,
+  ImageId,
+  ImageRecord,
+} from "../../types";
+import { hasFile, hasUrl, isImageDraftStateAndUrl } from "../../types";
 import { createImageId } from "../helpers/createImageId";
 
 export type UsePersistedImagesOptions = {
@@ -38,11 +44,11 @@ type AddImageOptions = AddImagesOverwriteOptions | AddImagesIdOptions;
 export type UsePersistedImagesReturn = {
   images: ImageRecord[] | undefined;
   addImage: (
-    draftAndFile: ImageDraftStateAndFile,
+    draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl,
     options?: AddImageOptions,
   ) => Promise<Result<ImageId, "AddImageFailed">>;
   addImages: (
-    draftsAndFiles: ImageDraftStateAndFile[],
+    draftsAndFilesOrUrls: (ImageDraftStateAndFile | ImageDraftStateAndUrl)[],
     options?: AddImagesOverwriteOptions,
   ) => Promise<{ accepted: ImageId[]; rejected: Err<"AddImageFailed">[] }>;
   getImage: (id: ImageId) => Promise<ImageRecord | undefined>;
@@ -109,23 +115,27 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
   }, []);
 
   const addImages: UsePersistedImagesReturn["addImages"] = useCallback(
-    async (draftsAndFiles, options) => {
+    async (draftsAndFilesOrUrls, options) => {
       const overwrite = options?.overwrite ?? false;
 
       let usedIds: Set<string> | undefined;
       if (!overwrite) {
         const allResult = await service.getAllRecords();
         if (allResult.rejected != null) {
-          return processResults(draftsAndFiles.map(() => reject({ reason: "AddImageFailed" })));
+          return processResults(
+            draftsAndFilesOrUrls.map(() => reject({ reason: "AddImageFailed" })),
+          );
         }
         const existing = allResult.accepted ?? [];
         usedIds = new Set(existing.map((r) => r.id));
       }
 
       const results: Result<ImageId, "AddImageFailed">[] = [];
-      for (const { imageDraft, file } of draftsAndFiles) {
-        const id = createImageId(imageDraft.name, usedIds);
-        const record: ImageRecord = { id, ...imageDraft, file };
+      for (const item of draftsAndFilesOrUrls) {
+        const id = createImageId(item.imageDraft.name, usedIds);
+        const record: ImageRecord = isImageDraftStateAndUrl(item)
+          ? { id, ...item.imageDraft, url: item.url }
+          : { id, ...item.imageDraft, file: item.file };
         if (overwrite) {
           const upsertResult = await service.upsertRecord(record);
           if (upsertResult.rejected != null) {
@@ -159,11 +169,13 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
   );
 
   const addImage: UsePersistedImagesReturn["addImage"] = useCallback(
-    async (draftAndFile, options) => {
+    async (draftAndFileOrUrl, options) => {
       if (options != null && "id" in options && options.id != null) {
         // Explicit id (addImage only): overwrite implied; use upsertRecord.
         const id = options.id;
-        const record: ImageRecord = { id, ...draftAndFile.imageDraft, file: draftAndFile.file };
+        const record: ImageRecord = isImageDraftStateAndUrl(draftAndFileOrUrl)
+          ? { id, ...draftAndFileOrUrl.imageDraft, url: draftAndFileOrUrl.url }
+          : { id, ...draftAndFileOrUrl.imageDraft, file: draftAndFileOrUrl.file };
         const upsertResult = await service.upsertRecord(record);
         if (upsertResult.rejected != null) {
           return reject({ reason: "AddImageFailed", error: upsertResult.rejected.error });
@@ -180,7 +192,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       const overwrite =
         options != null && "overwrite" in options ? (options.overwrite ?? false) : false;
       const { accepted: ids } = await addImages(
-        [draftAndFile],
+        [draftAndFileOrUrl],
         overwrite ? { overwrite: true } : undefined,
       );
       const id = ids[0];
@@ -205,12 +217,22 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       const current = getResult.accepted;
       if (current == null) return accept(undefined);
 
-      const updated: ImageRecord = {
-        ...current,
-        ...updates,
-        id,
-        file: current.file,
-      };
+      const updated: ImageRecord = hasFile(current)
+        ? {
+            ...current,
+            ...updates,
+            id,
+            file: "file" in updates && updates.file !== undefined ? updates.file : current.file,
+          }
+        : hasUrl(current)
+          ? {
+              ...current,
+              ...updates,
+              id,
+              url: "url" in updates && updates.url !== undefined ? updates.url : current.url,
+            }
+          : current;
+
       if (isEqual(current, updated)) return accept(id);
 
       const updateResult = await service.updateRecord(updated);
