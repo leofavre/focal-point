@@ -18,13 +18,12 @@ const noop = () => {};
  *
  * ### MELHORIZE™ UI.
  *
- * - Prevent first transition in buttons and aspect ratio after reload.
+ * - Improve loading state.
+ * - Improve Full Screen Drop Zone.
+ * - Improve toasters.
  * - Verify accessibility.
  * - Review aria labels.
  * - Think about animations and transitions.
- * - Improve Full Screen Drop Zone.
- * - Improve loading state.
- * - Improve toasters.
  *
  * ### Basic functionality
  *
