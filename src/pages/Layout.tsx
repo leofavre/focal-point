@@ -99,7 +99,7 @@ export default function Layout() {
         </ToggleButton>
         <ImageUploaderButton
           ref={uploaderButtonRef}
-          label="Upload"
+          label="Image"
           onImageUpload={handleImageUpload}
           onImageUploadError={noop}
         />

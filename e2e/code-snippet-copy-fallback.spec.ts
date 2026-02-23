@@ -23,7 +23,7 @@ testWithFixtures.describe("Code snippet copy – Clipboard API unavailable", () 
       const landing = page.locator('[data-component="Landing"]');
       const [fileChooser] = await Promise.all([
         page.waitForEvent("filechooser"),
-        landing.getByRole("button", { name: "Upload image", exact: true }).click(),
+        landing.getByRole("button", { name: "Choose image", exact: true }).click(),
       ]);
       await fileChooser.setFiles(SAMPLE_IMAGE_PATH);
 

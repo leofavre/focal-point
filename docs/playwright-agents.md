@@ -85,7 +85,7 @@ E2E tests share logic via **helpers** and **fixtures** so we consistently test b
   - `disableIndexedDB(page)` — disables IndexedDB for a page (call before any navigation)
   - `disableIndexedDBOnContext(context)` — disables IndexedDB for a context (for use when creating contexts)
   - `expectEditorWithControlsVisible(page)` — asserts editor + all controls are visible
-  - `expectLandingVisible(page)` — asserts Landing page and Upload button are visible
+  - `expectLandingVisible(page)` — asserts Landing page and Image button are visible
 
 - **`e2e/fixtures.ts`** — Extended test with a **IndexedDB-unavailable** scenario:
   - Import `test as testWithFixtures` and `expect` from `./fixtures` (or keep `expect` from `@playwright/test`).

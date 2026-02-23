@@ -4,7 +4,7 @@
 
 ## Application Overview
 
-After the user uploads an image, the editor shows a bottom bar with five controls: Focal point, Overflow, Aspect ratio slider, Code, and Upload. Tab key must move focus between them in visual order. When the aspect ratio slider is focused, Arrow Left and Arrow Right must move between common aspect ratios (from left end to right end and back).
+After the user uploads an image, the editor shows a bottom bar with five controls: Focal point, Overflow, Aspect ratio slider, Code, and Image. Tab key must move focus between them in visual order. When the aspect ratio slider is focused, Arrow Left and Arrow Right must move between common aspect ratios (from left end to right end and back).
 
 Tab-key-triggered focus order (and Shift+Tab backward order) must also work correctly when the user's writing direction is RTL. Tests use `dir="rtl"` on the `body` element to simulate RTL.
 
@@ -19,12 +19,12 @@ Tab-key-triggered focus order (and Shift+Tab backward order) must also work corr
 **File:** `e2e/bottom-bar-keyboard.spec.ts`
 
 **Steps:**
-  1. Go to / and upload sample image via Upload button
+  1. Go to / and upload sample image via Image button
     - expect: Redirect to /edit
     - expect: Editor and controls visible
   2. Assert main has data-has-bottom-bar and bottom bar controls are visible
     - expect: Layout grid has data-has-bottom-bar
-    - expect: FocalPointButton, AspectRatioSlider, Upload button visible in bar
+    - expect: FocalPointButton, AspectRatioSlider, Image button visible in bar
 
 #### 1.2. Tab moves focus through bottom bar controls in visual order
 
@@ -36,7 +36,7 @@ Tab-key-triggered focus order (and Shift+Tab backward order) must also work corr
   2. Focus Focal point button
     - expect: Focal point button is focused
   3. Press Tab four times
-    - expect: Focus moves to Overflow, then Aspect ratio slider, then Code, then Upload
+    - expect: Focus moves to Overflow, then Aspect ratio slider, then Code, then Image
 
 #### 1.3. Shift+Tab moves focus backward through bottom bar controls
 
@@ -45,8 +45,8 @@ Tab-key-triggered focus order (and Shift+Tab backward order) must also work corr
 **Steps:**
   1. Go to / and upload sample image
     - expect: Editor with bottom bar visible
-  2. Focus Upload button
-    - expect: Upload button is focused
+  2. Focus Image button
+    - expect: Image button is focused
   3. Press Shift+Tab four times
     - expect: Focus moves to Code, then Aspect ratio slider, then Overflow, then Focal point
 
@@ -64,7 +64,7 @@ Same as 1.2, but with the document in RTL: set `dir="rtl"` on the `body` element
   3. Focus Focal point button
     - expect: Focal point button is focused
   4. Press Tab four times
-    - expect: Focus moves to Overflow, then Aspect ratio slider, then Code, then Upload
+    - expect: Focus moves to Overflow, then Aspect ratio slider, then Code, then Image
 
 #### 1.5. Shift+Tab moves focus backward through bottom bar controls (RTL: dir="rtl" on body)
 
@@ -77,8 +77,8 @@ Same as 1.3, but with the document in RTL: set `dir="rtl"` on the `body` element
     - expect: Editor with bottom bar visible
   2. Set `body` element attribute `dir="rtl"`
     - expect: Page in RTL
-  3. Focus Upload button
-    - expect: Upload button is focused
+  3. Focus Image button
+    - expect: Image button is focused
   4. Press Shift+Tab four times
     - expect: Focus moves to Code, then Aspect ratio slider, then Overflow, then Focal point
 

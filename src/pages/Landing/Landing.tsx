@@ -17,7 +17,7 @@ export function Landing({ ref, ...rest }: LandingProps) {
     <LandingWrapper ref={ref} data-component="Landing" {...rest}>
       <ImageUploaderButton
         size="medium"
-        label="Upload image"
+        label="Choose image"
         onImageUpload={handleImageUpload}
         onImageUploadError={noop}
       />

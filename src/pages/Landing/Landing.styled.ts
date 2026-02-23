@@ -8,10 +8,9 @@ export const LandingWrapper = styled.div`
   padding-right: var(--base-line);
   gap: var(--base-line-2x);
   box-sizing: border-box;
-  background-color: var(--color-zero);
 
   [data-component="ImageUploaderButton"] {
-    width: calc(100% - var(--base-line));
+    width: 18rem;
     grid-row: auto;
     grid-column: auto;
   }

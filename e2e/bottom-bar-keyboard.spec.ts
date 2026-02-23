@@ -12,7 +12,7 @@ async function goToEditorWithImage(page: Page) {
   const landing = page.locator('[data-component="Landing"]');
   const [fileChooser] = await Promise.all([
     page.waitForEvent("filechooser"),
-    landing.getByRole("button", { name: "Upload image", exact: true }).click(),
+    landing.getByRole("button", { name: "Choose image", exact: true }).click(),
   ]);
   await fileChooser.setFiles(SAMPLE_IMAGE_PATH);
   await expect(page).toHaveURL(/\/edit$/);
@@ -24,7 +24,7 @@ async function runTabOrderSteps(page: Page) {
   const overflow = page.getByRole("button", { name: "Overflow" });
   const aspectRatioSlider = page.getByRole("slider");
   const code = page.getByRole("button", { name: "Code" });
-  const upload = page.getByRole("button", { name: "Upload", exact: true });
+  const upload = page.getByRole("button", { name: "Image", exact: true });
 
   await focalPoint.focus();
   await expect(focalPoint).toBeFocused();
@@ -47,7 +47,7 @@ async function runShiftTabOrderSteps(page: Page) {
   const overflow = page.getByRole("button", { name: "Overflow" });
   const aspectRatioSlider = page.getByRole("slider");
   const code = page.getByRole("button", { name: "Code" });
-  const upload = page.getByRole("button", { name: "Upload", exact: true });
+  const upload = page.getByRole("button", { name: "Image", exact: true });
 
   await upload.focus();
   await expect(upload).toBeFocused();
@@ -136,7 +136,7 @@ async function runArrowRightThenLeftSteps(page: Page, rtl: boolean) {
  *
  * When the bottom bar is visible (after uploading an image), Tab key must move
  * focus between the controls in visual order: Focal point → Overflow → Aspect
- * ratio slider → Code → Upload. When the slider is focused, Arrow Left/Right
+ * ratio slider → Code → Image. When the slider is focused, Arrow Left/Right
  * move between aspect ratios.
  *
  * LTR and RTL tests share the same steps; RTL tests use the pageRTL fixture
@@ -152,7 +152,7 @@ test.describe("Bottom bar keyboard navigation", () => {
     await expect(grid).toBeVisible();
     await expect(grid.locator('[data-component="FocalPointButton"]')).toBeVisible();
     await expect(grid.locator('[data-component="AspectRatioSlider"]')).toBeVisible();
-    await expect(grid.getByRole("button", { name: "Upload" })).toBeVisible();
+    await expect(grid.getByRole("button", { name: "Image" })).toBeVisible();
   });
 
   test("Tab moves focus through bottom bar controls in visual order", async ({ page }) => {

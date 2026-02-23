@@ -34,4 +34,4 @@ Each scenario is run **twice**: once with IndexedDB available, once with Indexed
   2. Dispatch dragenter, dragover, dragleave (no drop)
     - expect: URL remains /
     - expect: No persistent overlay
-    - expect: Upload button visible and interactive
+    - expect: Image button visible and interactive

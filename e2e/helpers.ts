@@ -63,7 +63,7 @@ export function disableClipboardWriteOnContext(context: BrowserContext): Promise
 
 /**
  * Asserts that the editor view and all controls are visible (FocalPointEditor,
- * AspectRatioSlider, Focal point / Overflow / Code toggles, Upload button).
+ * AspectRatioSlider, Focal point / Overflow / Code toggles, Image button).
  */
 export function expectEditorWithControlsVisible(page: Page) {
   const focalPointEditor = page.locator('[data-component="FocalPointEditor"]');
@@ -71,7 +71,7 @@ export function expectEditorWithControlsVisible(page: Page) {
   const focalPointButton = page.locator('[data-component="FocalPointButton"]');
   const imageOverflowButton = page.locator('[data-component="ImageOverflowButton"]');
   const codeSnippetButton = page.locator('[data-component="CodeSnippetButton"]');
-  const uploadButton = page.getByRole("button", { name: "Upload", exact: true });
+  const uploadButton = page.getByRole("button", { name: "Image", exact: true });
 
   return Promise.all([
     expect(focalPointEditor).toBeVisible(),
@@ -84,12 +84,12 @@ export function expectEditorWithControlsVisible(page: Page) {
 }
 
 /**
- * Asserts that the Landing page is visible and the Upload button is visible.
+ * Asserts that the Landing page is visible and the Image button is visible.
  */
 export async function expectLandingVisible(page: Page) {
   const landing = page.locator('[data-component="Landing"]');
   await expect(landing).toBeVisible();
-  await expect(landing.getByRole("button", { name: "Upload image", exact: true })).toBeVisible();
+  await expect(landing.getByRole("button", { name: "Choose image", exact: true })).toBeVisible();
 }
 
 /**
