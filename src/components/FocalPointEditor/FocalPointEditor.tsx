@@ -176,13 +176,6 @@ export function FocalPointEditor({
       onPointerCancel={handlePointerCancel}
       {...rest}
     >
-      <ClippedImage
-        ref={imageRef}
-        imageUrl={imageUrl}
-        objectPosition={objectPosition}
-        onImageLoad={handleImageLoad}
-        onImageError={handleImageError}
-      />
       <ImageOverflow
         css={{
           ...(imageDimensionDelta?.changedDimension === "width"
@@ -199,6 +192,13 @@ export function FocalPointEditor({
           cursor,
         }}
         aria-hidden={!showImageOverflow}
+      />
+      <ClippedImage
+        ref={imageRef}
+        imageUrl={imageUrl}
+        objectPosition={objectPosition}
+        onImageLoad={handleImageLoad}
+        onImageError={handleImageError}
       />
       <FocalPoint
         css={{

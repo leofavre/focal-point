@@ -12,5 +12,4 @@ export const Content = styled.div`
   position: relative;
   touch-action: none;
   user-select: none;
-  background-color: var(--color-zero);
 `;
