@@ -36,10 +36,43 @@ export const Content = styled.div`
   }
 
   ol {
+    container-type: inline-size;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(24ch, 1fr));
-    gap: var(--base-line-2x);
+    grid-template-columns: repeat(auto-fill, minmax(25ch, 1fr));
+    row-gap: var(--base-line-05x);
+    column-gap: var(--base-line-2x);
     box-sizing: border-box;
+    width: 100%;
+
+    & > li {
+      display: grid;
+      grid-template-columns: min-content auto;
+      grid-template-rows: repeat(3, min-content);
+      column-gap: var(--base-line-05x);
+
+      > * {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @container (max-width: 33rem) {
+      & > li {
+        > * {
+          grid-column: auto;
+        }
+
+        > svg {
+          align-self: end;
+          width: var(--base-line-15x);
+          height: var(--base-line-15x);
+          margin-bottom: var(--base-line-025x);
+        }
+
+        > ul {
+          grid-column: 2 / -1;
+        }
+      }
+    }
   }
 
   li {
@@ -47,7 +80,6 @@ export const Content = styled.div`
     text-wrap: balance;
     position: relative;
     display: flex;
-    flex-direction: column;
   }
 
   ol > li > p {

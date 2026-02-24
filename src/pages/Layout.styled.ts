@@ -21,6 +21,9 @@ export const LayoutGrid = styled.main`
     grid-column: 1 / -1;
     grid-row: 1 / -2;
     margin: auto;
+
+    width: 100%;
+    max-width: 70rem;
   }
 
   [data-component="FocalPointEditor"] {
