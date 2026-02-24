@@ -227,26 +227,6 @@ export function AppContext({ children }: PropsWithChildren) {
     };
   }, [pageState]);
 
-  useEffect(() => {
-    if (pathname !== "/") return;
-
-    const dummyUrl = new URL("/dummy.gif", window.location.origin).href;
-
-    createImageStateFromUrl({
-      imageDraft: {
-        name: "dummy.gif",
-        type: "image/gif",
-        createdAt: Date.now(),
-        breakpoints: [{ objectPosition: "95% 5%" }],
-      },
-      url: dummyUrl,
-    }).then((result) => {
-      if (result.rejected != null) return;
-      safeSetImage(result.accepted);
-      setAspectRatio(result.accepted.naturalAspectRatio ?? DEFAULT_ASPECT_RATIO);
-    });
-  }, [pathname, setAspectRatio]);
-
   /**
    * Handles all keyboard shortcuts:
    * - 'u' opens the file input to upload a new image.
