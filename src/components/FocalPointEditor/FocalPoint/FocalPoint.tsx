@@ -70,6 +70,7 @@ export function FocalPoint({
   return (
     <Wrapper
       ref={crossRef}
+      data-component="FocalPoint"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -77,7 +78,9 @@ export function FocalPoint({
       {...rest}
     >
       <Cross />
-      <Badge aria-hidden>{formatPositionBadge(objectPositionX, objectPositionY)}</Badge>
+      <Badge data-component="FocalPointBadge" aria-hidden>
+        {formatPositionBadge(objectPositionX, objectPositionY)}
+      </Badge>
     </Wrapper>
   );
 }

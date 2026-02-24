@@ -123,3 +123,102 @@ export async function dragImageInFocalPointEditor(
   await page.mouse.move(toX, toY, { steps });
   await page.mouse.up();
 }
+
+/**
+ * Returns the object-position value from the visible code snippet (e.g. "50% 50%").
+ * Code snippet panel must already be open.
+ */
+export async function getCodeSnippetObjectPosition(page: Page): Promise<string | null> {
+  const codeBlock = page.locator('[data-component="CodeSnippet"] pre').first();
+  await expect(codeBlock).toBeVisible();
+  const text = await codeBlock.textContent();
+  const match = text?.match(/object-position:\s*([^;]+)/);
+  return match?.[1]?.trim() ?? null;
+}
+
+/**
+ * Closes the code snippet dialog so that the editor and bottom bar are clickable again.
+ * The dialog is modal, so the Code button cannot be clicked while it is open. Use Escape
+ * (standard for native <dialog>) to close.
+ */
+export async function closeCodeSnippetDialog(page: Page): Promise<void> {
+  await page.keyboard.press("Escape");
+  await expect(page.locator('[data-component="CodeSnippet"]')).not.toBeVisible();
+}
+
+/**
+ * Drags the focal point (cross) inside the editor to a new position.
+ * Focal point must be visible. Uses the focal point element's center as drag start.
+ */
+export async function dragFocalPointInEditor(
+  page: Page,
+  options: { to: { x: number; y: number }; steps?: number } = { to: { x: 0.25, y: 0.25 } },
+): Promise<void> {
+  const { to, steps = 5 } = options;
+  const focalPoint = page.locator('[data-component="FocalPoint"]');
+  await expect(focalPoint).toBeVisible();
+  const focalBox = await focalPoint.boundingBox();
+  const editor = page.locator('[data-component="FocalPointEditor"]');
+  const editorBox = await editor.boundingBox();
+  if (focalBox == null || editorBox == null) return;
+  const fromX = focalBox.x + focalBox.width / 2;
+  const fromY = focalBox.y + focalBox.height / 2;
+  const toX = editorBox.x + editorBox.width * to.x;
+  const toY = editorBox.y + editorBox.height * to.y;
+  await page.mouse.move(fromX, fromY);
+  await page.mouse.down();
+  await page.mouse.move(toX, toY, { steps });
+  await page.mouse.up();
+}
+
+/**
+ * Seeds the editor: lands on /, uploads sample image, waits for /edit and editor visible.
+ */
+export async function seedEditorWithImage(page: Page): Promise<void> {
+  await page.goto("/");
+  await expectLandingVisible(page);
+  const landing = page.locator('[data-component="Landing"]');
+  const [fileChooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    landing.getByRole("button", { name: "Choose image", exact: true }).click(),
+  ]);
+  await fileChooser.setFiles(SAMPLE_IMAGE_PATH);
+  await expect(page).toHaveURL(/\/edit$/);
+  await expectEditorWithControlsVisible(page);
+}
+
+/**
+ * Waits for the editor and image to be ready (image loaded, layout settled).
+ * Call after seedEditorWithImage when the test will change aspect ratio or drag the image.
+ */
+export async function waitForEditorReady(page: Page): Promise<void> {
+  const editor = page.locator('[data-component="FocalPointEditor"]');
+  await expect(editor).toBeVisible();
+  const img = editor.locator("img");
+  await expect(img).toBeVisible();
+  await img.evaluate((el: HTMLImageElement) => {
+    return el.complete && el.naturalWidth > 0
+      ? Promise.resolve()
+      : new Promise<void>((resolve) => {
+          el.addEventListener("load", () => resolve(), { once: true });
+        });
+  });
+  await page.waitForTimeout(300);
+}
+
+/**
+ * Changes the aspect ratio by moving the slider with the keyboard.
+ * Positive steps = ArrowRight, negative = ArrowLeft. Use after waitForEditorReady
+ * so the image has loaded and the slider has a stable value (e.g. "original").
+ */
+export async function changeAspectRatioSliderSteps(page: Page, steps: number): Promise<void> {
+  const slider = page.getByRole("slider");
+  await slider.focus();
+  await expect(slider).toBeFocused();
+  const key = steps >= 0 ? "ArrowRight" : "ArrowLeft";
+  const count = Math.abs(steps);
+  for (let i = 0; i < count; i++) {
+    await page.keyboard.press(key);
+  }
+  await page.waitForTimeout(200);
+}
