@@ -19,6 +19,7 @@ const noop = () => {};
  * ### MELHORIZE™ UI.
  *
  * - Mobile landing page.
+ * - Add transition when landing content is removed.
  * - Improve loading state.
  * - Improve Full Screen Drop Zone.
  * - Improve toasters.
