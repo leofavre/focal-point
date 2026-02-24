@@ -88,6 +88,18 @@ export const LayoutGrid = styled.main`
     transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
+  [data-component="ImageUploaderButton"] {
+    z-index: 8;
+  }
+
+  [data-component="FocalPoint"] {
+    z-index: 5;
+  }
+
+  [data-component="HowToUse"] {
+    z-index: 3;
+  }
+
   &[data-has-bottom-bar] {
     > [data-component="AspectRatioSlider"],
     > [data-component="FocalPointButton"],
