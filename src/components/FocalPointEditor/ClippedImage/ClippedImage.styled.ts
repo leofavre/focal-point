@@ -7,7 +7,6 @@ export const Wrapper = styled.div`
   pointer-events: none;
   touch-action: none;
   user-select: none;
-  z-index: 1;  
 
   img {
     width: 100%;

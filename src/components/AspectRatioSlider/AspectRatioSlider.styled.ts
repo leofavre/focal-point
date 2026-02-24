@@ -17,7 +17,6 @@ export const Wrapper = styled.div`
 
   [data-component="AspectRatioControl"] {
     position: relative;
-    z-index: 1;
   }
 
   [data-component="AspectRatioRuler"] {
@@ -25,7 +24,6 @@ export const Wrapper = styled.div`
     margin-left: calc(var(--thumb-radius));
     margin-right: calc(var(--thumb-radius) + 1px);
     margin-top: calc((var(--thumb-diameter) / -2) + (var(--runner-thickness) / 2));
-    z-index: 0;
     pointer-events: none;
 
     @container aspect-ratio-slider (width < 37.5rem) {
