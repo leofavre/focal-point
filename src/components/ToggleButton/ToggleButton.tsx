@@ -36,6 +36,7 @@ export function ToggleButton({
 
   return (
     <ButtonWrapper data-scale={scale} {...rest}>
+      <Shadow />
       <Button
         ref={ref}
         as="button"
@@ -49,7 +50,6 @@ export function ToggleButton({
       >
         {children}
       </Button>
-      <Shadow />
     </ButtonWrapper>
   );
 }

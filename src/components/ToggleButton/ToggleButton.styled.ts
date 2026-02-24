@@ -44,7 +44,6 @@ export const Button = styled.button`
   touch-action: none;
   transition: background-color 66ms ease-in-out, transform 66ms ease-in-out;
   transform: var(--transform-in);
-  z-index: 1;
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
@@ -110,7 +109,6 @@ export const Shadow = styled.span`
   inset: 0;
   transform: var(--transform-out);
   background-color: var(--button-color-solid);
-  z-index: 0;
 
   *:disabled + & {
     background-color: var(--button-color-disabled);
