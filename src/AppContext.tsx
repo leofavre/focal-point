@@ -369,7 +369,8 @@ export function AppContext({ children }: PropsWithChildren) {
     setIsLoading(loading, !loading ? MINIMAL_LOADING_DURATION_MS : 0);
   }, [setIsLoading, pageState, imageNotFoundConfirmed, isProcessingImageUpload]);
 
-  const showBottomBar = showFocalPoint != null && showImageOverflow != null;
+  const showBottomBar =
+    showFocalPoint != null && showImageOverflow != null && !isLoading && pageState !== "landing";
 
   const value: EditorContextValue = {
     persistenceMode,
