@@ -13,14 +13,12 @@ export function ToasterInPopover() {
   useEffect(() => {
     if (popoverRef.current == null) return;
 
-    const el = popoverRef.current;
-
     if (toasts.length > 0) {
       if (hideTimeoutRef.current != null) {
         clearTimeout(hideTimeoutRef.current);
         hideTimeoutRef.current = null;
       }
-      el.showPopover();
+      popoverRef.current?.showPopover();
     } else {
       hideTimeoutRef.current = setTimeout(() => {
         hideTimeoutRef.current = null;
