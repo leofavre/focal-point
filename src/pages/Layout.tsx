@@ -1,17 +1,19 @@
-import { Suspense } from "react";
+import { Suspense, useCallback } from "react";
+import type { ErrorCode } from "react-dropzone";
+import toast from "react-hot-toast";
 import { Outlet } from "react-router-dom";
 import { useEditorContext } from "../AppContext";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
 import { FullScreenDropZone } from "../components/ImageUploader/FullScreenDropZone";
+import { getUploadErrorMessage } from "../components/ImageUploader/getUploadErrorMessage";
 import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
+import type { Err } from "../helpers/errorHandling";
 import { parseBooleanAttr } from "../helpers/parseBooleanAttr";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
 import { LayoutGrid, LayoutMessage } from "./Layout.styled";
-
-const noop = () => {};
 
 /**
  * @todo
@@ -19,7 +21,6 @@ const noop = () => {};
  * ### MELHORIZE™ UI.
  *
  * - Add transition when landing content is removed.
- * - Handle errors when files that are not images are uploaded via drag and drop.
  * - Improve loading state.
  * - Improve toasters.
  * - Verify accessibility.
@@ -56,9 +57,16 @@ export default function Layout() {
     uploaderButtonRef,
   } = useEditorContext();
 
+  const handleImageUploadError = useCallback((error: Err<ErrorCode>) => {
+    toast.error(getUploadErrorMessage(error.reason));
+  }, []);
+
   return (
     <>
-      <FullScreenDropZone onImageUpload={handleImageUpload} onImageUploadError={noop} />
+      <FullScreenDropZone
+        onImageUpload={handleImageUpload}
+        onImageUploadError={handleImageUploadError}
+      />
       <LayoutGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
         <Suspense fallback={<LayoutMessage>Loading...</LayoutMessage>}>
           <Outlet />
@@ -102,7 +110,7 @@ export default function Layout() {
           ref={uploaderButtonRef}
           label="Image"
           onImageUpload={handleImageUpload}
-          onImageUploadError={noop}
+          onImageUploadError={handleImageUploadError}
         />
       </LayoutGrid>
     </>

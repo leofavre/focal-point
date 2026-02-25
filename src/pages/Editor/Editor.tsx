@@ -1,11 +1,15 @@
-import { noop } from "lodash";
+import { useCallback } from "react";
+import type { ErrorCode } from "react-dropzone";
+import toast from "react-hot-toast";
 import { useEditorContext } from "../../AppContext";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
 import { CodeSnippetHeader } from "../../components/CodeSnippetHeader/CodeSnippetHeader";
 import { Dialog } from "../../components/Dialog/Dialog";
 import { FocalPointEditor } from "../../components/FocalPointEditor/FocalPointEditor";
 import { HowToUse } from "../../components/HowToUse/HowToUse";
+import { getUploadErrorMessage } from "../../components/ImageUploader/getUploadErrorMessage";
 import { ImageUploaderButton } from "../../components/ImageUploader/ImageUploaderButton";
+import type { Err } from "../../helpers/errorHandling";
 import type { ObjectPositionString } from "../../types";
 import { LandingWrapper } from "../Landing/Landing.styled";
 import { LayoutMessage } from "../Layout.styled";
@@ -38,6 +42,10 @@ export function Editor() {
     handleImageUpload,
   } = useEditorContext();
 
+  const handleImageUploadError = useCallback((error: Err<ErrorCode>) => {
+    toast.error(getUploadErrorMessage(error.reason));
+  }, []);
+
   if (pageState === "landing") {
     return (
       <LandingWrapper data-component="Landing">
@@ -45,7 +53,7 @@ export function Editor() {
           size="medium"
           label="Choose image"
           onImageUpload={handleImageUpload}
-          onImageUploadError={noop}
+          onImageUploadError={handleImageUploadError}
         />
         <HowToUse />
       </LandingWrapper>
