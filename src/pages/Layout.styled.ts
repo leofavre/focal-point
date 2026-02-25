@@ -19,7 +19,7 @@ export const LayoutGrid = styled.main`
 
   [data-component="Landing"] {
     grid-column: 1 / -1;
-    grid-row: 1 / -2;
+    grid-row: 1 / -1;
     margin: auto;
 
     width: 100%;
