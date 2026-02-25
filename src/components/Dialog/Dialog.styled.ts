@@ -48,7 +48,7 @@ export const DialogWrapper = styled.dialog`
   }
 
   &[open]::backdrop {
-    background-color: var(--color-dialog-backdrop);
+    background-color: var(--color-backdrop);
     transition:
       background-color 132ms ease-in-out,
       display 132ms ease-in-out allow-discrete,

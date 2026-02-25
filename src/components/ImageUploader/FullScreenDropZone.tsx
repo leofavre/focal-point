@@ -19,17 +19,19 @@ export function FullScreenDropZone({
     multiple: true,
   });
 
-  if (!isDragGlobal) return null;
-
   return (
     <Overlay
       {...getRootProps()}
       data-component="FullScreenDropZone"
       aria-hidden
-      style={{ pointerEvents: "auto" }}
+      css={{
+        opacity: isDragGlobal ? 1 : 0,
+        pointerEvents: isDragGlobal ? "auto" : "none",
+      }}
       {...rest}
     >
-      <input {...getInputProps()} aria-hidden />
+      {<input {...getInputProps()} aria-hidden />}
+      <p>Drop an image here</p>
     </Overlay>
   );
 }

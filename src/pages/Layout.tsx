@@ -19,8 +19,8 @@ const noop = () => {};
  * ### MELHORIZE™ UI.
  *
  * - Add transition when landing content is removed.
+ * - Handle errors when files that are not images are uploaded via drag and drop.
  * - Improve loading state.
- * - Improve Full Screen Drop Zone.
  * - Improve toasters.
  * - Verify accessibility.
  * - Review aria labels.

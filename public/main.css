@@ -11,7 +11,7 @@
   --color-glow: rgb(from var(--color-loud) r g b / 40%);
   --color-light-glow: rgb(from var(--color-loud) r g b / 20%);
   --color-background: color-mix(in srgb, var(--color-body) 4%, var(--color-zero));
-  --color-dialog-backdrop: rgb(from var(--color-neutral) r g b / 75%);
+  --color-backdrop: rgb(from var(--color-neutral) r g b / 80%);
 
   /* CodeSnippet syntax colors - fewer, more distinct colors */
   --color-codesnippet-comment: var(--color-neutral);
