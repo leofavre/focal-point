@@ -4,18 +4,14 @@ import { Wrapper } from "./ToasterInPopover.styled";
 
 const POPOVER_HIDE_DELAY_MS = 400;
 
-const supportsPopover =
-  typeof HTMLElement !== "undefined" &&
-  typeof (HTMLElement.prototype as HTMLElement & { showPopover?: () => void }).showPopover ===
-    "function";
-
 export function ToasterInPopover() {
   const popoverRef = useRef<HTMLDivElement>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const { toasts } = useToasterStore();
 
   useEffect(() => {
-    if (!supportsPopover || popoverRef.current == null) return;
+    if (popoverRef.current == null) return;
 
     const el = popoverRef.current;
 
@@ -24,17 +20,11 @@ export function ToasterInPopover() {
         clearTimeout(hideTimeoutRef.current);
         hideTimeoutRef.current = null;
       }
-      // Re-open if popover was closed (e.g. after content update when second toast added)
-      if (!el.matches(":popover-open")) {
-        el.showPopover();
-      }
+      el.showPopover();
     } else {
       hideTimeoutRef.current = setTimeout(() => {
         hideTimeoutRef.current = null;
-        const current = popoverRef.current as
-          | (HTMLDivElement & { hidePopover?: () => void })
-          | null;
-        current?.hidePopover?.();
+        popoverRef.current?.hidePopover();
       }, POPOVER_HIDE_DELAY_MS);
     }
 
@@ -47,7 +37,7 @@ export function ToasterInPopover() {
   }, [toasts.length]);
 
   return (
-    <Wrapper ref={popoverRef} {...(supportsPopover ? { popover: "auto" as const } : {})}>
+    <Wrapper ref={popoverRef} popover="auto">
       <Toaster position="top-center" />
     </Wrapper>
   );
