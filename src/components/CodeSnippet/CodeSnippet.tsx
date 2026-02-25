@@ -7,7 +7,7 @@ import { codeSnippetTheme } from "./codeSnippetTheme";
 import { CopyButton } from "./components/CopyButton/CopyButton";
 import { getCodeBlockLanguage, getCodeSnippet } from "./helpers/getCodeSnippet";
 import { normalizeWhitespaceInQuotes } from "./helpers/normalizeWhitespaceInQuotes";
-import { useCopyToClipboardWithTimeout } from "./hooks/useCopyToClipboardWithTimeout";
+import { useCopyToClipboard } from "./hooks/useCopyToClipboard";
 import type { CodeSnippetProps } from "./types";
 
 export function CodeSnippet({
@@ -15,8 +15,6 @@ export function CodeSnippet({
   src,
   objectPosition,
   language = "html",
-  codeSnippetCopied,
-  setCodeSnippetCopied,
   triggerAutoFocus = false,
   ...rest
 }: CodeSnippetProps) {
@@ -26,10 +24,7 @@ export function CodeSnippet({
     objectPosition,
   });
 
-  const { copied, onCopy } = useCopyToClipboardWithTimeout(snippetText, {
-    copied: codeSnippetCopied,
-    onCopiedChange: setCodeSnippetCopied,
-  });
+  const { onCopy } = useCopyToClipboard(snippetText);
 
   const codeSnippet = getCodeSnippet({ language, src, objectPosition });
   const codeBlockLanguage = getCodeBlockLanguage(language);
@@ -68,7 +63,7 @@ export function CodeSnippet({
   return (
     <Container data-component="CodeSnippet" {...rest}>
       <Wrapper onCopy={handleCopyCapture}>
-        <CopyButton ref={copyButtonRef} copied={copied} onCopy={onCopy} />
+        <CopyButton ref={copyButtonRef} onCopy={onCopy} />
         <CodeBlock code={codeSnippet} language={codeBlockLanguage} theme={codeSnippetTheme}>
           <Code data-component="CodeBlock" ref={mergedCodeRef} className="notranslate">
             <Line>

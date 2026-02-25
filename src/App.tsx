@@ -1,7 +1,7 @@
 import { lazy } from "react";
-import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppContext } from "./AppContext";
+import { ToasterInPopover } from "./components/ToasterInPopover/ToasterInPopover";
 import Layout from "./pages/Layout";
 
 const Editor = lazy(() => import("./pages/Editor/Editor").then((m) => ({ default: m.Editor })));
@@ -9,7 +9,7 @@ const Editor = lazy(() => import("./pages/Editor/Editor").then((m) => ({ default
 export default function App() {
   return (
     <BrowserRouter>
-      <Toaster position="top-center" />
+      <ToasterInPopover />
       <AppContext>
         <Routes>
           <Route path="/" element={<Layout />}>

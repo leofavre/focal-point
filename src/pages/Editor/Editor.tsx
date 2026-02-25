@@ -32,8 +32,6 @@ export function Editor() {
     setShowCodeSnippet,
     codeSnippetLanguage,
     setCodeSnippetLanguage,
-    codeSnippetCopied,
-    setCodeSnippetCopied,
     currentObjectPosition,
     pageState,
     isEditingSingleImage,
@@ -89,8 +87,6 @@ export function Editor() {
               src={image.name}
               objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
               language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-              codeSnippetCopied={codeSnippetCopied}
-              setCodeSnippetCopied={setCodeSnippetCopied}
               triggerAutoFocus={showCodeSnippet}
             />
           </Dialog.Content>

@@ -20,6 +20,8 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  *
  * ### MELHORIZE™ UI.
  *
+ * - Handle errors with toaster.
+ * - Use toaster to show that the code was copied.
  * - Add transition when landing content is removed.
  * - Improve loading state.
  * - Improve toasters.
@@ -29,7 +31,6 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  *
  * ### Basic functionality
  *
- * - Handle errors with toaster.
  * - Fix CI bug in which Auto-merge is triggered twice.
  *
  * ### Advanced functionality

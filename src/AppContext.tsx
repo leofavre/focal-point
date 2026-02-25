@@ -61,8 +61,6 @@ export type EditorContextValue = {
   setShowCodeSnippet: Dispatch<SetStateAction<boolean>>;
   codeSnippetLanguage: CodeSnippetLanguage | undefined;
   setCodeSnippetLanguage: Dispatch<SetStateAction<CodeSnippetLanguage | undefined>>;
-  codeSnippetCopied: boolean;
-  setCodeSnippetCopied: Dispatch<SetStateAction<boolean>>;
   currentObjectPosition: ObjectPositionString | undefined;
   pageState: UIPageState;
   isLoading: boolean;
@@ -136,7 +134,6 @@ export function AppContext({ children }: PropsWithChildren) {
   });
 
   const [showCodeSnippet, setShowCodeSnippet] = useState(DEFAULT_SHOW_CODE_SNIPPET);
-  const [codeSnippetCopied, setCodeSnippetCopied] = useState(false);
   const [isProcessingImageUpload, setIsProcessingImageUpload] = useState(false);
   const [imageNotFoundConfirmed, setImageNotFoundConfirmed] = useState(false);
 
@@ -209,16 +206,6 @@ export function AppContext({ children }: PropsWithChildren) {
       safeSetImage(null);
     };
   }, []);
-
-  useEffect(() => {
-    void currentObjectPosition;
-    setCodeSnippetCopied(false);
-  }, [currentObjectPosition]);
-
-  useEffect(() => {
-    void codeSnippetLanguage;
-    setCodeSnippetCopied(false);
-  }, [codeSnippetLanguage]);
 
   useEffect(() => {
     document.body.style.overflow = pageState !== "landing" ? "hidden" : "auto";
@@ -388,8 +375,6 @@ export function AppContext({ children }: PropsWithChildren) {
     setShowCodeSnippet,
     codeSnippetLanguage,
     setCodeSnippetLanguage,
-    codeSnippetCopied,
-    setCodeSnippetCopied,
     currentObjectPosition,
     pageState,
     isLoading,
