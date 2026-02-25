@@ -38,56 +38,55 @@ export function Editor() {
     handleImageUpload,
   } = useEditorContext();
 
-  if (pageState === "editing" || pageState === "landing") {
+  if (pageState === "landing") {
+    return (
+      <LandingWrapper data-component="Landing">
+        <ImageUploaderButton
+          size="medium"
+          label="Choose image"
+          onImageUpload={handleImageUpload}
+          onImageUploadError={noop}
+        />
+        <HowToUse />
+      </LandingWrapper>
+    );
+  }
+
+  if (pageState === "editing" && image != null && aspectRatio != null) {
     return (
       <>
-        {pageState === "landing" && (
-          <LandingWrapper data-component="Landing">
-            <ImageUploaderButton
-              size="medium"
-              label="Choose image"
-              onImageUpload={handleImageUpload}
-              onImageUploadError={noop}
+        <FocalPointEditor
+          imageUrl={image.url}
+          aspectRatio={aspectRatio}
+          initialAspectRatio={image.naturalAspectRatio}
+          objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+          showFocalPoint={showFocalPoint ?? false}
+          showImageOverflow={showImageOverflow ?? false}
+          onObjectPositionChange={handleObjectPositionChange}
+          onImageError={handleImageError}
+        />
+        <Dialog
+          open={showCodeSnippet}
+          onOpenChange={setShowCodeSnippet}
+          css={{ backgroundColor: "var(--color-background)" }}
+        >
+          <Dialog.Header>
+            <CodeSnippetHeader
+              codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+              setCodeSnippetLanguage={setCodeSnippetLanguage}
             />
-            <HowToUse />
-          </LandingWrapper>
-        )}
-        {image != null && aspectRatio != null && (
-          <>
-            <FocalPointEditor
-              imageUrl={image.url}
-              aspectRatio={aspectRatio}
-              initialAspectRatio={image.naturalAspectRatio}
+          </Dialog.Header>
+          <Dialog.Content>
+            <CodeSnippet
+              src={image.name}
               objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-              showFocalPoint={showFocalPoint ?? false}
-              showImageOverflow={showImageOverflow ?? false}
-              onObjectPositionChange={handleObjectPositionChange}
-              onImageError={handleImageError}
+              language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+              codeSnippetCopied={codeSnippetCopied}
+              setCodeSnippetCopied={setCodeSnippetCopied}
+              triggerAutoFocus={showCodeSnippet}
             />
-            <Dialog
-              open={showCodeSnippet}
-              onOpenChange={setShowCodeSnippet}
-              css={{ backgroundColor: "var(--color-background)" }}
-            >
-              <Dialog.Header>
-                <CodeSnippetHeader
-                  codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-                  setCodeSnippetLanguage={setCodeSnippetLanguage}
-                />
-              </Dialog.Header>
-              <Dialog.Content>
-                <CodeSnippet
-                  src={image.name}
-                  objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-                  language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-                  codeSnippetCopied={codeSnippetCopied}
-                  setCodeSnippetCopied={setCodeSnippetCopied}
-                  triggerAutoFocus={showCodeSnippet}
-                />
-              </Dialog.Content>
-            </Dialog>
-          </>
-        )}
+          </Dialog.Content>
+        </Dialog>
       </>
     );
   }
