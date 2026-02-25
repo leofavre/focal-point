@@ -5,7 +5,7 @@ export const LandingWrapper = styled.div`
   grid-template-columns: auto;
   grid-template-rows: auto;
   padding: var(--base-line-2x);
-  padding-right: var(--base-line);
+  padding-inline-end: var(--base-line);
   gap: var(--base-line-2x);
   box-sizing: border-box;
   pointer-events: none;
