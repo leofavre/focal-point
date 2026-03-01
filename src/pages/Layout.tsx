@@ -21,7 +21,6 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  * ### MELHORIZE™ UI.
  *
  * - Add transition when landing content is removed.
- * - Make sure that the first 3 bottom bar buttons are disabled when image or page is not found, but ok if they are enabled while loading.
  * - Add link to home page.
  * - Apply accessibility best practices.
  *
@@ -52,6 +51,8 @@ export default function Layout() {
     showBottomBar,
     handleImageUpload,
     uploaderButtonRef,
+    pageState,
+    isLoading,
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
@@ -61,6 +62,8 @@ export default function Layout() {
   const handleDragStart = useCallback(() => {
     setShowCodeSnippet(false);
   }, [setShowCodeSnippet]);
+
+  const isUIStateButtonDisabled = pageState !== "landing" && pageState !== "editing" && !isLoading;
 
   return (
     <>
@@ -85,6 +88,7 @@ export default function Layout() {
           toggleable
           toggled={showFocalPoint ?? false}
           onToggle={(toggled) => setShowFocalPoint(!toggled)}
+          disabled={isUIStateButtonDisabled}
         >
           <IconReference />
           <ToggleButton.ButtonText>Focal point</ToggleButton.ButtonText>
@@ -95,6 +99,7 @@ export default function Layout() {
           toggleable
           toggled={showImageOverflow ?? false}
           onToggle={(toggled) => setShowImageOverflow(!toggled)}
+          disabled={isUIStateButtonDisabled}
         >
           <IconMask />
           <ToggleButton.ButtonText>Overflow</ToggleButton.ButtonText>
@@ -110,6 +115,7 @@ export default function Layout() {
           toggleable
           toggled={showCodeSnippet ?? false}
           onToggle={(toggled) => setShowCodeSnippet(!toggled)}
+          disabled={isUIStateButtonDisabled}
         >
           <IconCode />
           <ToggleButton.ButtonText>Code</ToggleButton.ButtonText>
