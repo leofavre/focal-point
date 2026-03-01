@@ -23,6 +23,7 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  * - Add transition when landing content is removed.
  * - Add link to home page.
  * - Apply accessibility best practices.
+ * - Maybe SSR?
  *
  * ### Basic functionality
  *
@@ -30,7 +31,6 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  *
  * ### Advanced functionality
  *
- * - Maybe SSR?
  * - Support external image sources.
  * - Multiple images with "file system".
  * - Maybe make a browser extension?
