@@ -200,4 +200,47 @@ test.describe("Drag-drop", () => {
     await expect(page).toHaveURL(/\/edit$/);
     await expectEditorWithControlsVisible(page);
   });
+
+  test("drop multiple images in single-image mode shows 'Upload a single image' toast and no redirect", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expectLandingVisible(page);
+
+    const buffer = fs.readFileSync(SAMPLE_IMAGE_PATH);
+    const base64 = buffer.toString("base64");
+    const evalOpts = { b64: base64, name: "sample.png", type: "image/png" };
+
+    await page.evaluate(async (payload: { b64: string; name: string; type: string }) => {
+      const res = await fetch(`data:${payload.type};base64,${payload.b64}`);
+      const blob = await res.blob();
+      const file1 = new File([blob], payload.name, { type: payload.type });
+      const file2 = new File([blob], "sample2.png", { type: payload.type });
+      const dt = new DataTransfer();
+      dt.items.add(file1);
+      dt.items.add(file2);
+      const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
+      document.dispatchEvent(new DragEvent("dragenter", opts));
+    }, evalOpts);
+
+    await page.locator('[data-component="FullScreenDropZone"]').waitFor({ state: "visible" });
+
+    await page.evaluate(async (payload: { b64: string; name: string; type: string }) => {
+      const overlay = document.querySelector('[data-component="FullScreenDropZone"]');
+      if (!overlay) return;
+      const res = await fetch(`data:${payload.type};base64,${payload.b64}`);
+      const blob = await res.blob();
+      const file1 = new File([blob], payload.name, { type: payload.type });
+      const file2 = new File([blob], "sample2.png", { type: payload.type });
+      const dt = new DataTransfer();
+      dt.items.add(file1);
+      dt.items.add(file2);
+      const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
+      overlay.dispatchEvent(new DragEvent("dragover", opts));
+      overlay.dispatchEvent(new DragEvent("drop", opts));
+    }, evalOpts);
+
+    await expect(page.getByText("Only a single image is allowed")).toBeVisible();
+    await expect(page).toHaveURL("/");
+  });
 });

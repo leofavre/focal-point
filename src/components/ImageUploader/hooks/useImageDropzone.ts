@@ -2,6 +2,7 @@ import { useCallback, useEffectEvent } from "react";
 import { type ErrorCode, type FileRejection, useDropzone } from "react-dropzone";
 import type { Err } from "../../../helpers/errorHandling";
 import type { ImageDraftState, ImageDraftStateAndFile } from "../../../types";
+import { SINGLE_IMAGE_REQUIRED } from "../getUploadErrorMessage";
 import type { ImageUploaderProps } from "../types";
 
 const IMAGE_ACCEPT = {
@@ -16,7 +17,7 @@ export type UseImageDropzoneOptions = Pick<
   noClick?: boolean;
   /** Disable drag and drop (e.g. button that only opens file dialog). */
   noDrag?: boolean;
-  /** Allow multiple files. */
+  /** Allow multiple files. When false, rejects when user selects more than one image. */
   multiple?: boolean;
   /** Called when the file dialog is closed without selection. */
   onFileDialogCancel?: () => void;
@@ -69,29 +70,38 @@ export function useImageDropzone({
   const stableOnImagesUpload = useEffectEvent((draftsAndFiles: ImageDraftStateAndFile[]) =>
     onImagesUpload?.(draftsAndFiles),
   );
-  const stableOnImageUploadError = useEffectEvent((error: Err<ErrorCode>) =>
-    onImageUploadError?.(error),
+  const stableOnImageUploadError = useEffectEvent(
+    (error: Err<ErrorCode | typeof SINGLE_IMAGE_REQUIRED>) => onImageUploadError?.(error),
   );
   const stableOnImagesUploadError = useEffectEvent((errors: Err<ErrorCode>[]) =>
     onImagesUploadError?.(errors),
   );
   const stableOnDropAccepted = useEffectEvent(() => onDropAccepted?.());
 
-  const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
-    const accepted = filesToDraftsAndFiles(acceptedFiles);
-    const rejected = fileRejectionsToErrors(fileRejections);
+  const onDrop = useCallback(
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      const totalFiles = acceptedFiles.length + fileRejections.length;
+      if (!multiple && totalFiles > 1) {
+        stableOnImageUploadError({ reason: SINGLE_IMAGE_REQUIRED });
+        return;
+      }
 
-    if (accepted.length > 0) {
-      stableOnImageUpload(accepted[0]);
-      stableOnImagesUpload(accepted);
-      stableOnDropAccepted();
-    }
+      const accepted = filesToDraftsAndFiles(acceptedFiles);
+      const rejected = fileRejectionsToErrors(fileRejections);
 
-    if (rejected.length > 0) {
-      stableOnImageUploadError(rejected[0]);
-      stableOnImagesUploadError(rejected);
-    }
-  }, []);
+      if (accepted.length > 0) {
+        stableOnImageUpload(accepted[0]);
+        stableOnImagesUpload(accepted);
+        stableOnDropAccepted();
+      }
+
+      if (rejected.length > 0) {
+        stableOnImageUploadError(rejected[0]);
+        stableOnImagesUploadError(rejected);
+      }
+    },
+    [multiple],
+  );
 
   return useDropzone({
     accept: IMAGE_ACCEPT,

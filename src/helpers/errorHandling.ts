@@ -45,3 +45,10 @@ export async function resultFromPromise<A, R extends string>(
     return reject({ reason, error });
   }
 }
+
+export function logError<R extends string>(error: Err<R>) {
+  /**
+   * @todo Maybe use a service like Bugsnag to log errors.
+   */
+  console.warn(error);
+}

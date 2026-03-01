@@ -25,7 +25,7 @@ export function FullScreenDropZone({
     onImagesUploadError,
     noClick: true,
     noDrag: false,
-    multiple: true,
+    multiple: onImagesUpload != null,
   });
 
   const stableHidePopover = useEffectEvent(() => {

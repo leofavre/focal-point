@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import type { ErrorCode } from "react-dropzone";
 import toast from "react-hot-toast";
 import { useEditorContext } from "../../AppContext";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
@@ -7,6 +6,7 @@ import { CodeSnippetHeader } from "../../components/CodeSnippetHeader/CodeSnippe
 import { Dialog } from "../../components/Dialog/Dialog";
 import { FocalPointEditor } from "../../components/FocalPointEditor/FocalPointEditor";
 import { HowToUse } from "../../components/HowToUse/HowToUse";
+import type { UploadErrorCode } from "../../components/ImageUploader/getUploadErrorMessage";
 import { getUploadErrorMessage } from "../../components/ImageUploader/getUploadErrorMessage";
 import { ImageUploaderButton } from "../../components/ImageUploader/ImageUploaderButton";
 import type { Err } from "../../helpers/errorHandling";
@@ -40,7 +40,7 @@ export function Editor() {
     handleImageUpload,
   } = useEditorContext();
 
-  const handleImageUploadError = useCallback((error: Err<ErrorCode>) => {
+  const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
     toast.error(getUploadErrorMessage(error.reason));
   }, []);
 

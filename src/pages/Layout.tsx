@@ -1,10 +1,10 @@
 import { Suspense, useCallback } from "react";
-import type { ErrorCode } from "react-dropzone";
 import toast from "react-hot-toast";
 import { Outlet } from "react-router-dom";
 import { useEditorContext } from "../AppContext";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
 import { FullScreenDropZone } from "../components/ImageUploader/FullScreenDropZone";
+import type { UploadErrorCode } from "../components/ImageUploader/getUploadErrorMessage";
 import { getUploadErrorMessage } from "../components/ImageUploader/getUploadErrorMessage";
 import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
@@ -54,7 +54,7 @@ export default function Layout() {
     uploaderButtonRef,
   } = useEditorContext();
 
-  const handleImageUploadError = useCallback((error: Err<ErrorCode>) => {
+  const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
     toast.error(getUploadErrorMessage(error.reason));
   }, []);
 

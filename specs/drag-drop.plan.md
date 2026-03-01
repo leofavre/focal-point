@@ -35,3 +35,15 @@ Each scenario is run **twice**: once with IndexedDB available, once with Indexed
     - expect: URL remains /
     - expect: No persistent overlay
     - expect: Image button visible and interactive
+
+#### 1.3. Drop multiple images in single-image mode shows 'Only a single image is allowed' toast and no redirect
+
+**File:** `e2e/drag-drop.spec.ts`
+
+**Steps:**
+  1. Visit root path '/'
+    - expect: Landing visible
+  2. Simulate file drop with multiple images (DataTransfer containing two files)
+    - expect: Toast "Only a single image is allowed" visible
+    - expect: URL remains /
+    - expect: No redirect to /edit
