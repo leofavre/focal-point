@@ -20,14 +20,13 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  *
  * ### MELHORIZE™ UI.
  *
- * - Handle errors with toaster.
- * - Use toaster to show that the code was copied.
+ * - Make sure that drag and drop layer uses the top layer.
+ * - Remove rounded corners from toasters.
+ * - Handle all errors with natural text instead of error codes. Verify that all possible errors are handled.
  * - Add transition when landing content is removed.
- * - Improve loading state.
- * - Improve toasters.
+ * - Add loading state icon.
  * - Verify accessibility.
  * - Review aria labels.
- * - Think about animations and transitions.
  *
  * ### Basic functionality
  *
@@ -36,7 +35,6 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  * ### Advanced functionality
  *
  * - Support external image sources.
- * - Breakpoints with container queries.
  * - Multiple images with "file system".
  * - Maybe make a browser extension?
  * - Maybe make a React component?
