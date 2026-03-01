@@ -5,6 +5,8 @@ import {
   expectEditorWithControlsVisible,
   expectLandingVisible,
   SAMPLE_IMAGE_PATH,
+  seedEditorWithImage,
+  waitForEditorReady,
 } from "./helpers";
 
 /**
@@ -83,6 +85,44 @@ async function dragImageThenDropOutside(page: import("@playwright/test").Page) {
   }, evalOpts);
 }
 
+/**
+ * Simulate file drop when code snippet dialog is open. Dispatches dragenter to close the
+ * dialog and show the overlay, asserts dialog closed and overlay visible, then completes the drop.
+ * Plan: e2e/drag-drop-code-snippet.plan.md
+ */
+async function dropImageFileWithCodeSnippetOpen(page: import("@playwright/test").Page) {
+  const buffer = fs.readFileSync(SAMPLE_IMAGE_PATH);
+  const base64 = buffer.toString("base64");
+  const evalOpts = { b64: base64, name: "sample.png", type: "image/png" };
+
+  await page.evaluate(async (payload: { b64: string; name: string; type: string }) => {
+    const res = await fetch(`data:${payload.type};base64,${payload.b64}`);
+    const blob = await res.blob();
+    const file = new File([blob], payload.name, { type: payload.type });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
+    document.dispatchEvent(new DragEvent("dragenter", opts));
+    document.dispatchEvent(new DragEvent("dragover", opts));
+  }, evalOpts);
+
+  await expect(page.locator('[data-component="CodeSnippet"]')).not.toBeVisible();
+  await page.locator('[data-component="FullScreenDropZone"]').waitFor({ state: "visible" });
+
+  await page.evaluate(async (payload: { b64: string; name: string; type: string }) => {
+    const overlay = document.querySelector('[data-component="FullScreenDropZone"]');
+    if (!overlay) return;
+    const res = await fetch(`data:${payload.type};base64,${payload.b64}`);
+    const blob = await res.blob();
+    const file = new File([blob], payload.name, { type: payload.type });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
+    overlay.dispatchEvent(new DragEvent("dragover", opts));
+    overlay.dispatchEvent(new DragEvent("drop", opts));
+  }, evalOpts);
+}
+
 test.describe("Drag-drop", () => {
   test("with IndexedDB: drop file on app then image uploaded and redirect to /edit", async ({
     page,
@@ -145,4 +185,19 @@ test.describe("Drag-drop", () => {
       );
     },
   );
+
+  test("drag during code snippet open: dialog closes first, then drop zone shows, drop works", async ({
+    page,
+  }) => {
+    await seedEditorWithImage(page);
+    await waitForEditorReady(page);
+
+    await page.getByRole("button", { name: "Code" }).click();
+    await expect(page.locator('[data-component="CodeSnippet"]')).toBeVisible();
+
+    await dropImageFileWithCodeSnippetOpen(page);
+
+    await expect(page).toHaveURL(/\/edit$/);
+    await expectEditorWithControlsVisible(page);
+  });
 });
