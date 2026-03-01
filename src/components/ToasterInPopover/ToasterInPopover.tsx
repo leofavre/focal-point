@@ -2,12 +2,11 @@ import { useEffect, useRef } from "react";
 import { Toaster, useToasterStore } from "react-hot-toast";
 import { Wrapper } from "./ToasterInPopover.styled";
 
-const POPOVER_HIDE_DELAY_MS = 400;
+const POPOVER_HIDE_DELAY_MS = 300;
 
 export function ToasterInPopover() {
   const popoverRef = useRef<HTMLDivElement>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const { toasts } = useToasterStore();
 
   useEffect(() => {
@@ -18,6 +17,7 @@ export function ToasterInPopover() {
         clearTimeout(hideTimeoutRef.current);
         hideTimeoutRef.current = null;
       }
+
       popoverRef.current?.showPopover();
     } else {
       hideTimeoutRef.current = setTimeout(() => {
@@ -35,7 +35,7 @@ export function ToasterInPopover() {
   }, [toasts.length]);
 
   return (
-    <Wrapper ref={popoverRef} popover="auto">
+    <Wrapper ref={popoverRef} popover="manual">
       <Toaster position="top-center" />
     </Wrapper>
   );
