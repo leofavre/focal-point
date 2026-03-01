@@ -1,6 +1,5 @@
 import { isEqual } from "lodash";
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
-import toast from "react-hot-toast";
 import type { Err, Result } from "../../helpers/errorHandling";
 import { accept, processResults, reject } from "../../helpers/errorHandling";
 import { isIndexedDBAvailable } from "../../helpers/indexedDBAvailability";
@@ -155,14 +154,11 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       }
 
       const { accepted: ids } = processResults(results);
+
       if (ids.length > 0) {
-        const refreshResult = await stableRefreshImages();
-        if (refreshResult.rejected != null) {
-          toast.error(
-            `Error refreshing images after add: ${String(refreshResult.rejected.reason)}`,
-          );
-        }
+        await stableRefreshImages();
       }
+
       return processResults(results);
     },
     [service],
@@ -180,12 +176,8 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
         if (upsertResult.rejected != null) {
           return reject({ reason: "AddImageFailed", error: upsertResult.rejected.error });
         }
-        const refreshResult = await stableRefreshImages();
-        if (refreshResult.rejected != null) {
-          toast.error(
-            `Error refreshing images after add: ${String(refreshResult.rejected.reason)}`,
-          );
-        }
+        await stableRefreshImages();
+
         return accept(id);
       }
 
@@ -239,12 +231,8 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       if (updateResult.rejected != null) {
         return reject({ reason: "UpdateImageFailed", error: updateResult.rejected.error });
       }
-      const refreshResult = await stableRefreshImages();
-      if (refreshResult.rejected != null) {
-        toast.error(
-          `Error refreshing images after update: ${String(refreshResult.rejected.reason)}`,
-        );
-      }
+      await stableRefreshImages();
+
       return accept(id);
     },
     [service],
