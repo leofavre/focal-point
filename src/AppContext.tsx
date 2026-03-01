@@ -12,6 +12,8 @@ import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
 import { useDelayedState } from "use-delay-follow-state";
+import { logError } from "./helpers/errorHandling";
+import { getCreateImageStateErrorMessage } from "./helpers/getCreateImageStateErrorMessage";
 import { createImageStateFromDraftAndFile } from "./pages/helpers/createImageStateFromDraftAndFile";
 import { createImageStateFromRecord } from "./pages/helpers/createImageStateFromRecord";
 import { createImageStateFromUrl } from "./pages/helpers/createImageStateFromUrl";
@@ -42,8 +44,6 @@ const MINIMAL_LOADING_DURATION_MS = 250;
 const SINGLE_IMAGE_MODE_ID = "edit" as ImageId;
 
 const PERSISTENCE_MODE: UIPersistenceMode = "singleImage";
-
-const noop = () => {};
 
 export type EditorContextValue = {
   persistenceMode: UIPersistenceMode;
@@ -92,7 +92,7 @@ export function AppContext({ children }: PropsWithChildren) {
   const navigate = useNavigate();
 
   const { images, addImage, updateImage } = usePersistedImages({
-    onRefreshImagesError: noop,
+    onRefreshImagesError: logError,
   });
 
   const [image, setImage] = useState<ImageState | null>(null);
@@ -115,23 +115,23 @@ export function AppContext({ children }: PropsWithChildren) {
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
-    { debounceTimeout: INTERACTION_DEBOUNCE_MS },
+    { debounceTimeout: INTERACTION_DEBOUNCE_MS, onError: logError },
   );
 
-  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord({
-    id: "showFocalPoint",
-    value: DEFAULT_SHOW_FOCAL_POINT,
-  });
+  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord(
+    { id: "showFocalPoint", value: DEFAULT_SHOW_FOCAL_POINT },
+    { onError: logError },
+  );
 
-  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord({
-    id: "showImageOverflow",
-    value: DEFAULT_SHOW_IMAGE_OVERFLOW,
-  });
+  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord(
+    { id: "showImageOverflow", value: DEFAULT_SHOW_IMAGE_OVERFLOW },
+    { onError: logError },
+  );
 
-  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord({
-    id: "codeSnippetLanguage",
-    value: DEFAULT_CODE_SNIPPET_LANGUAGE,
-  });
+  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord(
+    { id: "codeSnippetLanguage", value: DEFAULT_CODE_SNIPPET_LANGUAGE },
+    { onError: logError },
+  );
 
   const [showCodeSnippet, setShowCodeSnippet] = useState(DEFAULT_SHOW_CODE_SNIPPET);
   const [isProcessingImageUpload, setIsProcessingImageUpload] = useState(false);
@@ -167,7 +167,7 @@ export function AppContext({ children }: PropsWithChildren) {
         : await createImageStateFromDraftAndFile(draftAndFileOrUrl);
 
       if (imageStateResult.rejected != null) {
-        toast.error(`Error creating image state: ${String(imageStateResult.rejected.reason)}`);
+        toast.error(getCreateImageStateErrorMessage(imageStateResult.rejected.reason));
         setIsProcessingImageUpload(false);
         return;
       }
@@ -178,6 +178,10 @@ export function AppContext({ children }: PropsWithChildren) {
       const addResult = await addImage(draftAndFileOrUrl, {
         id: persistenceMode === "singleImage" ? SINGLE_IMAGE_MODE_ID : undefined,
       });
+
+      if (addResult.rejected != null) {
+        logError(addResult.rejected);
+      }
 
       const nextImageId = addResult.accepted;
       const shouldNavigate = nextImageId != null && imageId !== nextImageId;
@@ -193,7 +197,7 @@ export function AppContext({ children }: PropsWithChildren) {
   );
 
   const handleImageError = useCallback(() => {
-    toast.error("Error uploading image");
+    toast.error("Failed to load image");
     safeSetImage(null);
   }, []);
 
@@ -261,7 +265,7 @@ export function AppContext({ children }: PropsWithChildren) {
         breakpoints: [{ objectPosition: currentObjectPosition }],
       }).then((result) => {
         if (result.rejected != null) {
-          toast.error(`Error saving position to database: ${String(result.rejected.reason)}`);
+          logError(result.rejected);
           return;
         }
         if (result.accepted != null) {
@@ -279,7 +283,7 @@ export function AppContext({ children }: PropsWithChildren) {
 
       updateImage(imageId, { lastKnownAspectRatio: aspectRatio }).then((result) => {
         if (result.rejected != null) {
-          toast.error(`Error saving aspect ratio to database: ${String(result.rejected.reason)}`);
+          logError(result.rejected);
           return;
         }
         if (result.accepted != null) {
@@ -331,7 +335,7 @@ export function AppContext({ children }: PropsWithChildren) {
 
       if (result.rejected != null) {
         safeSetImage(null);
-        toast.error(`Error loading saved image: ${String(result.rejected.reason)}`);
+        toast.error(getCreateImageStateErrorMessage(result.rejected.reason));
         return;
       }
 

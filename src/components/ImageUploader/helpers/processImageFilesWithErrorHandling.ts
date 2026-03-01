@@ -8,13 +8,20 @@ export type ImageDraftStateAndFileResult = Result<
   ImageUploadValidationReason
 >;
 
+export type ProcessImageFilesOptions = {
+  /** When false, single-file mode; used for error message ("No file" vs "No files"). */
+  multiple?: boolean;
+};
+
 export function processImageFilesWithErrorHandling(
   files: FileList | null,
+  options?: ProcessImageFilesOptions,
 ): ImageDraftStateAndFileResult[] {
   const results: ImageDraftStateAndFileResult[] = [];
+  const multiple = options?.multiple ?? true;
 
   if (files == null || files.length === 0) {
-    results.push(reject({ reason: "NoFilesProvidedError" }));
+    results.push(reject({ reason: multiple ? "NoFilesProvidedError" : "NoFileProvidedError" }));
     return results;
   }
 

@@ -2,7 +2,12 @@ import { useCallback, useEffectEvent } from "react";
 import { type ErrorCode, type FileRejection, useDropzone } from "react-dropzone";
 import type { Err } from "../../../helpers/errorHandling";
 import type { ImageDraftState, ImageDraftStateAndFile } from "../../../types";
-import { SINGLE_IMAGE_REQUIRED } from "../getUploadErrorMessage";
+import {
+  NO_FILE_PROVIDED,
+  NO_FILES_PROVIDED,
+  SINGLE_IMAGE_REQUIRED,
+  type UploadErrorCode,
+} from "../getUploadErrorMessage";
 import type { ImageUploaderProps } from "../types";
 
 const IMAGE_ACCEPT = {
@@ -70,8 +75,8 @@ export function useImageDropzone({
   const stableOnImagesUpload = useEffectEvent((draftsAndFiles: ImageDraftStateAndFile[]) =>
     onImagesUpload?.(draftsAndFiles),
   );
-  const stableOnImageUploadError = useEffectEvent(
-    (error: Err<ErrorCode | typeof SINGLE_IMAGE_REQUIRED>) => onImageUploadError?.(error),
+  const stableOnImageUploadError = useEffectEvent((error: Err<UploadErrorCode>) =>
+    onImageUploadError?.(error),
   );
   const stableOnImagesUploadError = useEffectEvent((errors: Err<ErrorCode>[]) =>
     onImagesUploadError?.(errors),
@@ -81,6 +86,14 @@ export function useImageDropzone({
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       const totalFiles = acceptedFiles.length + fileRejections.length;
+
+      if (totalFiles === 0) {
+        stableOnImageUploadError({
+          reason: multiple ? NO_FILES_PROVIDED : NO_FILE_PROVIDED,
+        });
+        return;
+      }
+
       if (!multiple && totalFiles > 1) {
         stableOnImageUploadError({ reason: SINGLE_IMAGE_REQUIRED });
         return;

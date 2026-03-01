@@ -41,7 +41,7 @@ export function Editor() {
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
-    toast.error(getUploadErrorMessage(error.reason));
+    toast.error(getUploadErrorMessage(error));
   }, []);
 
   if (pageState === "landing") {

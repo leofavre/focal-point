@@ -20,7 +20,7 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  *
  * ### MELHORIZE™ UI.
  *
- * - Handle all errors with natural text instead of error codes. Verify that all possible errors are handled. Update e2e tests accordingly.
+ * - Add link to home page.
  * - Add transition when landing content is removed.
  * - Add loading state icon.
  * - Verify accessibility.
@@ -55,7 +55,7 @@ export default function Layout() {
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
-    toast.error(getUploadErrorMessage(error.reason));
+    toast.error(getUploadErrorMessage(error));
   }, []);
 
   const handleDragStart = useCallback(() => {

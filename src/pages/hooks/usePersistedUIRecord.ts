@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useEffectEvent, useState } from "react";
 import useDebouncedEffect from "use-debounced-effect";
+import type { Err } from "../../helpers/errorHandling";
 import { isSessionStorageAvailable } from "../../helpers/sessionStorageAvailability";
 import { getInMemoryStorageService } from "../../services/inMemoryStorageService";
 import { getSessionStorageService } from "../../services/sessionStorageService";
@@ -10,6 +11,8 @@ export type UsePersistedUIRecordOptions = {
   debounceTimeout?: number;
   /** When true, use in-memory storage instead of sessionStorage (e.g. for ephemeral mode). */
   forceInMemoryStorage?: boolean;
+  /** Called when getRecord or updateRecord fails. Caller handles the error (e.g. logError). */
+  onError?: (error: Err<string>) => void;
 };
 
 export type UsePersistedUIRecordReturn<K extends keyof UIState> = [
@@ -30,7 +33,7 @@ export type UsePersistedUIRecordReturn<K extends keyof UIState> = [
  */
 export function usePersistedUIRecord<K extends keyof UIState>(
   { id, value: defaultValue }: UIRecord<K>,
-  { debounceTimeout = 0, forceInMemoryStorage = false }: UsePersistedUIRecordOptions = {},
+  { debounceTimeout = 0, forceInMemoryStorage = false, onError }: UsePersistedUIRecordOptions = {},
 ): UsePersistedUIRecordReturn<K> {
   const useSessionStorage = !forceInMemoryStorage && isSessionStorageAvailable();
   const service = useSessionStorage
@@ -42,12 +45,14 @@ export function usePersistedUIRecord<K extends keyof UIState>(
   const stableIdGetter = useEffectEvent(() => id);
   const stableDefaultValueGetter = useEffectEvent(() => defaultValue);
   const stableServiceGetRecord = useEffectEvent(service.getRecord);
+  const stableOnError = useEffectEvent((err: Err<string>) => onError?.(err));
 
   // Initial load: unwrap Result from getRecord.
   useEffect(() => {
     const load = async () => {
       const result = await stableServiceGetRecord(stableIdGetter());
       if (result.rejected != null) {
+        stableOnError(result.rejected);
         setter(stableDefaultValueGetter());
         return;
       }
@@ -60,7 +65,9 @@ export function usePersistedUIRecord<K extends keyof UIState>(
   useDebouncedEffect(
     () => {
       if (value == null) return;
-      void service.updateRecord({ id: stableIdGetter(), value });
+      void service.updateRecord({ id: stableIdGetter(), value }).then((result) => {
+        if (result.rejected != null) stableOnError(result.rejected);
+      });
     },
     { timeout: debounceTimeout },
     [value],

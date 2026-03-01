@@ -5,13 +5,19 @@
 
 /** Image upload validation (file input / drop zone). */
 export type NoFilesProvidedReason = "NoFilesProvidedError";
+export type NoFileProvidedReason = "NoFileProvidedError";
 export type NotImageReason = "NotImageError";
-export type ImageUploadValidationReason = NoFilesProvidedReason | NotImageReason;
+
+export type ImageUploadValidationReason =
+  | NoFilesProvidedReason
+  | NoFileProvidedReason
+  | NotImageReason;
 
 /** Image load / create-image-state flows. */
 export type ImageLoadFailedReason = "ImageLoadFailed";
 export type BlobCreateFailedReason = "BlobCreateFailed";
 export type InvalidUrlReason = "InvalidUrl";
+
 export type CreateImageStateReason =
   | ImageLoadFailedReason
   | BlobCreateFailedReason
@@ -27,6 +33,3 @@ export type SessionStorageUnavailableReason = "SessionStorageUnavailable";
 
 /** IndexedDB. */
 export type IndexedDBUnavailableReason = "IndexedDBUnavailable";
-
-/** UI record load (getRecord failure). */
-export type GetUIRecordFailedReason = "GetUIRecordFailed";
