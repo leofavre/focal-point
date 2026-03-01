@@ -17,6 +17,11 @@ export const Overlay = styled.div`
     overflow: hidden;
     display: flex;
     box-shadow: none;
+    transition: opacity 132ms ease-in-out;
+  }
+
+  &[data-closing][popover] {
+    opacity: 0;
   }
 
   &[popover]::backdrop {
@@ -29,6 +34,10 @@ export const Overlay = styled.div`
       background-color 132ms ease-in-out,
       display 132ms ease-in-out allow-discrete,
       overlay 132ms ease-in-out allow-discrete;
+  }
+
+  &[data-closing]:popover-open::backdrop {
+    background-color: rgba(0, 0, 0, 0);
   }
 
   @starting-style {

@@ -1,6 +1,7 @@
 import type { Ref } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import { mergeRefs } from "react-merge-refs";
+import { useClosingTransition } from "../../hooks/useClosingTransition";
 import { Overlay } from "./FullScreenDropZone.styled";
 import { useImageDropzone } from "./hooks/useImageDropzone";
 import type { FullScreenDropZoneProps } from "./types";
@@ -27,6 +28,14 @@ export function FullScreenDropZone({
     multiple: true,
   });
 
+  const stableHidePopover = useEffectEvent(() => {
+    popoverRef.current?.hidePopover();
+  });
+
+  const { isClosing, requestClose, cancelClose } = useClosingTransition({
+    onClose: stableHidePopover,
+  });
+
   const { ref: rootRef, ...rootProps } = getRootProps();
   const mergedRefs = mergeRefs([popoverRef, rootRef as Ref<HTMLDivElement | null>]);
 
@@ -38,12 +47,13 @@ export function FullScreenDropZone({
         clearTimeout(hideTimeoutRef.current);
         hideTimeoutRef.current = null;
       }
+      cancelClose();
       onDragStart?.();
       popoverRef.current.showPopover();
     } else {
       hideTimeoutRef.current = setTimeout(() => {
         hideTimeoutRef.current = null;
-        popoverRef.current?.hidePopover();
+        requestClose();
       }, POPOVER_HIDE_DELAY_MS);
     }
 
@@ -53,12 +63,13 @@ export function FullScreenDropZone({
         hideTimeoutRef.current = null;
       }
     };
-  }, [isDragGlobal, onDragStart]);
+  }, [isDragGlobal, onDragStart, requestClose, cancelClose]);
 
   return (
     <Overlay
       ref={mergedRefs}
       popover="manual"
+      data-closing={isClosing || undefined}
       {...rootProps}
       data-component="FullScreenDropZone"
       aria-hidden

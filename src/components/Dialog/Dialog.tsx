@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { mergeRefs } from "react-merge-refs";
+import { useClosingTransition } from "../../hooks/useClosingTransition";
 import { IconClose } from "../../icons/IconClose";
 import { DialogButton, DialogContent, DialogHeader, DialogWrapper } from "./Dialog.styled";
 import type { DialogProps } from "./types";
@@ -15,18 +16,33 @@ export function Dialog({ ref, open, defaultOpen, onOpenChange, children, ...rest
     onOpenChange?.(open);
   });
 
+  const stableCloseDialog = useEffectEvent(() => {
+    dialogRef.current?.close();
+  });
+
+  const { isClosing, requestClose, cancelClose } = useClosingTransition({
+    onClose: stableCloseDialog,
+  });
+
   useEffect(() => {
-    setIsOpen(open ?? false);
-    stableOnOpenChange(open ?? false);
-  }, [open]);
+    const targetOpen = open ?? false;
+    if (targetOpen) {
+      cancelClose();
+      setIsOpen(true);
+      stableOnOpenChange(true);
+    } else if (isOpen) {
+      requestClose();
+    } else {
+      setIsOpen(false);
+      stableOnOpenChange(false);
+    }
+  }, [open, isOpen, requestClose, cancelClose]);
 
   useEffect(() => {
     if (dialogRef.current == null) return;
 
     if (isOpen) {
       dialogRef.current.showModal();
-    } else {
-      dialogRef.current.close();
     }
   }, [isOpen]);
 
@@ -46,9 +62,9 @@ export function Dialog({ ref, open, defaultOpen, onOpenChange, children, ...rest
   }, []);
 
   return (
-    <DialogWrapper ref={mergedRefs} {...rest}>
+    <DialogWrapper ref={mergedRefs} data-closing={isClosing || undefined} {...rest}>
       {children}
-      <DialogButton type="button" onClick={() => setIsOpen(false)}>
+      <DialogButton type="button" onClick={() => requestClose()}>
         <IconClose />
       </DialogButton>
     </DialogWrapper>

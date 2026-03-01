@@ -33,6 +33,10 @@ export const DialogWrapper = styled.dialog`
       overlay 132ms ease-in-out allow-discrete;
   }
 
+  &[data-closing][open] {
+    opacity: 0;
+  }
+
   @starting-style {
     &[open] {
       opacity: 0;
@@ -53,6 +57,10 @@ export const DialogWrapper = styled.dialog`
       background-color 132ms ease-in-out,
       display 132ms ease-in-out allow-discrete,
       overlay 132ms ease-in-out allow-discrete;
+  }
+
+  &[data-closing][open]::backdrop {
+    background-color: rgba(0, 0, 0, 0);
   }
 
   @starting-style {
