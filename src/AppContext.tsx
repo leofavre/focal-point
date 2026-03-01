@@ -11,7 +11,6 @@ import {
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
-import { useDelayedState } from "use-delay-follow-state";
 import { logError } from "./helpers/errorHandling";
 import { getCreateImageStateErrorMessage } from "./helpers/getCreateImageStateErrorMessage";
 import { createImageStateFromDraftAndFile } from "./pages/helpers/createImageStateFromDraftAndFile";
@@ -40,7 +39,6 @@ const DEFAULT_SHOW_CODE_SNIPPET = false;
 const DEFAULT_CODE_SNIPPET_LANGUAGE: CodeSnippetLanguage = "html";
 const DEFAULT_ASPECT_RATIO = 1;
 const INTERACTION_DEBOUNCE_MS = 500;
-const MINIMAL_LOADING_DURATION_MS = 250;
 const SINGLE_IMAGE_MODE_ID = "edit" as ImageId;
 
 const PERSISTENCE_MODE: UIPersistenceMode = "singleImage";
@@ -153,8 +151,6 @@ export function AppContext({ children }: PropsWithChildren) {
     image,
     isEditingSingleImage,
   });
-
-  const [isLoading, setIsLoading] = useDelayedState(pageState === "imageNotFound");
 
   const handleImageUpload = useCallback(
     async (draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl | undefined) => {
@@ -352,13 +348,8 @@ export function AppContext({ children }: PropsWithChildren) {
     asyncSetImageState();
   }, [imageId, imageCount, setAspectRatio]);
 
-  useEffect(() => {
-    const loading =
-      isProcessingImageUpload ||
-      (pageState === "imageNotFound" && imageNotFoundConfirmed === false);
-
-    setIsLoading(loading, !loading ? MINIMAL_LOADING_DURATION_MS : 0);
-  }, [setIsLoading, pageState, imageNotFoundConfirmed, isProcessingImageUpload]);
+  const isLoading =
+    isProcessingImageUpload || (pageState === "imageNotFound" && imageNotFoundConfirmed === false);
 
   const showBottomBar =
     showFocalPoint != null && showImageOverflow != null && !isLoading && pageState !== "landing";

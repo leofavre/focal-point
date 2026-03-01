@@ -62,7 +62,6 @@
     "react-router-dom": "^7.13.0",
     "remark-parse": "^11.0.0",
     "unified": "^11.0.5",
-    "use-debounced-effect": "^2.0.1",
-    "use-delay-follow-state": "^1.2.3"
+    "use-debounced-effect": "^2.0.1"
   }
 }

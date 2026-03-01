@@ -96,18 +96,18 @@ export function Editor() {
   }
 
   if (pageState === "pageNotFound") {
-    return <LayoutMessage>Page not found...</LayoutMessage>;
+    return <LayoutMessage>Page not found</LayoutMessage>;
   }
 
   if (pageState === "imageNotFound") {
     return (
       <LayoutMessage>
         {isEditingSingleImage && imageCount === 0
-          ? "Start by uploading an image..."
-          : "Image not found..."}
+          ? "Start by uploading an image"
+          : "Image not found"}
       </LayoutMessage>
     );
   }
 
-  return <LayoutMessage>Critical error...</LayoutMessage>;
+  return <LayoutMessage>Critical error</LayoutMessage>;
 }

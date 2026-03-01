@@ -20,11 +20,10 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  *
  * ### MELHORIZE™ UI.
  *
+ * - Add loading state icon.
  * - Add link to home page.
  * - Add transition when landing content is removed.
- * - Add loading state icon.
- * - Verify accessibility.
- * - Review aria labels.
+ * - Apply accessibility best practices.
  *
  * ### Basic functionality
  *
@@ -32,6 +31,7 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  *
  * ### Advanced functionality
  *
+ * - Maybe SSR?
  * - Support external image sources.
  * - Multiple images with "file system".
  * - Maybe make a browser extension?
@@ -52,6 +52,7 @@ export default function Layout() {
     showBottomBar,
     handleImageUpload,
     uploaderButtonRef,
+    isLoading,
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
@@ -70,8 +71,8 @@ export default function Layout() {
         onDragStart={handleDragStart}
       />
       <LayoutGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
-        <Suspense fallback={<LayoutMessage>Loading...</LayoutMessage>}>
-          <Outlet />
+        <Suspense fallback={<LayoutMessage key="loading">Loading...</LayoutMessage>}>
+          {isLoading ? <LayoutMessage key="loading">Loading...</LayoutMessage> : <Outlet />}
         </Suspense>
         <ToggleButton
           type="button"
