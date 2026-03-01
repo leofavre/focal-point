@@ -110,7 +110,7 @@ export const Shadow = styled.span`
   transform: var(--transform-out);
   background-color: var(--button-color-solid);
 
-  *:disabled + & {
+  &[data-disabled] {
     background-color: var(--button-color-disabled);
   }
 `;

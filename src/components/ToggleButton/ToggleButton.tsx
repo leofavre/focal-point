@@ -36,7 +36,7 @@ export function ToggleButton({
 
   return (
     <ButtonWrapper data-scale={scale} {...rest}>
-      <Shadow />
+      <Shadow data-disabled={parseBooleanAttr(disabled)} />
       <Button
         ref={ref}
         as="button"
