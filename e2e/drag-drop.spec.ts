@@ -49,28 +49,38 @@ async function dropImageFileOnPage(page: import("@playwright/test").Page) {
 }
 
 /**
- * Simulate drag over the page then "drop outside": dragenter, dragover, dragleave (no drop).
- * Done in one evaluate so the same DataTransfer is used; no drop event is dispatched.
+ * Simulate drag over the page then "drop outside": dragenter, dragover, wait for overlay,
+ * then dragleave and dragend (no drop). Waiting for overlay before dragleave ensures
+ * react-dropzone has processed dragenter; dragleave/dragend then clear isDragGlobal and the overlay hides.
  */
 async function dragImageThenDropOutside(page: import("@playwright/test").Page) {
   const buffer = fs.readFileSync(SAMPLE_IMAGE_PATH);
   const base64 = buffer.toString("base64");
+  const evalOpts = { b64: base64, name: "sample.png", type: "image/png" };
 
-  await page.evaluate(
-    async (payload: { b64: string; name: string; type: string }) => {
-      const res = await fetch(`data:${payload.type};base64,${payload.b64}`);
-      const blob = await res.blob();
-      const file = new File([blob], payload.name, { type: payload.type });
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
-      const doc = document;
-      doc.dispatchEvent(new DragEvent("dragenter", opts));
-      doc.dispatchEvent(new DragEvent("dragover", opts));
-      doc.dispatchEvent(new DragEvent("dragleave", opts));
-    },
-    { b64: base64, name: "sample.png", type: "image/png" },
-  );
+  await page.evaluate(async (payload: { b64: string; name: string; type: string }) => {
+    const res = await fetch(`data:${payload.type};base64,${payload.b64}`);
+    const blob = await res.blob();
+    const file = new File([blob], payload.name, { type: payload.type });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
+    document.dispatchEvent(new DragEvent("dragenter", opts));
+    document.dispatchEvent(new DragEvent("dragover", opts));
+  }, evalOpts);
+
+  await page.getByText("Drop an image here").waitFor({ state: "visible" });
+
+  await page.evaluate(async (payload: { b64: string; name: string; type: string }) => {
+    const res = await fetch(`data:${payload.type};base64,${payload.b64}`);
+    const blob = await res.blob();
+    const file = new File([blob], payload.name, { type: payload.type });
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    const opts = { bubbles: true, cancelable: true, dataTransfer: dt };
+    document.dispatchEvent(new DragEvent("dragleave", opts));
+    document.dispatchEvent(new DragEvent("dragend", opts));
+  }, evalOpts);
 }
 
 test.describe("Drag-drop", () => {
@@ -113,7 +123,7 @@ test.describe("Drag-drop", () => {
     const uploadButton = landing.getByRole("button", { name: "Choose image", exact: true });
     await expect(uploadButton).toBeVisible();
     await expect(uploadButton).toBeEnabled();
-    await expect(page.locator('[data-component="FullScreenDropZone"]')).toHaveCount(0);
+    await expect(page.locator('[data-component="FullScreenDropZone"]:popover-open')).toHaveCount(0);
   });
 
   testWithFixtures(
@@ -130,7 +140,9 @@ test.describe("Drag-drop", () => {
       const uploadButton = landing.getByRole("button", { name: "Choose image", exact: true });
       await expect(uploadButton).toBeVisible();
       await expect(uploadButton).toBeEnabled();
-      await expect(page.locator('[data-component="FullScreenDropZone"]')).toHaveCount(0);
+      await expect(page.locator('[data-component="FullScreenDropZone"]:popover-open')).toHaveCount(
+        0,
+      );
     },
   );
 });
