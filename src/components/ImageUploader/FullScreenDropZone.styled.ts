@@ -52,5 +52,15 @@ export const Overlay = styled.div`
     margin: auto;
     padding: var(--base-line-2x);
     border: 2px dashed var(--color-zero);
+    opacity: 0;
+    transition: opacity 132ms ease-in-out;
+  }
+
+  &:popover-open p {
+    opacity: 1;
+  }
+
+  &[data-closing] p {
+    opacity: 0;
   }
 `;

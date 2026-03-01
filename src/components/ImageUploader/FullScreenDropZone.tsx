@@ -1,6 +1,7 @@
 import type { Ref } from "react";
 import { useEffect, useEffectEvent, useRef } from "react";
 import { mergeRefs } from "react-merge-refs";
+import { parseBooleanAttr } from "../../helpers/parseBooleanAttr";
 import { useClosingTransition } from "../../hooks/useClosingTransition";
 import { Overlay } from "./FullScreenDropZone.styled";
 import { useImageDropzone } from "./hooks/useImageDropzone";
@@ -69,7 +70,7 @@ export function FullScreenDropZone({
     <Overlay
       ref={mergedRefs}
       popover="manual"
-      data-closing={isClosing || undefined}
+      data-closing={parseBooleanAttr(isClosing)}
       {...rootProps}
       data-component="FullScreenDropZone"
       aria-hidden
