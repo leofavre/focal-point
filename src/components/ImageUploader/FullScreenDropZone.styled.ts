@@ -1,13 +1,41 @@
 import styled from "@emotion/styled";
 
+/**
+ * Full-screen drop zone using the native Popover API (top layer).
+ * Backdrop styled to match Dialog component.
+ */
 export const Overlay = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background-color: var(--color-backdrop);
-  transition: opacity 360ms ease-in-out;
-  display: flex;
+  &[popover] {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    box-shadow: none;
+  }
+
+  &[popover]::backdrop {
+    background-color: rgba(0, 0, 0, 0);
+  }
+
+  &:popover-open::backdrop {
+    background-color: var(--color-backdrop);
+    transition:
+      background-color 132ms ease-in-out,
+      display 132ms ease-in-out allow-discrete,
+      overlay 132ms ease-in-out allow-discrete;
+  }
+
+  @starting-style {
+    &:popover-open::backdrop {
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
 
   p {
     font-size: clamp(1.25rem, 4dvw, 2rem);

@@ -30,5 +30,7 @@ export type ImageUploaderButtonProps = ImageUploaderProps & {
 export type FullScreenDropZoneProps = Pick<
   ImageUploaderProps,
   "onImageUpload" | "onImagesUpload" | "onImageUploadError" | "onImagesUploadError"
-> &
-  ComponentPropsWithoutRef<"div">;
+> & {
+  /** Called when a global drag starts. Use to e.g. close modals that would block drop events. */
+  onDragStart?: () => void;
+} & ComponentPropsWithoutRef<"div">;

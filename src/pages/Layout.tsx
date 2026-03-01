@@ -60,11 +60,16 @@ export default function Layout() {
     toast.error(getUploadErrorMessage(error.reason));
   }, []);
 
+  const handleDragStart = useCallback(() => {
+    setShowCodeSnippet(false);
+  }, [setShowCodeSnippet]);
+
   return (
     <>
       <FullScreenDropZone
         onImageUpload={handleImageUpload}
         onImageUploadError={handleImageUploadError}
+        onDragStart={handleDragStart}
       />
       <LayoutGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
         <Suspense fallback={<LayoutMessage>Loading...</LayoutMessage>}>
