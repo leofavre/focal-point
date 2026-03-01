@@ -18,7 +18,7 @@ export function ToasterInPopover() {
         hideTimeoutRef.current = null;
       }
 
-      popoverRef.current?.showPopover();
+      popoverRef.current.showPopover();
     } else {
       hideTimeoutRef.current = setTimeout(() => {
         hideTimeoutRef.current = null;
