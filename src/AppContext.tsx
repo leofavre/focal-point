@@ -352,7 +352,7 @@ export function AppContext({ children }: PropsWithChildren) {
     isProcessingImageUpload || (pageState === "imageNotFound" && imageNotFoundConfirmed === false);
 
   const showBottomBar =
-    showFocalPoint != null && showImageOverflow != null && !isLoading && pageState !== "landing";
+    showFocalPoint != null && showImageOverflow != null && pageState !== "landing";
 
   const value: EditorContextValue = {
     persistenceMode,

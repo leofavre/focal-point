@@ -13,16 +13,16 @@ import { parseBooleanAttr } from "../helpers/parseBooleanAttr";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
-import { LayoutGrid, LayoutMessage } from "./Layout.styled";
+import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
 
 /**
  * @todo
  *
  * ### MELHORIZE™ UI.
  *
- * - Add loading state icon.
- * - Add link to home page.
  * - Add transition when landing content is removed.
+ * - Make sure that the first 3 bottom bar buttons are disabled when image or page is not found, but ok if they are enabled while loading.
+ * - Add link to home page.
  * - Apply accessibility best practices.
  *
  * ### Basic functionality
@@ -52,7 +52,6 @@ export default function Layout() {
     showBottomBar,
     handleImageUpload,
     uploaderButtonRef,
-    isLoading,
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
@@ -71,8 +70,14 @@ export default function Layout() {
         onDragStart={handleDragStart}
       />
       <LayoutGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
-        <Suspense fallback={<LayoutMessage key="loading">Loading...</LayoutMessage>}>
-          {isLoading ? <LayoutMessage key="loading">Loading...</LayoutMessage> : <Outlet />}
+        <Suspense
+          fallback={
+            <LayoutMessage key="loading" role="status" aria-label="Loading">
+              <LoadingSpinner aria-hidden />
+            </LayoutMessage>
+          }
+        >
+          <Outlet />
         </Suspense>
         <ToggleButton
           type="button"

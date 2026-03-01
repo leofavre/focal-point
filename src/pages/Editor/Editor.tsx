@@ -38,6 +38,7 @@ export function Editor() {
     handleImageError,
     handleObjectPositionChange,
     handleImageUpload,
+    isLoading,
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
@@ -94,6 +95,8 @@ export function Editor() {
       </>
     );
   }
+
+  if (isLoading) return null;
 
   if (pageState === "pageNotFound") {
     return <LayoutMessage>Page not found</LayoutMessage>;
