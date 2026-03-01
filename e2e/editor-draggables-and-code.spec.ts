@@ -37,7 +37,7 @@ test.describe("Editor draggables and code", () => {
 
     await page.getByRole("button", { name: "Code" }).click();
     await page.getByRole("button", { name: "Copy" }).click();
-    await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
+    await expect(page.getByText("Code copied to clipboard")).toBeVisible();
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     expect(clipboardText).toBeTruthy();
     const objectPositionMatch = clipboardText.match(/object-position:\s*([^;]+)/);
@@ -74,7 +74,7 @@ test.describe("Editor draggables and code", () => {
 
     await page.getByRole("button", { name: "Code" }).click();
     await page.getByRole("button", { name: "Copy" }).click();
-    await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
+    await expect(page.getByText("Code copied to clipboard")).toBeVisible();
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     const objectPositionMatch = clipboardText.match(/object-position:\s*([^;]+)/);
     expect(objectPositionMatch).toBeTruthy();
@@ -104,7 +104,7 @@ test.describe("Editor draggables and code", () => {
 
     await page.getByRole("button", { name: "Code" }).click();
     await page.getByRole("button", { name: "Copy" }).click();
-    await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
+    await expect(page.getByText("Code copied to clipboard")).toBeVisible();
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     const objectPositionMatch = clipboardText.match(/object-position:\s*([^;]+)/);
     expect(objectPositionMatch).toBeTruthy();
@@ -136,7 +136,7 @@ test.describe("Editor draggables and code", () => {
     } else {
       await page.getByRole("button", { name: "Code" }).click();
       await page.getByRole("button", { name: "Copy" }).click();
-      await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
+      await expect(page.getByText("Code copied to clipboard")).toBeVisible();
       const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
       const objectPositionMatch = clipboardText.match(/object-position:\s*([^;]+)/);
       const positionAfter = objectPositionMatch?.[1]?.trim() ?? "";
@@ -161,7 +161,7 @@ test.describe("Editor draggables and code", () => {
 
     await page.getByRole("button", { name: "Code" }).click();
     await page.getByRole("button", { name: "Copy" }).click();
-    await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
+    await expect(page.getByText("Code copied to clipboard")).toBeVisible();
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     const objectPositionMatch = clipboardText.match(/object-position:\s*([^;]+)/);
     expect(objectPositionMatch).toBeTruthy();
@@ -187,7 +187,7 @@ test.describe("Editor draggables and code", () => {
 
     await page.getByRole("button", { name: "Code" }).click();
     await page.getByRole("button", { name: "Copy" }).click();
-    await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
+    await expect(page.getByText("Code copied to clipboard")).toBeVisible();
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     const objectPositionMatch = clipboardText.match(/object-position:\s*([^;]+)/);
     expect(objectPositionMatch).toBeTruthy();
