@@ -36,7 +36,7 @@ export function ToasterInPopover() {
 
   return (
     <Wrapper ref={popoverRef} popover="manual">
-      <Toaster position="top-center" />
+      <Toaster position="top-center" toastOptions={{ style: { borderRadius: 0 } }} />
     </Wrapper>
   );
 }

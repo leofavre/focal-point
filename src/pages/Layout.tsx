@@ -20,9 +20,7 @@ import { LayoutGrid, LayoutMessage } from "./Layout.styled";
  *
  * ### MELHORIZE™ UI.
  *
- * - Make sure that drag and drop layer uses the top layer.
- * - Remove rounded corners from toasters.
- * - Handle all errors with natural text instead of error codes. Verify that all possible errors are handled.
+ * - Handle all errors with natural text instead of error codes. Verify that all possible errors are handled. Update e2e tests accordingly.
  * - Add transition when landing content is removed.
  * - Add loading state icon.
  * - Verify accessibility.
