@@ -36,7 +36,24 @@ export function ToasterInPopover() {
 
   return (
     <Wrapper ref={popoverRef} popover="manual">
-      <Toaster position="top-center" toastOptions={{ style: { borderRadius: 0 } }} />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: { borderRadius: 0 },
+          success: {
+            iconTheme: {
+              primary: "var(--color-toast-success)",
+              secondary: "#fff",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "var(--color-toast-error)",
+              secondary: "#fff",
+            },
+          },
+        }}
+      />
     </Wrapper>
   );
 }
