@@ -45,53 +45,64 @@ export function Editor() {
     toast.error(getUploadErrorMessage(error));
   }, []);
 
-  if (pageState === "landing") {
-    return (
-      <LandingWrapper data-component="Landing">
-        <ImageUploaderButton
-          size="medium"
-          label="Choose image"
-          onImageUpload={handleImageUpload}
-          onImageUploadError={handleImageUploadError}
-        />
-        <HowToUse />
-      </LandingWrapper>
-    );
-  }
-
-  if (pageState === "editing" && image != null && aspectRatio != null) {
+  if (pageState === "landing" || pageState === "editing") {
     return (
       <>
-        <FocalPointEditor
-          imageUrl={image.url}
-          aspectRatio={aspectRatio}
-          initialAspectRatio={image.naturalAspectRatio}
-          objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-          showFocalPoint={showFocalPoint ?? false}
-          showImageOverflow={showImageOverflow ?? false}
-          onObjectPositionChange={handleObjectPositionChange}
-          onImageError={handleImageError}
-        />
-        <Dialog
-          open={showCodeSnippet}
-          onOpenChange={setShowCodeSnippet}
-          css={{ backgroundColor: "var(--color-background)" }}
+        <LandingWrapper
+          data-component="Landing"
+          css={{
+            opacity: pageState === "landing" ? 1 : 0,
+            pointerEvents: pageState === "landing" ? "auto" : "none",
+            transition: "opacity 132ms ease-in-out",
+          }}
         >
-          <Dialog.Header>
-            <CodeSnippetHeader
-              codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-              setCodeSnippetLanguage={setCodeSnippetLanguage}
-            />
-          </Dialog.Header>
-          <Dialog.Content>
-            <CodeSnippet
-              src={image.name}
+          <ImageUploaderButton
+            size="medium"
+            label="Choose image"
+            onImageUpload={handleImageUpload}
+            onImageUploadError={handleImageUploadError}
+          />
+          <HowToUse />
+        </LandingWrapper>
+        {image != null && aspectRatio != null ? (
+          <>
+            <FocalPointEditor
+              css={{
+                opacity: pageState === "editing" ? 1 : 0,
+                pointerEvents: pageState === "editing" ? "auto" : "none",
+                transition: "opacity 132ms ease-in-out",
+              }}
+              imageUrl={image.url}
+              aspectRatio={aspectRatio}
+              initialAspectRatio={image.naturalAspectRatio}
               objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-              language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-              triggerAutoFocus={showCodeSnippet}
+              showFocalPoint={showFocalPoint ?? false}
+              showImageOverflow={showImageOverflow ?? false}
+              onObjectPositionChange={handleObjectPositionChange}
+              onImageError={handleImageError}
             />
-          </Dialog.Content>
-        </Dialog>
+            <Dialog
+              open={showCodeSnippet}
+              onOpenChange={setShowCodeSnippet}
+              css={{ backgroundColor: "var(--color-background)" }}
+            >
+              <Dialog.Header>
+                <CodeSnippetHeader
+                  codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+                  setCodeSnippetLanguage={setCodeSnippetLanguage}
+                />
+              </Dialog.Header>
+              <Dialog.Content>
+                <CodeSnippet
+                  src={image.name}
+                  objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+                  language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+                  triggerAutoFocus={showCodeSnippet}
+                />
+              </Dialog.Content>
+            </Dialog>
+          </>
+        ) : null}
       </>
     );
   }

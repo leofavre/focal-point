@@ -152,7 +152,7 @@ test.describe("Bottom bar keyboard navigation", () => {
     await expect(grid).toBeVisible();
     await expect(grid.locator('[data-component="FocalPointButton"]')).toBeVisible();
     await expect(grid.locator('[data-component="AspectRatioSlider"]')).toBeVisible();
-    await expect(grid.getByRole("button", { name: "Image" })).toBeVisible();
+    await expect(grid.getByRole("button", { name: "Image", exact: true })).toBeVisible();
   });
 
   test("Tab moves focus through bottom bar controls in visual order", async ({ page }) => {

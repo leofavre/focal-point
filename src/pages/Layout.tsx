@@ -20,9 +20,10 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  *
  * ### MELHORIZE™ UI.
  *
- * - Add transition when landing content is removed.
  * - Add link to home page.
  * - Apply accessibility best practices.
+ * - Support arrow keys navigation for the image in the mask.
+ * - Support arrow keys navigation for the focal point.
  * - Maybe SSR?
  *
  * ### Basic functionality
