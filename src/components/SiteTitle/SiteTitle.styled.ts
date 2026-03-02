@@ -11,6 +11,7 @@ export const StyledTitle = styled.h1`
   grid-row: 1;
   grid-column: 2 / -2;
   z-index: 10;
+  margin: 0;
   margin-top: var(--base-line-05x);
   padding: 0;
 `;

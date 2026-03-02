@@ -21,12 +21,12 @@ import { EditorControlsNav, LayoutGrid, LayoutMessage, LoadingSpinner } from "./
  *
  * ### MELHORIZE™ UI.
  *
- * - Add link to home page.
- * - Maybe leave space for a banner ad.
- * - Apply accessibility best practices.
+ * - Improve site description.
+ * - LGPD compliance?
  *
  * ### Advanced functionality
  *
+ * - Add link describing shortcuts.
  * - Support external image sources.
  * - Multiple images with "file system".
  * - Maybe make a browser extension?

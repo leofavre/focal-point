@@ -63,22 +63,6 @@ body {
   background-color: var(--color-background);
 }
 
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  z-index: 999;
-  padding: var(--base-line-05x) var(--base-line-1x);
-  background-color: var(--color-body);
-  color: var(--color-zero);
-  text-decoration: none;
-}
-
-.skip-link:focus {
-  left: 50%;
-  top: var(--base-line-05x);
-  transform: translateX(-50%);
-}
-
 ::selection {
   background-color: var(--color-light-glow);
 }
