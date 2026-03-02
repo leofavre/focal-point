@@ -11,6 +11,8 @@ import {
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
+import { copyTextToClipboardWithToast } from "./components/CodeSnippet/helpers/copyToClipboard";
+import { getCodeSnippet } from "./components/CodeSnippet/helpers/getCodeSnippet";
 import { logError } from "./helpers/errorHandling";
 import { getCreateImageStateErrorMessage } from "./helpers/getCreateImageStateErrorMessage";
 import { createImageStateFromDraftAndFile } from "./pages/helpers/createImageStateFromDraftAndFile";
@@ -70,6 +72,8 @@ export type EditorContextValue = {
   handleImageError: () => void;
   handleObjectPositionChange: (objectPosition: ObjectPositionString) => void;
   uploaderButtonRef: RefObject<HTMLButtonElement | null>;
+  focalPointImageRef: RefObject<HTMLDivElement | null>;
+  aspectRatioSliderRef: RefObject<HTMLInputElement | null>;
 };
 
 const EditorContext = createContext<EditorContextValue | null>(null);
@@ -85,6 +89,8 @@ function getImageIdFromPathname(pathname: string): ImageId | undefined {
 export function AppContext({ children }: PropsWithChildren) {
   const persistenceMode = PERSISTENCE_MODE;
   const uploaderButtonRef = useRef<HTMLButtonElement>(null);
+  const focalPointImageRef = useRef<HTMLDivElement>(null);
+  const aspectRatioSliderRef = useRef<HTMLInputElement>(null);
   const { pathname } = useLocation();
   const imageId = getImageIdFromPathname(pathname);
   const navigate = useNavigate();
@@ -216,42 +222,60 @@ export function AppContext({ children }: PropsWithChildren) {
 
   /**
    * Handles all keyboard shortcuts:
-   * - 'u' opens the file input to upload a new image.
-   * - 'a' or 'f' toggles the focal point.
-   * - 's' or 'o' toggles the image overflow.
-   * - 'd' or 'c' toggles the code snippet.
+   * - 'e' focuses the image.
+   * - 'a' toggles the focal point.
+   * - 's' toggles the image overflow.
+   * - 'd' focuses the aspect ratio slider.
+   * - 'f' opens the code snippet (does not toggle).
+   * - 'g', 'u', 'i' open the file input to upload a new image.
+   * - 'c' copies the code snippet directly (without opening the dialog).
    *
    * The shortcuts are case insensitive and are not triggered
    * when modified with meta keys like Control or Command.
    */
   useEffect(() => {
+    const handleCopyCodeSnippet = () => {
+      const imageName = image?.name;
+      const objectPosition = currentObjectPosition ?? (image != null ? "50% 50%" : undefined);
+      const language = codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE;
+
+      if (imageName == null || objectPosition == null) return;
+
+      const snippet = getCodeSnippet({ language, src: imageName, objectPosition });
+      copyTextToClipboardWithToast(snippet);
+    };
+
     const handleKeyDown = createKeyboardShortcutHandler({
-      u: () => {
-        uploaderButtonRef.current?.click();
+      e: () => {
+        focalPointImageRef.current?.focus();
       },
       a: () => {
-        setShowFocalPoint((prev) => !prev);
-      },
-      f: () => {
         setShowFocalPoint((prev) => !prev);
       },
       s: () => {
         setShowImageOverflow((prev) => !prev);
       },
-      o: () => {
-        setShowImageOverflow((prev) => !prev);
-      },
       d: () => {
-        setShowCodeSnippet((prev) => !prev);
+        aspectRatioSliderRef.current?.focus();
       },
-      c: () => {
-        setShowCodeSnippet((prev) => !prev);
+      f: () => {
+        setShowCodeSnippet(true);
       },
+      g: () => {
+        uploaderButtonRef.current?.click();
+      },
+      u: () => {
+        uploaderButtonRef.current?.click();
+      },
+      i: () => {
+        uploaderButtonRef.current?.click();
+      },
+      c: handleCopyCodeSnippet,
     });
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [setShowFocalPoint, setShowImageOverflow]);
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  }, [image, currentObjectPosition, codeSnippetLanguage, setShowFocalPoint, setShowImageOverflow]);
 
   useDebouncedEffect(
     () => {
@@ -379,6 +403,8 @@ export function AppContext({ children }: PropsWithChildren) {
     handleImageError,
     handleObjectPositionChange,
     uploaderButtonRef,
+    focalPointImageRef,
+    aspectRatioSliderRef,
   };
 
   return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>;
