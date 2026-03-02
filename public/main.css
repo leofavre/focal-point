@@ -74,8 +74,9 @@ body {
 }
 
 .skip-link:focus {
-  left: var(--base-line-1x);
-  top: var(--base-line-1x);
+  left: 50%;
+  top: var(--base-line-05x);
+  transform: translateX(-50%);
 }
 
 ::selection {
