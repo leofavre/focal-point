@@ -1,12 +1,14 @@
 import type { ComponentPropsWithoutRef, Ref } from "react";
+import type { ErrorCode } from "react-dropzone";
 import type { Err } from "../../helpers/errorHandling";
 import type { ImageDraftStateAndFile, ImageDraftStateAndUrl } from "../../types";
+import type { UploadErrorCode } from "./getUploadErrorMessage";
 
 export type SingleImageUploaderProps = {
   onImagesUpload?: never;
   onImagesUploadError?: never;
   onImageUpload: (draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl) => void;
-  onImageUploadError?: (error: Err<string>) => void;
+  onImageUploadError?: (error: Err<UploadErrorCode>) => void;
 };
 
 export type MultipleImagesUploaderProps = {
@@ -15,7 +17,7 @@ export type MultipleImagesUploaderProps = {
   onImagesUpload: (
     draftsAndFilesOrUrls: (ImageDraftStateAndFile | ImageDraftStateAndUrl)[],
   ) => void;
-  onImagesUploadError?: (errors: Err<string>[]) => void;
+  onImagesUploadError?: (errors: Err<ErrorCode>[]) => void;
 };
 
 export type ImageUploaderProps = SingleImageUploaderProps | MultipleImagesUploaderProps;
@@ -29,5 +31,7 @@ export type ImageUploaderButtonProps = ImageUploaderProps & {
 export type FullScreenDropZoneProps = Pick<
   ImageUploaderProps,
   "onImageUpload" | "onImagesUpload" | "onImageUploadError" | "onImagesUploadError"
-> &
-  ComponentPropsWithoutRef<"div">;
+> & {
+  /** Called when a global drag starts. Use to e.g. close modals that would block drop events. */
+  onDragStart?: () => void;
+} & ComponentPropsWithoutRef<"div">;

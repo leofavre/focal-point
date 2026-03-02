@@ -1,9 +1,17 @@
+import { useCallback } from "react";
+import toast from "react-hot-toast";
 import { useEditorContext } from "../../AppContext";
 import { CodeSnippet } from "../../components/CodeSnippet/CodeSnippet";
 import { CodeSnippetHeader } from "../../components/CodeSnippetHeader/CodeSnippetHeader";
 import { Dialog } from "../../components/Dialog/Dialog";
 import { FocalPointEditor } from "../../components/FocalPointEditor/FocalPointEditor";
+import { HowToUse } from "../../components/HowToUse/HowToUse";
+import type { UploadErrorCode } from "../../components/ImageUploader/getUploadErrorMessage";
+import { getUploadErrorMessage } from "../../components/ImageUploader/getUploadErrorMessage";
+import { ImageUploaderButton } from "../../components/ImageUploader/ImageUploaderButton";
+import type { Err } from "../../helpers/errorHandling";
 import type { ObjectPositionString } from "../../types";
+import { LandingWrapper } from "../Landing/Landing.styled";
 import { LayoutMessage } from "../Layout.styled";
 
 const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
@@ -24,67 +32,96 @@ export function Editor() {
     setShowCodeSnippet,
     codeSnippetLanguage,
     setCodeSnippetLanguage,
-    codeSnippetCopied,
-    setCodeSnippetCopied,
     currentObjectPosition,
     pageState,
     isEditingSingleImage,
     handleImageError,
     handleObjectPositionChange,
+    handleImageUpload,
+    isLoading,
   } = useEditorContext();
 
-  if (pageState === "editing" && image != null && aspectRatio != null) {
+  const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
+    toast.error(getUploadErrorMessage(error));
+  }, []);
+
+  if (pageState === "landing" || pageState === "editing") {
     return (
       <>
-        <FocalPointEditor
-          imageUrl={image.url}
-          aspectRatio={aspectRatio}
-          initialAspectRatio={image.naturalAspectRatio}
-          objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-          showFocalPoint={showFocalPoint ?? false}
-          showImageOverflow={showImageOverflow ?? false}
-          onObjectPositionChange={handleObjectPositionChange}
-          onImageError={handleImageError}
-        />
-        <Dialog
-          open={showCodeSnippet}
-          onOpenChange={setShowCodeSnippet}
-          css={{ backgroundColor: "var(--color-background)" }}
+        <LandingWrapper
+          data-component="Landing"
+          css={{
+            opacity: pageState === "landing" ? 1 : 0,
+            pointerEvents: pageState === "landing" ? "auto" : "none",
+            transition: "opacity 132ms ease-in-out",
+          }}
         >
-          <Dialog.Header>
-            <CodeSnippetHeader
-              codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-              setCodeSnippetLanguage={setCodeSnippetLanguage}
-            />
-          </Dialog.Header>
-          <Dialog.Content>
-            <CodeSnippet
-              src={image.name}
+          <ImageUploaderButton
+            size="medium"
+            label="Choose image"
+            onImageUpload={handleImageUpload}
+            onImageUploadError={handleImageUploadError}
+          />
+          <HowToUse />
+        </LandingWrapper>
+        {image != null && aspectRatio != null ? (
+          <>
+            <FocalPointEditor
+              css={{
+                opacity: pageState === "editing" ? 1 : 0,
+                pointerEvents: pageState === "editing" ? "auto" : "none",
+                transition: "opacity 132ms ease-in-out",
+              }}
+              imageUrl={image.url}
+              aspectRatio={aspectRatio}
+              initialAspectRatio={image.naturalAspectRatio}
               objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
-              language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
-              codeSnippetCopied={codeSnippetCopied}
-              setCodeSnippetCopied={setCodeSnippetCopied}
-              triggerAutoFocus={showCodeSnippet}
+              showFocalPoint={showFocalPoint ?? false}
+              showImageOverflow={showImageOverflow ?? false}
+              onObjectPositionChange={handleObjectPositionChange}
+              onImageError={handleImageError}
             />
-          </Dialog.Content>
-        </Dialog>
+            <Dialog
+              open={showCodeSnippet}
+              onOpenChange={setShowCodeSnippet}
+              css={{ backgroundColor: "var(--color-background)" }}
+            >
+              <Dialog.Header>
+                <CodeSnippetHeader
+                  codeSnippetLanguage={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+                  setCodeSnippetLanguage={setCodeSnippetLanguage}
+                />
+              </Dialog.Header>
+              <Dialog.Content>
+                <CodeSnippet
+                  src={image.name}
+                  objectPosition={currentObjectPosition ?? DEFAULT_OBJECT_POSITION}
+                  language={codeSnippetLanguage ?? DEFAULT_CODE_SNIPPET_LANGUAGE}
+                  triggerAutoFocus={showCodeSnippet}
+                />
+              </Dialog.Content>
+            </Dialog>
+          </>
+        ) : null}
       </>
     );
   }
 
+  if (isLoading) return null;
+
   if (pageState === "pageNotFound") {
-    return <LayoutMessage>Page not found...</LayoutMessage>;
+    return <LayoutMessage>Page not found</LayoutMessage>;
   }
 
   if (pageState === "imageNotFound") {
     return (
       <LayoutMessage>
         {isEditingSingleImage && imageCount === 0
-          ? "Start by uploading an image..."
-          : "Image not found..."}
+          ? "Start by uploading an image"
+          : "Image not found"}
       </LayoutMessage>
     );
   }
 
-  return <LayoutMessage>Critical error...</LayoutMessage>;
+  return <LayoutMessage>Critical error</LayoutMessage>;
 }

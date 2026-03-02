@@ -10,6 +10,7 @@ export function ToggleButton({
   onClick,
   onFocus,
   onBlur,
+  "aria-label": ariaLabel,
   children,
   ref,
   type,
@@ -36,12 +37,14 @@ export function ToggleButton({
 
   return (
     <ButtonWrapper data-scale={scale} {...rest}>
+      <Shadow data-disabled={parseBooleanAttr(disabled)} />
       <Button
         ref={ref}
         as="button"
         type={type}
         disabled={disabled}
         data-toggleable={parseBooleanAttr(toggleable ?? true)}
+        aria-label={ariaLabel}
         aria-pressed={toggled}
         onClick={disabled ? undefined : handleClick}
         onFocus={disabled ? undefined : onFocus}
@@ -49,7 +52,6 @@ export function ToggleButton({
       >
         {children}
       </Button>
-      <Shadow />
     </ButtonWrapper>
   );
 }

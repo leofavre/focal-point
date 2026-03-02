@@ -13,7 +13,6 @@ export const Wrapper = styled.div`
   touch-action: none;
   user-select: none;
   cursor: grab;
-  z-index: 2;
 
   @supports (anchor-name: --focal-center) {
     anchor-name: --focal-center;
@@ -82,7 +81,6 @@ export const Badge = styled.span`
     line-height: var(--base-line);
     white-space: pre;
     pointer-events: none;
-    z-index: 11;
   }
 
   [dir="rtl"] & {

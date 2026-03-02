@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import type { Dispatch, PropsWithChildren, RefObject, SetStateAction } from "react";
 import {
   createContext,
   useCallback,
@@ -11,7 +11,8 @@ import {
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
-import { useDelayedState } from "use-delay-follow-state";
+import { logError } from "./helpers/errorHandling";
+import { getCreateImageStateErrorMessage } from "./helpers/getCreateImageStateErrorMessage";
 import { createImageStateFromDraftAndFile } from "./pages/helpers/createImageStateFromDraftAndFile";
 import { createImageStateFromRecord } from "./pages/helpers/createImageStateFromRecord";
 import { createImageStateFromUrl } from "./pages/helpers/createImageStateFromUrl";
@@ -20,6 +21,7 @@ import { usePageState } from "./pages/hooks/usePageState";
 import { usePersistedImages } from "./pages/hooks/usePersistedImages";
 import { usePersistedUIRecord } from "./pages/hooks/usePersistedUIRecord";
 import type {
+  CodeSnippetLanguage,
   ImageDraftStateAndFile,
   ImageDraftStateAndUrl,
   ImageId,
@@ -34,15 +36,12 @@ import { hasUrl, isImageDraftStateAndUrl } from "./types";
 const DEFAULT_SHOW_FOCAL_POINT = false;
 const DEFAULT_SHOW_IMAGE_OVERFLOW = false;
 const DEFAULT_SHOW_CODE_SNIPPET = false;
-const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
+const DEFAULT_CODE_SNIPPET_LANGUAGE: CodeSnippetLanguage = "html";
 const DEFAULT_ASPECT_RATIO = 1;
 const INTERACTION_DEBOUNCE_MS = 500;
-const MINIMAL_LOADING_DURATION_MS = 250;
 const SINGLE_IMAGE_MODE_ID = "edit" as ImageId;
 
 const PERSISTENCE_MODE: UIPersistenceMode = "singleImage";
-
-const noop = () => {};
 
 export type EditorContextValue = {
   persistenceMode: UIPersistenceMode;
@@ -51,19 +50,15 @@ export type EditorContextValue = {
   images: ImageRecord[] | undefined;
   imageCount: number | undefined;
   aspectRatio: number | undefined;
-  setAspectRatio: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setAspectRatio: Dispatch<SetStateAction<number | undefined>>;
   showFocalPoint: boolean | undefined;
-  setShowFocalPoint: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setShowFocalPoint: Dispatch<SetStateAction<boolean | undefined>>;
   showImageOverflow: boolean | undefined;
-  setShowImageOverflow: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  showCodeSnippet: boolean | undefined;
-  setShowCodeSnippet: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-  codeSnippetLanguage: "html" | "tailwind" | "react" | "react-tailwind" | undefined;
-  setCodeSnippetLanguage: React.Dispatch<
-    React.SetStateAction<"html" | "tailwind" | "react" | "react-tailwind" | undefined>
-  >;
-  codeSnippetCopied: boolean;
-  setCodeSnippetCopied: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowImageOverflow: Dispatch<SetStateAction<boolean | undefined>>;
+  showCodeSnippet: boolean;
+  setShowCodeSnippet: Dispatch<SetStateAction<boolean>>;
+  codeSnippetLanguage: CodeSnippetLanguage | undefined;
+  setCodeSnippetLanguage: Dispatch<SetStateAction<CodeSnippetLanguage | undefined>>;
   currentObjectPosition: ObjectPositionString | undefined;
   pageState: UIPageState;
   isLoading: boolean;
@@ -74,7 +69,7 @@ export type EditorContextValue = {
   ) => Promise<void>;
   handleImageError: () => void;
   handleObjectPositionChange: (objectPosition: ObjectPositionString) => void;
-  uploaderButtonRef: React.RefObject<HTMLButtonElement | null>;
+  uploaderButtonRef: RefObject<HTMLButtonElement | null>;
 };
 
 const EditorContext = createContext<EditorContextValue | null>(null);
@@ -95,7 +90,7 @@ export function AppContext({ children }: PropsWithChildren) {
   const navigate = useNavigate();
 
   const { images, addImage, updateImage } = usePersistedImages({
-    onRefreshImagesError: noop,
+    onRefreshImagesError: logError,
   });
 
   const [image, setImage] = useState<ImageState | null>(null);
@@ -118,30 +113,25 @@ export function AppContext({ children }: PropsWithChildren) {
 
   const [aspectRatio, setAspectRatio] = usePersistedUIRecord(
     { id: "aspectRatio", value: DEFAULT_ASPECT_RATIO },
-    { debounceTimeout: INTERACTION_DEBOUNCE_MS },
+    { debounceTimeout: INTERACTION_DEBOUNCE_MS, onError: logError },
   );
 
-  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord({
-    id: "showFocalPoint",
-    value: DEFAULT_SHOW_FOCAL_POINT,
-  });
+  const [showFocalPoint, setShowFocalPoint] = usePersistedUIRecord(
+    { id: "showFocalPoint", value: DEFAULT_SHOW_FOCAL_POINT },
+    { onError: logError },
+  );
 
-  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord({
-    id: "showImageOverflow",
-    value: DEFAULT_SHOW_IMAGE_OVERFLOW,
-  });
+  const [showImageOverflow, setShowImageOverflow] = usePersistedUIRecord(
+    { id: "showImageOverflow", value: DEFAULT_SHOW_IMAGE_OVERFLOW },
+    { onError: logError },
+  );
 
-  const [showCodeSnippet, setShowCodeSnippet] = usePersistedUIRecord({
-    id: "showCodeSnippet",
-    value: DEFAULT_SHOW_CODE_SNIPPET,
-  });
+  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord(
+    { id: "codeSnippetLanguage", value: DEFAULT_CODE_SNIPPET_LANGUAGE },
+    { onError: logError },
+  );
 
-  const [codeSnippetLanguage, setCodeSnippetLanguage] = usePersistedUIRecord({
-    id: "codeSnippetLanguage",
-    value: DEFAULT_CODE_SNIPPET_LANGUAGE,
-  });
-
-  const [codeSnippetCopied, setCodeSnippetCopied] = useState(false);
+  const [showCodeSnippet, setShowCodeSnippet] = useState(DEFAULT_SHOW_CODE_SNIPPET);
   const [isProcessingImageUpload, setIsProcessingImageUpload] = useState(false);
   const [imageNotFoundConfirmed, setImageNotFoundConfirmed] = useState(false);
 
@@ -162,8 +152,6 @@ export function AppContext({ children }: PropsWithChildren) {
     isEditingSingleImage,
   });
 
-  const [isLoading, setIsLoading] = useDelayedState(pageState === "imageNotFound");
-
   const handleImageUpload = useCallback(
     async (draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl | undefined) => {
       if (draftAndFileOrUrl == null) return;
@@ -175,7 +163,7 @@ export function AppContext({ children }: PropsWithChildren) {
         : await createImageStateFromDraftAndFile(draftAndFileOrUrl);
 
       if (imageStateResult.rejected != null) {
-        toast.error(`Error creating image state: ${String(imageStateResult.rejected.reason)}`);
+        toast.error(getCreateImageStateErrorMessage(imageStateResult.rejected.reason));
         setIsProcessingImageUpload(false);
         return;
       }
@@ -186,6 +174,10 @@ export function AppContext({ children }: PropsWithChildren) {
       const addResult = await addImage(draftAndFileOrUrl, {
         id: persistenceMode === "singleImage" ? SINGLE_IMAGE_MODE_ID : undefined,
       });
+
+      if (addResult.rejected != null) {
+        logError(addResult.rejected);
+      }
 
       const nextImageId = addResult.accepted;
       const shouldNavigate = nextImageId != null && imageId !== nextImageId;
@@ -201,7 +193,7 @@ export function AppContext({ children }: PropsWithChildren) {
   );
 
   const handleImageError = useCallback(() => {
-    toast.error("Error uploading image");
+    toast.error("Failed to load image");
     safeSetImage(null);
   }, []);
 
@@ -214,16 +206,6 @@ export function AppContext({ children }: PropsWithChildren) {
       safeSetImage(null);
     };
   }, []);
-
-  useEffect(() => {
-    void currentObjectPosition;
-    setCodeSnippetCopied(false);
-  }, [currentObjectPosition]);
-
-  useEffect(() => {
-    void codeSnippetLanguage;
-    setCodeSnippetCopied(false);
-  }, [codeSnippetLanguage]);
 
   useEffect(() => {
     document.body.style.overflow = pageState !== "landing" ? "hidden" : "auto";
@@ -269,7 +251,7 @@ export function AppContext({ children }: PropsWithChildren) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [setShowCodeSnippet, setShowFocalPoint, setShowImageOverflow]);
+  }, [setShowFocalPoint, setShowImageOverflow]);
 
   useDebouncedEffect(
     () => {
@@ -279,7 +261,7 @@ export function AppContext({ children }: PropsWithChildren) {
         breakpoints: [{ objectPosition: currentObjectPosition }],
       }).then((result) => {
         if (result.rejected != null) {
-          toast.error(`Error saving position to database: ${String(result.rejected.reason)}`);
+          logError(result.rejected);
           return;
         }
         if (result.accepted != null) {
@@ -297,7 +279,7 @@ export function AppContext({ children }: PropsWithChildren) {
 
       updateImage(imageId, { lastKnownAspectRatio: aspectRatio }).then((result) => {
         if (result.rejected != null) {
-          toast.error(`Error saving aspect ratio to database: ${String(result.rejected.reason)}`);
+          logError(result.rejected);
           return;
         }
         if (result.accepted != null) {
@@ -349,7 +331,7 @@ export function AppContext({ children }: PropsWithChildren) {
 
       if (result.rejected != null) {
         safeSetImage(null);
-        toast.error(`Error loading saved image: ${String(result.rejected.reason)}`);
+        toast.error(getCreateImageStateErrorMessage(result.rejected.reason));
         return;
       }
 
@@ -366,15 +348,11 @@ export function AppContext({ children }: PropsWithChildren) {
     asyncSetImageState();
   }, [imageId, imageCount, setAspectRatio]);
 
-  useEffect(() => {
-    const loading =
-      isProcessingImageUpload ||
-      (pageState === "imageNotFound" && imageNotFoundConfirmed === false);
+  const isLoading =
+    isProcessingImageUpload || (pageState === "imageNotFound" && imageNotFoundConfirmed === false);
 
-    setIsLoading(loading, !loading ? MINIMAL_LOADING_DURATION_MS : 0);
-  }, [setIsLoading, pageState, imageNotFoundConfirmed, isProcessingImageUpload]);
-
-  const showBottomBar = true; /* !isLoading && (pageState === "editing" || pageState === "imageNotFound"); */
+  const showBottomBar =
+    showFocalPoint != null && showImageOverflow != null && pageState !== "landing";
 
   const value: EditorContextValue = {
     persistenceMode,
@@ -392,8 +370,6 @@ export function AppContext({ children }: PropsWithChildren) {
     setShowCodeSnippet,
     codeSnippetLanguage,
     setCodeSnippetLanguage,
-    codeSnippetCopied,
-    setCodeSnippetCopied,
     currentObjectPosition,
     pageState,
     isLoading,

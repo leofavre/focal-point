@@ -11,7 +11,7 @@
   --color-glow: rgb(from var(--color-loud) r g b / 40%);
   --color-light-glow: rgb(from var(--color-loud) r g b / 20%);
   --color-background: color-mix(in srgb, var(--color-body) 4%, var(--color-zero));
-  --color-dialog-backdrop: rgb(from var(--color-neutral) r g b / 75%);
+  --color-backdrop: rgb(from var(--color-neutral) r g b / 80%);
 
   /* CodeSnippet syntax colors - fewer, more distinct colors */
   --color-codesnippet-comment: var(--color-neutral);
@@ -19,6 +19,10 @@
   --color-codesnippet-tag: var(--color-loud);
   --color-codesnippet-string: var(--color-cool);
   --color-codesnippet-keyword: color-mix(in srgb, var(--color-cool) 75%, var(--color-body));
+
+  /* Toast icons - muted to match app palette */
+  --color-toast-success: #6b9b7a;
+  --color-toast-error: #b87070;
 
   --base-line: calc(22 / 16 * 1rem);
   --base-line-025x: calc(var(--base-line) * 0.25);

@@ -1,6 +1,5 @@
 import { isEqual } from "lodash";
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
-import toast from "react-hot-toast";
 import type { Err, Result } from "../../helpers/errorHandling";
 import { accept, processResults, reject } from "../../helpers/errorHandling";
 import { isIndexedDBAvailable } from "../../helpers/indexedDBAvailability";
@@ -96,9 +95,11 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
 
   const stableRefreshImages = useEffectEvent(async (): Promise<Result<void, "RefreshFailed">> => {
     const result = await service.getAllRecords();
+
     if (result.rejected != null) {
       return reject({ reason: "RefreshFailed", error: result.rejected.error });
     }
+
     setImages(result.accepted ?? []);
     return accept(undefined);
   });
@@ -121,11 +122,13 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       let usedIds: Set<string> | undefined;
       if (!overwrite) {
         const allResult = await service.getAllRecords();
+
         if (allResult.rejected != null) {
           return processResults(
             draftsAndFilesOrUrls.map(() => reject({ reason: "AddImageFailed" })),
           );
         }
+
         const existing = allResult.accepted ?? [];
         usedIds = new Set(existing.map((r) => r.id));
       }
@@ -133,11 +136,14 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       const results: Result<ImageId, "AddImageFailed">[] = [];
       for (const item of draftsAndFilesOrUrls) {
         const id = createImageId(item.imageDraft.name, usedIds);
+
         const record: ImageRecord = isImageDraftStateAndUrl(item)
           ? { id, ...item.imageDraft, url: item.url }
           : { id, ...item.imageDraft, file: item.file };
+
         if (overwrite) {
           const upsertResult = await service.upsertRecord(record);
+
           if (upsertResult.rejected != null) {
             results.push(reject({ reason: "AddImageFailed", error: upsertResult.rejected.error }));
           } else {
@@ -145,6 +151,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
           }
         } else {
           const addResult = await service.addRecord(record);
+
           if (addResult.rejected != null) {
             results.push(reject({ reason: "AddImageFailed", error: addResult.rejected.error }));
           } else {
@@ -155,14 +162,9 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       }
 
       const { accepted: ids } = processResults(results);
-      if (ids.length > 0) {
-        const refreshResult = await stableRefreshImages();
-        if (refreshResult.rejected != null) {
-          toast.error(
-            `Error refreshing images after add: ${String(refreshResult.rejected.reason)}`,
-          );
-        }
-      }
+
+      if (ids.length > 0) await stableRefreshImages();
+
       return processResults(results);
     },
     [service],
@@ -173,30 +175,34 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       if (options != null && "id" in options && options.id != null) {
         // Explicit id (addImage only): overwrite implied; use upsertRecord.
         const id = options.id;
+
         const record: ImageRecord = isImageDraftStateAndUrl(draftAndFileOrUrl)
           ? { id, ...draftAndFileOrUrl.imageDraft, url: draftAndFileOrUrl.url }
           : { id, ...draftAndFileOrUrl.imageDraft, file: draftAndFileOrUrl.file };
+
         const upsertResult = await service.upsertRecord(record);
+
         if (upsertResult.rejected != null) {
           return reject({ reason: "AddImageFailed", error: upsertResult.rejected.error });
         }
-        const refreshResult = await stableRefreshImages();
-        if (refreshResult.rejected != null) {
-          toast.error(
-            `Error refreshing images after add: ${String(refreshResult.rejected.reason)}`,
-          );
-        }
+
+        await stableRefreshImages();
+
         return accept(id);
       }
 
       const overwrite =
         options != null && "overwrite" in options ? (options.overwrite ?? false) : false;
+
       const { accepted: ids } = await addImages(
         [draftAndFileOrUrl],
         overwrite ? { overwrite: true } : undefined,
       );
+
       const id = ids[0];
+
       if (id != null) return accept(id);
+
       return reject({ reason: "AddImageFailed" });
     },
     [service, addImages],
@@ -214,6 +220,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
     async (id, updates) => {
       const getResult = await service.getRecord(id);
       if (getResult.rejected != null) return reject({ reason: "UpdateImageFailed" });
+
       const current = getResult.accepted;
       if (current == null) return accept(undefined);
 
@@ -236,15 +243,12 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
       if (isEqual(current, updated)) return accept(id);
 
       const updateResult = await service.updateRecord(updated);
+
       if (updateResult.rejected != null) {
         return reject({ reason: "UpdateImageFailed", error: updateResult.rejected.error });
       }
-      const refreshResult = await stableRefreshImages();
-      if (refreshResult.rejected != null) {
-        toast.error(
-          `Error refreshing images after update: ${String(refreshResult.rejected.reason)}`,
-        );
-      }
+
+      await stableRefreshImages();
       return accept(id);
     },
     [service],
@@ -254,6 +258,7 @@ export function usePersistedImages(options?: UsePersistedImagesOptions): UsePers
     async (id) => {
       const result = await service.deleteRecord(id);
       if (result.rejected != null) return undefined;
+
       await stableRefreshImages();
       return id;
     },

@@ -10,4 +10,4 @@ export type ToggleButtonProps = {
   toggleable?: boolean;
   children?: ReactNode;
   colorScheme?: "foreground" | "background";
-} & Pick<HTMLProps<HTMLButtonElement>, "onClick" | "onFocus" | "onBlur">;
+} & Pick<HTMLProps<HTMLButtonElement>, "aria-label" | "onClick" | "onFocus" | "onBlur">;

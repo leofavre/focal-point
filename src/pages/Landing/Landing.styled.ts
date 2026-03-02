@@ -5,14 +5,17 @@ export const LandingWrapper = styled.div`
   grid-template-columns: auto;
   grid-template-rows: auto;
   padding: var(--base-line-2x);
-  padding-right: var(--base-line);
+  padding-inline-end: var(--base-line);
   gap: var(--base-line-2x);
   box-sizing: border-box;
-  background-color: var(--color-zero);
+  pointer-events: none;
+  user-select: none;
+  touch-action: none;
 
   [data-component="ImageUploaderButton"] {
-    width: calc(100% - var(--base-line));
+    width: 18rem;
     grid-row: auto;
     grid-column: auto;
+    pointer-events: auto;
   }
 `;

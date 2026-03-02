@@ -1,39 +1,38 @@
-import { Suspense } from "react";
+import { Suspense, useCallback } from "react";
+import toast from "react-hot-toast";
 import { Outlet } from "react-router-dom";
 import { useEditorContext } from "../AppContext";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
 import { FullScreenDropZone } from "../components/ImageUploader/FullScreenDropZone";
+import type { UploadErrorCode } from "../components/ImageUploader/getUploadErrorMessage";
+import { getUploadErrorMessage } from "../components/ImageUploader/getUploadErrorMessage";
 import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
+import type { Err } from "../helpers/errorHandling";
 import { parseBooleanAttr } from "../helpers/parseBooleanAttr";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
-import { LayoutGrid, LayoutMessage } from "./Layout.styled";
-
-const noop = () => {};
+import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
 
 /**
  * @todo
  *
  * ### MELHORIZE™ UI.
  *
- * - Verify accessibility.
- * - Review aria labels.
- * - Think about animations and transitions.
- * - Improve Landing page.
- * - Improve Full Screen Drop Zone.
- * - Improve loading state.
- * - Improve toasters.
+ * - Add link to home page.
+ * - Apply accessibility best practices.
+ * - Support arrow keys navigation for the image in the mask.
+ * - Support arrow keys navigation for the focal point.
+ * - Maybe SSR?
  *
  * ### Basic functionality
  *
- * - Handle errors with toaster.
+ * - Fix CI bug in which Auto-merge is triggered twice.
  *
  * ### Advanced functionality
  *
  * - Support external image sources.
- * - Breakpoints with container queries.
  * - Multiple images with "file system".
  * - Maybe make a browser extension?
  * - Maybe make a React component?
@@ -53,13 +52,35 @@ export default function Layout() {
     showBottomBar,
     handleImageUpload,
     uploaderButtonRef,
+    pageState,
+    isLoading,
   } = useEditorContext();
+
+  const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
+    toast.error(getUploadErrorMessage(error));
+  }, []);
+
+  const handleDragStart = useCallback(() => {
+    setShowCodeSnippet(false);
+  }, [setShowCodeSnippet]);
+
+  const isUIStateButtonDisabled = pageState !== "landing" && pageState !== "editing" && !isLoading;
 
   return (
     <>
-      <FullScreenDropZone onImageUpload={handleImageUpload} onImageUploadError={noop} />
+      <FullScreenDropZone
+        onImageUpload={handleImageUpload}
+        onImageUploadError={handleImageUploadError}
+        onDragStart={handleDragStart}
+      />
       <LayoutGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
-        <Suspense fallback={<LayoutMessage>Loading...</LayoutMessage>}>
+        <Suspense
+          fallback={
+            <LayoutMessage key="loading" role="status" aria-label="Loading">
+              <LoadingSpinner aria-hidden />
+            </LayoutMessage>
+          }
+        >
           <Outlet />
         </Suspense>
         <ToggleButton
@@ -68,6 +89,7 @@ export default function Layout() {
           toggleable
           toggled={showFocalPoint ?? false}
           onToggle={(toggled) => setShowFocalPoint(!toggled)}
+          disabled={isUIStateButtonDisabled}
         >
           <IconReference />
           <ToggleButton.ButtonText>Focal point</ToggleButton.ButtonText>
@@ -78,6 +100,7 @@ export default function Layout() {
           toggleable
           toggled={showImageOverflow ?? false}
           onToggle={(toggled) => setShowImageOverflow(!toggled)}
+          disabled={isUIStateButtonDisabled}
         >
           <IconMask />
           <ToggleButton.ButtonText>Overflow</ToggleButton.ButtonText>
@@ -93,15 +116,16 @@ export default function Layout() {
           toggleable
           toggled={showCodeSnippet ?? false}
           onToggle={(toggled) => setShowCodeSnippet(!toggled)}
+          disabled={isUIStateButtonDisabled}
         >
           <IconCode />
           <ToggleButton.ButtonText>Code</ToggleButton.ButtonText>
         </ToggleButton>
         <ImageUploaderButton
           ref={uploaderButtonRef}
-          label="Upload"
+          label="Image"
           onImageUpload={handleImageUpload}
-          onImageUploadError={noop}
+          onImageUploadError={handleImageUploadError}
         />
       </LayoutGrid>
     </>

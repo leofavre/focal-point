@@ -1,6 +1,11 @@
+import type { Ref } from "react";
 import { useEffectEvent, useRef, useState } from "react";
-import { useMergeRefs } from "react-merge-refs";
+import { mergeRefs, useMergeRefs } from "react-merge-refs";
+import { parseBooleanAttr } from "../../helpers/parseBooleanAttr";
+import { useClosingTransition, useDelayedClose } from "../../hooks/useClosingTransition";
 import { IconUpload } from "../../icons/IconUpload";
+import type { ImageDraftStateAndFile, ImageDraftStateAndUrl } from "../../types";
+import { BackdropOverlay } from "../BackdropOverlay/BackdropOverlay.styled";
 import { ToggleButton } from "../ToggleButton/ToggleButton";
 import { useImageDropzone } from "./hooks/useImageDropzone";
 import { InvisibleControl, InvisibleForm, InvisibleLabel } from "./ImageUploader.styled";
@@ -17,49 +22,103 @@ export function ImageUploaderButton({
   ...rest
 }: ImageUploaderButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const mergedRefs = useMergeRefs([ref, buttonRef]);
 
   const [isOpened, setIsOpened] = useState(false);
 
-  const setClosed = useEffectEvent(() => setIsOpened(false));
+  const stableHidePopover = useEffectEvent(() => {
+    popoverRef.current?.hidePopover();
+  });
+
+  const { isClosing, requestClose } = useClosingTransition({
+    onClose: stableHidePopover,
+  });
+
+  const { scheduleClose } = useDelayedClose({
+    onSchedule: requestClose,
+  });
+
+  const scheduleBackdropHide = useEffectEvent(() => {
+    setIsOpened(false);
+    scheduleClose();
+  });
+
+  const wrappedOnImageUpload = useEffectEvent(
+    (draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl) => {
+      void Promise.resolve(onImageUpload?.(draftAndFileOrUrl)).finally(scheduleBackdropHide);
+    },
+  );
+
+  const wrappedOnImagesUpload = useEffectEvent(
+    (draftsAndFilesOrUrls: (ImageDraftStateAndFile | ImageDraftStateAndUrl)[]) => {
+      void Promise.resolve(onImagesUpload?.(draftsAndFilesOrUrls)).finally(scheduleBackdropHide);
+    },
+  );
+
+  const wrappedOnImageUploadError = useEffectEvent(
+    (error: Parameters<NonNullable<typeof onImageUploadError>>[0]) => {
+      onImageUploadError?.(error);
+      scheduleBackdropHide();
+    },
+  );
+
+  const wrappedOnImagesUploadError = useEffectEvent(
+    (errors: Parameters<NonNullable<typeof onImagesUploadError>>[0]) => {
+      onImagesUploadError?.(errors);
+      scheduleBackdropHide();
+    },
+  );
 
   const { getRootProps, getInputProps, open } = useImageDropzone({
-    onImageUpload,
-    onImagesUpload,
-    onImageUploadError,
-    onImagesUploadError,
+    onImageUpload: onImageUpload != null ? wrappedOnImageUpload : undefined,
+    onImagesUpload: onImagesUpload != null ? wrappedOnImagesUpload : undefined,
+    onImageUploadError: onImageUploadError != null ? wrappedOnImageUploadError : undefined,
+    onImagesUploadError: onImagesUploadError != null ? wrappedOnImagesUploadError : undefined,
     noClick: true,
     noDrag: true,
     multiple: onImagesUpload != null,
-    onFileDialogCancel: setClosed,
-    onDropAccepted: setClosed,
+    onFileDialogCancel: scheduleBackdropHide,
+    onDropAccepted: () => setIsOpened(false),
   });
 
   const handleButtonClick = () => {
-    open();
+    popoverRef.current?.showPopover();
     setIsOpened(true);
+    open();
   };
 
+  const { ref: dropzoneRef, ...dropzoneRootProps } = getRootProps();
+  const overlayMergedRefs = mergeRefs([popoverRef, dropzoneRef as Ref<HTMLDivElement | null>]);
+
   return (
-    <InvisibleForm
-      data-component="ImageUploaderButton"
-      {...getRootProps({ onSubmit: (e) => e.preventDefault() })}
-      {...rest}
-    >
-      <InvisibleLabel>
+    <>
+      <BackdropOverlay
+        ref={overlayMergedRefs}
+        popover="manual"
+        data-closing={parseBooleanAttr(isClosing)}
+        {...dropzoneRootProps}
+        data-component="ImageUploaderButtonOverlay"
+        aria-hidden
+      >
         <InvisibleControl {...getInputProps()} tabIndex={-1} aria-hidden />
-        <ToggleButton
-          ref={mergedRefs}
-          type="button"
-          toggleable
-          toggled={isOpened}
-          onClick={handleButtonClick}
-          scale={size === "medium" ? 2 : size === "large" ? 4 : 1}
-        >
-          <IconUpload />
-          <ToggleButton.ButtonText>{label}</ToggleButton.ButtonText>
-        </ToggleButton>
-      </InvisibleLabel>
-    </InvisibleForm>
+      </BackdropOverlay>
+      <InvisibleForm data-component="ImageUploaderButton" {...rest}>
+        <InvisibleLabel>
+          <ToggleButton
+            ref={mergedRefs}
+            type="button"
+            aria-label={label}
+            toggleable
+            toggled={isOpened}
+            onClick={handleButtonClick}
+            scale={size === "medium" ? 2 : size === "large" ? 4 : 1}
+          >
+            <IconUpload />
+            <ToggleButton.ButtonText>{label}</ToggleButton.ButtonText>
+          </ToggleButton>
+        </InvisibleLabel>
+      </InvisibleForm>
+    </>
   );
 }

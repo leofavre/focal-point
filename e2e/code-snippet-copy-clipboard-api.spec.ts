@@ -22,7 +22,7 @@ test.describe("Code snippet copy – Clipboard API available", () => {
     const landing = page.locator('[data-component="Landing"]');
     const [fileChooser] = await Promise.all([
       page.waitForEvent("filechooser"),
-      landing.getByRole("button", { name: "Upload image", exact: true }).click(),
+      landing.getByRole("button", { name: "Choose image", exact: true }).click(),
     ]);
     await fileChooser.setFiles(SAMPLE_IMAGE_PATH);
 
@@ -57,7 +57,7 @@ test.describe("Code snippet copy – Clipboard API available", () => {
     expect(expectedObjectPosition).toBeTruthy();
 
     await page.getByRole("button", { name: "Copy" }).click();
-    await expect(page.getByRole("button", { name: "Copied!" })).toBeVisible();
+    await expect(page.getByText("Code copied to clipboard")).toBeVisible();
 
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
     expect(clipboardText).toContain(expectedObjectPosition);
