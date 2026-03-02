@@ -13,7 +13,7 @@ import { parseBooleanAttr } from "../helpers/parseBooleanAttr";
 import { IconCode } from "../icons/IconCode";
 import { IconMask } from "../icons/IconMask";
 import { IconReference } from "../icons/IconReference";
-import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
+import { EditorControlsNav, LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
 
 /**
  * @todo
@@ -21,12 +21,8 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  * ### MELHORIZE™ UI.
  *
  * - Add link to home page.
+ * - Maybe leave space for a banner ad.
  * - Apply accessibility best practices.
- * - Support arrow keys navigation for the focal point.
- *
- * ### Basic functionality
- *
- * - Fix CI bug in which Auto-merge is triggered twice.
  *
  * ### Advanced functionality
  *
@@ -73,7 +69,7 @@ export default function Layout() {
         onImageUploadError={handleImageUploadError}
         onDragStart={handleDragStart}
       />
-      <LayoutGrid data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
+      <LayoutGrid id="main" data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
         <Suspense
           fallback={
             <LayoutMessage key="loading" role="status" aria-label="Loading">
@@ -83,51 +79,53 @@ export default function Layout() {
         >
           <Outlet />
         </Suspense>
-        <ToggleButton
-          type="button"
-          data-component="FocalPointButton"
-          toggleable
-          toggled={showFocalPoint ?? false}
-          onToggle={(toggled) => setShowFocalPoint(!toggled)}
-          disabled={isUIStateButtonDisabled}
-        >
-          <IconReference />
-          <ToggleButton.ButtonText>Focal point</ToggleButton.ButtonText>
-        </ToggleButton>
-        <ToggleButton
-          type="button"
-          data-component="ImageOverflowButton"
-          toggleable
-          toggled={showImageOverflow ?? false}
-          onToggle={(toggled) => setShowImageOverflow(!toggled)}
-          disabled={isUIStateButtonDisabled}
-        >
-          <IconMask />
-          <ToggleButton.ButtonText>Overflow</ToggleButton.ButtonText>
-        </ToggleButton>
-        <AspectRatioSlider
-          ref={aspectRatioSliderRef}
-          aspectRatio={aspectRatio}
-          defaultAspectRatio={image?.naturalAspectRatio}
-          onAspectRatioChange={setAspectRatio}
-        />
-        <ToggleButton
-          type="button"
-          data-component="CodeSnippetButton"
-          toggleable
-          toggled={showCodeSnippet ?? false}
-          onToggle={(toggled) => setShowCodeSnippet(!toggled)}
-          disabled={isUIStateButtonDisabled}
-        >
-          <IconCode />
-          <ToggleButton.ButtonText>Code</ToggleButton.ButtonText>
-        </ToggleButton>
-        <ImageUploaderButton
-          ref={uploaderButtonRef}
-          label="Image"
-          onImageUpload={handleImageUpload}
-          onImageUploadError={handleImageUploadError}
-        />
+        <EditorControlsNav data-component="EditorControlsNav" aria-label="Editor controls">
+          <ToggleButton
+            type="button"
+            data-component="FocalPointButton"
+            toggleable
+            toggled={showFocalPoint ?? false}
+            onToggle={(toggled) => setShowFocalPoint(!toggled)}
+            disabled={isUIStateButtonDisabled}
+          >
+            <IconReference />
+            <ToggleButton.ButtonText>Focal point</ToggleButton.ButtonText>
+          </ToggleButton>
+          <ToggleButton
+            type="button"
+            data-component="ImageOverflowButton"
+            toggleable
+            toggled={showImageOverflow ?? false}
+            onToggle={(toggled) => setShowImageOverflow(!toggled)}
+            disabled={isUIStateButtonDisabled}
+          >
+            <IconMask />
+            <ToggleButton.ButtonText>Overflow</ToggleButton.ButtonText>
+          </ToggleButton>
+          <AspectRatioSlider
+            ref={aspectRatioSliderRef}
+            aspectRatio={aspectRatio}
+            defaultAspectRatio={image?.naturalAspectRatio}
+            onAspectRatioChange={setAspectRatio}
+          />
+          <ToggleButton
+            type="button"
+            data-component="CodeSnippetButton"
+            toggleable
+            toggled={showCodeSnippet ?? false}
+            onToggle={(toggled) => setShowCodeSnippet(!toggled)}
+            disabled={isUIStateButtonDisabled}
+          >
+            <IconCode />
+            <ToggleButton.ButtonText>Code</ToggleButton.ButtonText>
+          </ToggleButton>
+          <ImageUploaderButton
+            ref={uploaderButtonRef}
+            label="Image"
+            onImageUpload={handleImageUpload}
+            onImageUploadError={handleImageUploadError}
+          />
+        </EditorControlsNav>
       </LayoutGrid>
     </>
   );

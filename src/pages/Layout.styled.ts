@@ -25,6 +25,11 @@ export const LayoutMessage = styled.h3`
   margin: auto;
 `;
 
+/** Wrapper for bottom bar controls; display: contents preserves parent grid layout. */
+export const EditorControlsNav = styled.nav`
+  display: contents;
+`;
+
 export const LayoutGrid = styled.main`
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 12ch) minmax(0, 12ch) minmax(8rem, 50rem) minmax(0, 12ch) minmax(0, 12ch) minmax(0, 1fr);
@@ -57,6 +62,7 @@ export const LayoutGrid = styled.main`
     width: clamp(25rem, 100dvw, 40rem);
   }
 
+  [data-component="EditorControlsNav"] [data-component="AspectRatioSlider"],
   > [data-component="AspectRatioSlider"] {
     position: relative;
     top: 8rem;
@@ -69,6 +75,7 @@ export const LayoutGrid = styled.main`
     transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
+  [data-component="EditorControlsNav"] [data-component="FocalPointButton"],
   > [data-component="FocalPointButton"] {
     position: relative;
     top: 8rem;
@@ -79,6 +86,7 @@ export const LayoutGrid = styled.main`
     transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
+  [data-component="EditorControlsNav"] [data-component="ImageOverflowButton"],
   > [data-component="ImageOverflowButton"] {
     position: relative;
     top: 8rem;
@@ -89,6 +97,7 @@ export const LayoutGrid = styled.main`
     transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
+  [data-component="EditorControlsNav"] [data-component="CodeSnippetButton"],
   > [data-component="CodeSnippetButton"] {
     position: relative;
     top: 8rem;
@@ -99,6 +108,7 @@ export const LayoutGrid = styled.main`
     transition: top 132ms ease-in-out 0s, visibility 132ms linear 132ms;
   }
 
+  [data-component="EditorControlsNav"] [data-component="ImageUploaderButton"],
   > [data-component="ImageUploaderButton"] {
     position: relative;
     top: 8rem;
@@ -122,6 +132,11 @@ export const LayoutGrid = styled.main`
   }
 
   &[data-has-bottom-bar] {
+    [data-component="EditorControlsNav"] [data-component="AspectRatioSlider"],
+    [data-component="EditorControlsNav"] [data-component="FocalPointButton"],
+    [data-component="EditorControlsNav"] [data-component="ImageOverflowButton"],
+    [data-component="EditorControlsNav"] [data-component="CodeSnippetButton"],
+    [data-component="EditorControlsNav"] [data-component="ImageUploaderButton"],
     > [data-component="AspectRatioSlider"],
     > [data-component="FocalPointButton"],
     > [data-component="ImageOverflowButton"],

@@ -49,4 +49,6 @@ export type FocalPointEditorProps = {
   onImageLoad?: (event: SyntheticEvent<HTMLImageElement>) => void;
   onImageError?: (event: SyntheticEvent<HTMLImageElement>) => void;
   focalPointImageRef?: RefObject<HTMLDivElement | null>;
+  "aria-hidden"?: boolean;
+  inert?: boolean;
 };

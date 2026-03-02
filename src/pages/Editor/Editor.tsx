@@ -46,16 +46,27 @@ export function Editor() {
     toast.error(getUploadErrorMessage(error));
   }, []);
 
+  const getAriaReadyTransitionProps = useCallback((isVisible: boolean) => {
+    return {
+      "aria-hidden": !isVisible,
+      inert: !isVisible,
+      css: {
+        opacity: isVisible ? 1 : 0,
+        visibility: isVisible ? "visible" : "hidden",
+        pointerEvents: isVisible ? "auto" : "none",
+        transition: isVisible
+          ? "opacity 132ms ease-in-out, visibility 0s linear 0s"
+          : "opacity 132ms ease-in-out, visibility 0s linear 132ms",
+      },
+    } as const;
+  }, []);
+
   if (pageState === "landing" || pageState === "editing") {
     return (
       <>
         <LandingWrapper
           data-component="Landing"
-          css={{
-            opacity: pageState === "landing" ? 1 : 0,
-            pointerEvents: pageState === "landing" ? "auto" : "none",
-            transition: "opacity 132ms ease-in-out",
-          }}
+          {...getAriaReadyTransitionProps(pageState === "landing")}
         >
           <ImageUploaderButton
             size="medium"
@@ -68,11 +79,7 @@ export function Editor() {
         {image != null && aspectRatio != null ? (
           <>
             <FocalPointEditor
-              css={{
-                opacity: pageState === "editing" ? 1 : 0,
-                pointerEvents: pageState === "editing" ? "auto" : "none",
-                transition: "opacity 132ms ease-in-out",
-              }}
+              {...getAriaReadyTransitionProps(pageState === "editing")}
               imageUrl={image.url}
               aspectRatio={aspectRatio}
               initialAspectRatio={image.naturalAspectRatio}
@@ -86,6 +93,7 @@ export function Editor() {
             <Dialog
               open={showCodeSnippet}
               onOpenChange={setShowCodeSnippet}
+              aria-label="Code snippet"
               css={{ backgroundColor: "var(--color-background)" }}
             >
               <Dialog.Header>

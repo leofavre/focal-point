@@ -3,7 +3,8 @@
 :root {
   --color-zero: white;
   --color-loud: #eb8552;
-  --color-neutral: #827377;
+  /* WCAG AA: --color-neutral darkened from #827377 (4.28:1 fail) to #6b6064 (5.73:1 pass) on --color-background */
+  --color-neutral: #6b6064;
   --color-cool: #5a9fb8;
   --color-neutral-tint-10: color-mix(in srgb, var(--color-neutral) 10%, var(--color-zero));
   --color-neutral-tint-30: color-mix(in srgb, var(--color-neutral) 30%, var(--color-zero));
@@ -60,6 +61,21 @@ body {
   margin: 0;
   padding: 0;
   background-color: var(--color-background);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: var(--base-line-05x) var(--base-line-1x);
+  background-color: var(--color-body);
+  color: var(--color-zero);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: var(--base-line-1x);
+  top: var(--base-line-1x);
 }
 
 ::selection {
