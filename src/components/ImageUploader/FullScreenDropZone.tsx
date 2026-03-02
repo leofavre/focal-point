@@ -2,12 +2,10 @@ import type { Ref } from "react";
 import { useEffect, useEffectEvent, useRef } from "react";
 import { mergeRefs } from "react-merge-refs";
 import { parseBooleanAttr } from "../../helpers/parseBooleanAttr";
-import { useClosingTransition } from "../../hooks/useClosingTransition";
-import { Overlay } from "./FullScreenDropZone.styled";
+import { useClosingTransition, useDelayedClose } from "../../hooks/useClosingTransition";
+import { BackdropOverlay } from "../BackdropOverlay/BackdropOverlay.styled";
 import { useImageDropzone } from "./hooks/useImageDropzone";
 import type { FullScreenDropZoneProps } from "./types";
-
-const POPOVER_HIDE_DELAY_MS = 300;
 
 export function FullScreenDropZone({
   onImageUpload,
@@ -18,7 +16,6 @@ export function FullScreenDropZone({
   ...rest
 }: FullScreenDropZoneProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
-  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { getRootProps, getInputProps, isDragGlobal } = useImageDropzone({
     onImageUpload,
     onImagesUpload,
@@ -37,6 +34,10 @@ export function FullScreenDropZone({
     onClose: stableHidePopover,
   });
 
+  const { scheduleClose, cancelScheduledClose } = useDelayedClose({
+    onSchedule: requestClose,
+  });
+
   const { ref: rootRef, ...rootProps } = getRootProps();
   const mergedRefs = mergeRefs([popoverRef, rootRef as Ref<HTMLDivElement | null>]);
 
@@ -44,30 +45,17 @@ export function FullScreenDropZone({
     if (popoverRef.current == null) return;
 
     if (isDragGlobal) {
-      if (hideTimeoutRef.current != null) {
-        clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = null;
-      }
+      cancelScheduledClose();
       cancelClose();
       onDragStart?.();
       popoverRef.current.showPopover();
     } else {
-      hideTimeoutRef.current = setTimeout(() => {
-        hideTimeoutRef.current = null;
-        requestClose();
-      }, POPOVER_HIDE_DELAY_MS);
+      scheduleClose();
     }
-
-    return () => {
-      if (hideTimeoutRef.current != null) {
-        clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = null;
-      }
-    };
-  }, [isDragGlobal, onDragStart, requestClose, cancelClose]);
+  }, [isDragGlobal, onDragStart, scheduleClose, cancelScheduledClose, cancelClose]);
 
   return (
-    <Overlay
+    <BackdropOverlay
       ref={mergedRefs}
       popover="manual"
       data-closing={parseBooleanAttr(isClosing)}
@@ -78,6 +66,6 @@ export function FullScreenDropZone({
     >
       <input {...getInputProps()} aria-hidden />
       <p>Drop an image here</p>
-    </Overlay>
+    </BackdropOverlay>
   );
 }

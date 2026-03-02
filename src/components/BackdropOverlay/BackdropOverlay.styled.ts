@@ -1,11 +1,16 @@
 import styled from "@emotion/styled";
 
 /**
- * Full-screen drop zone using the native Popover API (top layer).
+ * Full-screen overlay using the native Popover API (top layer).
  * Backdrop styled to match Dialog component.
+ * Used by FullScreenDropZone and ImageUploaderButton.
  */
-export const Overlay = styled.div`
-  &[popover] {
+export const BackdropOverlay = styled.div`
+  &[popover]:not(:popover-open) {
+    display: none;
+  }
+
+  &:popover-open {
     position: fixed;
     inset: 0;
     width: 100%;

@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Toaster, useToasterStore } from "react-hot-toast";
+import { BACKDROP_HIDE_DELAY_MS } from "../../hooks/useClosingTransition";
 import { Wrapper } from "./ToasterInPopover.styled";
-
-const POPOVER_HIDE_DELAY_MS = 300;
 
 export function ToasterInPopover() {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -23,7 +22,7 @@ export function ToasterInPopover() {
       hideTimeoutRef.current = setTimeout(() => {
         hideTimeoutRef.current = null;
         popoverRef.current?.hidePopover();
-      }, POPOVER_HIDE_DELAY_MS);
+      }, BACKDROP_HIDE_DELAY_MS);
     }
 
     return () => {

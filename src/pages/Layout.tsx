@@ -20,6 +20,7 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  *
  * ### MELHORIZE™ UI.
  *
+ * - Add fade-in transition when image is just loaded and fade-out when is just removed.
  * - Add transition when landing content is removed.
  * - Add link to home page.
  * - Apply accessibility best practices.
