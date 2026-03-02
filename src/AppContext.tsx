@@ -70,6 +70,7 @@ export type EditorContextValue = {
   handleImageError: () => void;
   handleObjectPositionChange: (objectPosition: ObjectPositionString) => void;
   uploaderButtonRef: RefObject<HTMLButtonElement | null>;
+  focalPointImageRef: RefObject<HTMLDivElement | null>;
 };
 
 const EditorContext = createContext<EditorContextValue | null>(null);
@@ -85,6 +86,7 @@ function getImageIdFromPathname(pathname: string): ImageId | undefined {
 export function AppContext({ children }: PropsWithChildren) {
   const persistenceMode = PERSISTENCE_MODE;
   const uploaderButtonRef = useRef<HTMLButtonElement>(null);
+  const focalPointImageRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
   const imageId = getImageIdFromPathname(pathname);
   const navigate = useNavigate();
@@ -217,6 +219,7 @@ export function AppContext({ children }: PropsWithChildren) {
   /**
    * Handles all keyboard shortcuts:
    * - 'u' opens the file input to upload a new image.
+   * - 'i' focuses the image.
    * - 'a' or 'f' toggles the focal point.
    * - 's' or 'o' toggles the image overflow.
    * - 'd' or 'c' toggles the code snippet.
@@ -228,6 +231,9 @@ export function AppContext({ children }: PropsWithChildren) {
     const handleKeyDown = createKeyboardShortcutHandler({
       u: () => {
         uploaderButtonRef.current?.click();
+      },
+      i: () => {
+        focalPointImageRef.current?.focus();
       },
       a: () => {
         setShowFocalPoint((prev) => !prev);
@@ -379,6 +385,7 @@ export function AppContext({ children }: PropsWithChildren) {
     handleImageError,
     handleObjectPositionChange,
     uploaderButtonRef,
+    focalPointImageRef,
   };
 
   return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>;

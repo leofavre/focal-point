@@ -39,6 +39,7 @@ export function Editor() {
     handleObjectPositionChange,
     handleImageUpload,
     isLoading,
+    focalPointImageRef,
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
@@ -80,6 +81,7 @@ export function Editor() {
               showImageOverflow={showImageOverflow ?? false}
               onObjectPositionChange={handleObjectPositionChange}
               onImageError={handleImageError}
+              focalPointImageRef={focalPointImageRef}
             />
             <Dialog
               open={showCodeSnippet}
