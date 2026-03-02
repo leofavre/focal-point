@@ -108,6 +108,7 @@ export function ImageUploaderButton({
           <ToggleButton
             ref={mergedRefs}
             type="button"
+            aria-label={label}
             toggleable
             toggled={isOpened}
             onClick={handleButtonClick}
