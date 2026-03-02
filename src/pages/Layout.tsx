@@ -22,9 +22,7 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  *
  * - Add link to home page.
  * - Apply accessibility best practices.
- * - Support arrow keys navigation for the image in the mask.
  * - Support arrow keys navigation for the focal point.
- * - Maybe SSR?
  *
  * ### Basic functionality
  *
@@ -37,6 +35,7 @@ import { LayoutGrid, LayoutMessage, LoadingSpinner } from "./Layout.styled";
  * - Maybe make a browser extension?
  * - Maybe make a React component?
  * - Maybe make a native custom element?
+ * - Maybe SSR?
  */
 export default function Layout() {
   const {
@@ -52,6 +51,7 @@ export default function Layout() {
     showBottomBar,
     handleImageUpload,
     uploaderButtonRef,
+    aspectRatioSliderRef,
     pageState,
     isLoading,
   } = useEditorContext();
@@ -106,6 +106,7 @@ export default function Layout() {
           <ToggleButton.ButtonText>Overflow</ToggleButton.ButtonText>
         </ToggleButton>
         <AspectRatioSlider
+          ref={aspectRatioSliderRef}
           aspectRatio={aspectRatio}
           defaultAspectRatio={image?.naturalAspectRatio}
           onAspectRatioChange={setAspectRatio}
