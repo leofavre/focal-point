@@ -7,6 +7,7 @@ import { FullScreenDropZone } from "../components/ImageUploader/FullScreenDropZo
 import type { UploadErrorCode } from "../components/ImageUploader/getUploadErrorMessage";
 import { getUploadErrorMessage } from "../components/ImageUploader/getUploadErrorMessage";
 import { ImageUploaderButton } from "../components/ImageUploader/ImageUploaderButton";
+import { SiteTitle } from "../components/SiteTitle/SiteTitle";
 import { ToggleButton } from "../components/ToggleButton/ToggleButton";
 import type { Err } from "../helpers/errorHandling";
 import { parseBooleanAttr } from "../helpers/parseBooleanAttr";
@@ -70,6 +71,7 @@ export default function Layout() {
         onDragStart={handleDragStart}
       />
       <LayoutGrid id="main" data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
+        <SiteTitle />
         <Suspense
           fallback={
             <LayoutMessage key="loading" role="status" aria-label="Loading">

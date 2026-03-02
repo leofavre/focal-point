@@ -8,7 +8,6 @@ export const LandingWrapper = styled.div`
   padding-inline-end: var(--base-line);
   gap: var(--base-line-2x);
   box-sizing: border-box;
-  user-select: none;
   touch-action: none;
 
   [data-component="ImageUploaderButton"] {
