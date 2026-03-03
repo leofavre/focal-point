@@ -1,5 +1,5 @@
 /**
- * Privacy notice content for LGPD compliance (English only; users may use automatic translation).
+ * Privacy notice content for GDPR compliance.
  * Last updated date is used in the UI; update when the notice changes.
  */
 export const PRIVACY_LAST_UPDATED = "2025-03-02";
@@ -17,7 +17,7 @@ export const privacyContent = {
     },
     {
       heading: "Purposes and legal basis",
-      body: "Data is used to provide the focal point editor, improve and secure the service, and comply with legal obligations. The legal basis is performance of contract/service (Art. 7º, V, LGPD) and legitimate interest where applicable.",
+      body: "Data is used to provide the focal point editor, improve and secure the service, and comply with legal obligations. The legal basis is performance of a contract (GDPR Art. 6(1)(b)) and legitimate interest where applicable (Art. 6(1)(f)).",
     },
     {
       heading: "Retention",
@@ -28,8 +28,8 @@ export const privacyContent = {
       body: "Hosting is provided by Netlify; fonts are loaded from Google Fonts. These providers may process data in other countries. We choose services with adequate safeguards. Netlify policy: https://www.netlify.com/privacy/. Google policy: https://policies.google.com/privacy.",
     },
     {
-      heading: "Your rights (Art. 18 LGPD)",
-      body: "You have the right to confirmation, access, correction, anonymization, blocking or deletion of unnecessary data, portability, deletion of data processed with consent, information about sharing, and revocation of consent. To delete all data stored by this app on your device, clear the site data in your browser settings. Data stays on your device; you can export or delete it using your browser's tools.",
+      heading: "Your rights (GDPR Arts 15–22)",
+      body: "You have the right of access, rectification, erasure, restriction of processing, data portability, and to object, as well as the right to withdraw consent and to lodge a complaint with a supervisory authority. To delete all data stored by this app on your device, clear the site data in your browser settings. Data stays on your device; you can export or delete it using your browser's tools.",
     },
     {
       heading: "Security",
