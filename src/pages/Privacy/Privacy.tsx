@@ -133,7 +133,6 @@ export function Privacy() {
           clear site data from your browser settings at any time.
         </p>
         <Button
-          scale={2}
           type="button"
           onClick={handleClearAllData}
           aria-label="Clear all data stored by this app in the browser"

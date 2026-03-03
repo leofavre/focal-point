@@ -33,6 +33,15 @@ export const Wrapper = styled.button`
   }
 `;
 
+export const Container = styled.span`
+  display: contents;
+
+  ${Wrapper}[data-grow] & {
+    display: block;
+    container-type: inline-size;
+  }
+`;
+
 export const Control = styled.span`
   position: relative;
   display: flex;
@@ -98,6 +107,20 @@ export const Control = styled.span`
     width: calc(var(--base-line) * var(--scale));
     height: calc(var(--base-line) * var(--scale));
     flex-shrink: 0;
+  }
+
+  /* calc won't work in the container query */
+  @container (max-width: 6rem) {
+    & > svg { margin: auto; }
+    & > span { display: none; }
+  }
+
+  /* calc won't work in the container query */
+  ${Wrapper}[data-scale=2] > & {
+    @container (max-width: 12rem) {
+      & > svg { margin: auto; }
+      & > span { display: none; }
+    }
   }
 `;
 

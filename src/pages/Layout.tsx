@@ -28,8 +28,11 @@ import {
  *
  * ### MELHORIZE™ UI.
  *
- * - Button should be renamed to just Button + refactor props.
  * - Keyboard shortcuts page.
+ * - Better Add Image icon.
+ * - Better Copy icon.
+ * - Add Clear All icon.
+ * - Better styling for text-only pages.
  *
  * ### Advanced functionality
  *

@@ -11,7 +11,6 @@ export const LandingWrapper = styled.div`
   touch-action: none;
 
   [data-component="ImageUploaderButton"] {
-    width: 18rem;
     grid-row: auto;
     grid-column: auto;
   }
