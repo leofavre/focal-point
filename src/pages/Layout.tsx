@@ -28,10 +28,14 @@ import {
  *
  * ### MELHORIZE™ UI.
  *
+ * - ToggleButton should be renamed to just Button + refactor props.
  * - Keyboard shortcuts page.
+ * - Better Markdown-to-React converter.
  *
  * ### Advanced functionality
  *
+ * - Refactor app with route-specific components instead of a single PageContent component.
+ * - Use the native API for page transitions.
  * - Support external image sources.
  * - Multiple images with "file system".
  * - Maybe make a browser extension?

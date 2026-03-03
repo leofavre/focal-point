@@ -1,21 +1,7 @@
 export const DBConfig = {
   name: "FocalPointEditor",
-  version: 2,
+  version: 3,
   objectStoresMeta: [
-    {
-      store: "ui",
-      storeConfig: {
-        keyPath: "id",
-        autoIncrement: true,
-      },
-      storeSchema: [
-        {
-          name: "value",
-          keypath: "value",
-          options: { unique: false },
-        },
-      ],
-    },
     {
       store: "images",
       storeConfig: {
