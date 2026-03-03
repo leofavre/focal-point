@@ -66,7 +66,6 @@ export type EditorContextValue = {
   pageState: UIPageState;
   isLoading: boolean;
   isEditingSingleImage: boolean;
-  isPageNotFoundRoute: boolean;
   showBottomBar: boolean;
   handleImageUpload: (
     draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl | undefined,
@@ -159,6 +158,7 @@ export function AppContext({ children }: PropsWithChildren) {
     persistenceMode === "singleImage" && imageId === SINGLE_IMAGE_MODE_ID;
 
   const pageState = usePageState({
+    pathname,
     persistenceMode,
     imageId,
     image,
@@ -387,11 +387,9 @@ export function AppContext({ children }: PropsWithChildren) {
   const isLoading =
     isProcessingImageUpload || (pageState === "imageNotFound" && imageNotFoundConfirmed === false);
 
-  const isPageNotFoundRoute = pathname !== "/" && !/^\/image\/[^/]+$/.test(pathname);
-
   const showBottomBar =
     (showFocalPoint != null && showImageOverflow != null && pageState !== "landing") ||
-    isPageNotFoundRoute;
+    pageState === "pageNotFound";
 
   const value: EditorContextValue = {
     pathname,
@@ -414,7 +412,6 @@ export function AppContext({ children }: PropsWithChildren) {
     pageState,
     isLoading,
     isEditingSingleImage,
-    isPageNotFoundRoute,
     showBottomBar,
     handleImageUpload,
     handleImageError,

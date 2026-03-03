@@ -50,7 +50,6 @@ export default function Layout() {
     aspectRatioSliderRef,
     pageState,
     isLoading,
-    isPageNotFoundRoute,
   } = useEditorContext();
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
@@ -61,8 +60,7 @@ export default function Layout() {
     setShowCodeSnippet(false);
   }, [setShowCodeSnippet]);
 
-  const isUIStateButtonDisabled =
-    isPageNotFoundRoute || (pageState !== "landing" && pageState !== "editing" && !isLoading);
+  const isUIStateButtonDisabled = pageState !== "landing" && pageState !== "editing" && !isLoading;
 
   return (
     <>

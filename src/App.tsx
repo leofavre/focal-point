@@ -3,9 +3,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppContext } from "./AppContext";
 import { ToasterInPopover } from "./components/ToasterInPopover/ToasterInPopover";
 import Layout from "./pages/Layout";
-import { PageNotFound } from "./pages/PageNotFound";
 
-const Editor = lazy(() => import("./pages/Editor/Editor").then((m) => ({ default: m.Editor })));
+const PageContent = lazy(() =>
+  import("./pages/PageContent/PageContent").then((m) => ({ default: m.PageContent })),
+);
 
 export default function App() {
   return (
@@ -14,9 +15,9 @@ export default function App() {
       <AppContext>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Editor />} />
-            <Route path="image/:imageId" element={<Editor />} />
-            <Route path="*" element={<PageNotFound />} />
+            <Route index element={<PageContent />} />
+            <Route path="image/:imageId" element={<PageContent />} />
+            <Route path="*" element={<PageContent />} />
           </Route>
         </Routes>
       </AppContext>

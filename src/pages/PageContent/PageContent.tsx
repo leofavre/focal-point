@@ -18,10 +18,10 @@ const DEFAULT_OBJECT_POSITION: ObjectPositionString = "50% 50%";
 const DEFAULT_CODE_SNIPPET_LANGUAGE = "html" as const;
 
 /**
- * Content for the image route (/image/:imageId). Renders the editing view or error messages
- * (image not found, page not found). Loading is handled by the shared Layout.
+ * Content for the current route. Renders landing, editing view, or status messages
+ * (image not found, page not found, error). Loading is handled by the shared Layout.
  */
-export function Editor() {
+export function PageContent() {
   const {
     image,
     imageCount,
