@@ -312,6 +312,7 @@ export function AppContext({ children }: PropsWithChildren) {
           logError(result.rejected);
           return;
         }
+
         if (result.accepted != null) {
           console.log("updated image", imageId, "with lastKnownAspectRatio", aspectRatio);
         }

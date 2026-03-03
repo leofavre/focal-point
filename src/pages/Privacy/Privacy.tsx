@@ -16,6 +16,14 @@ export function PrivacyPage() {
       return;
     }
 
+    try {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.clear();
+      }
+    } catch {
+      // Session storage may be unavailable (e.g. private browsing); not an error.
+    }
+
     if (typeof indexedDB === "undefined") {
       toast.success("Stored data cleared.");
       return;
