@@ -46,6 +46,7 @@ const SINGLE_IMAGE_MODE_ID = "edit" as ImageId;
 const PERSISTENCE_MODE: UIPersistenceMode = "singleImage";
 
 export type EditorContextValue = {
+  pathname: string;
   persistenceMode: UIPersistenceMode;
   imageId: ImageId | undefined;
   image: ImageState | null;
@@ -65,6 +66,7 @@ export type EditorContextValue = {
   pageState: UIPageState;
   isLoading: boolean;
   isEditingSingleImage: boolean;
+  isPageNotFoundRoute: boolean;
   showBottomBar: boolean;
   handleImageUpload: (
     draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl | undefined,
@@ -78,11 +80,16 @@ export type EditorContextValue = {
 
 const EditorContext = createContext<EditorContextValue | null>(null);
 
+const IMAGE_ROUTE_PREFIX = "/image/";
+
 /**
- * Derives imageId from the current pathname. "/" yields undefined, "/edit" yields "edit".
+ * Derives imageId from the current pathname. Only "/image/:imageId" yields an id; "/" or other paths yield undefined.
  */
 function getImageIdFromPathname(pathname: string): ImageId | undefined {
-  const segment = pathname.slice(1).trim();
+  if (!pathname.startsWith(IMAGE_ROUTE_PREFIX) || pathname.length <= IMAGE_ROUTE_PREFIX.length) {
+    return undefined;
+  }
+  const segment = pathname.slice(IMAGE_ROUTE_PREFIX.length).trim();
   return segment === "" ? undefined : (segment as ImageId);
 }
 
@@ -189,8 +196,13 @@ export function AppContext({ children }: PropsWithChildren) {
       const shouldNavigate = nextImageId != null && imageId !== nextImageId;
 
       if (shouldNavigate) {
-        await navigate(`/${nextImageId}`);
-        console.log("navigated from", `/${imageId ?? ""}`, "to", `/${nextImageId ?? ""}`);
+        await navigate(`/image/${nextImageId}`);
+        console.log(
+          "navigated from",
+          `/image/${imageId ?? ""}`,
+          "to",
+          `/image/${nextImageId ?? ""}`,
+        );
       }
 
       setIsProcessingImageUpload(false);
@@ -375,10 +387,14 @@ export function AppContext({ children }: PropsWithChildren) {
   const isLoading =
     isProcessingImageUpload || (pageState === "imageNotFound" && imageNotFoundConfirmed === false);
 
+  const isPageNotFoundRoute = pathname !== "/" && !/^\/image\/[^/]+$/.test(pathname);
+
   const showBottomBar =
-    showFocalPoint != null && showImageOverflow != null && pageState !== "landing";
+    (showFocalPoint != null && showImageOverflow != null && pageState !== "landing") ||
+    isPageNotFoundRoute;
 
   const value: EditorContextValue = {
+    pathname,
     persistenceMode,
     imageId,
     image,
@@ -398,6 +414,7 @@ export function AppContext({ children }: PropsWithChildren) {
     pageState,
     isLoading,
     isEditingSingleImage,
+    isPageNotFoundRoute,
     showBottomBar,
     handleImageUpload,
     handleImageError,
