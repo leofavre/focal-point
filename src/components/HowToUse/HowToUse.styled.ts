@@ -46,7 +46,7 @@ export const Content = styled.div`
   ol {
     container-type: inline-size;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(25ch, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(30ch, 1fr));
     row-gap: var(--base-line-05x);
     column-gap: var(--base-line-2x);
     box-sizing: border-box;

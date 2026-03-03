@@ -31,6 +31,7 @@ export const EditorControlsNav = styled.nav`
 `;
 
 export const LayoutGrid = styled.main`
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 12ch) minmax(0, 12ch) minmax(8rem, 50rem) minmax(0, 12ch) minmax(0, 12ch) minmax(0, 1fr);
   grid-template-rows: 7rem 1fr auto;
@@ -46,7 +47,7 @@ export const LayoutGrid = styled.main`
     margin: auto;
 
     width: 100%;
-    max-width: 70rem;
+    max-width: 80rem;
   }
 
   [data-component="FocalPointEditor"] {
