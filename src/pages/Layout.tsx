@@ -1,6 +1,6 @@
+import type { PropsWithChildren } from "react";
 import { Suspense, useCallback } from "react";
 import toast from "react-hot-toast";
-import { Outlet, useLocation } from "react-router-dom";
 import { useEditorContext } from "../AppContext";
 import { AspectRatioSlider } from "../components/AspectRatioSlider/AspectRatioSlider";
 import { Button } from "../components/Button/Button";
@@ -53,7 +53,7 @@ import {
  * - Maybe make a React component?
  * - Maybe make a native custom element?
  */
-export default function Layout() {
+export default function Layout({ children }: PropsWithChildren) {
   const {
     image,
     aspectRatio,
@@ -71,7 +71,7 @@ export default function Layout() {
     isLoading,
   } = useEditorContext();
 
-  const { pathname } = useLocation();
+  const { pathname } = useEditorContext();
   const isEditingOrLanding = pathname === "/" || /^\/image\/[^/]+$/.test(pathname);
   const isEditingRoute = /^\/image\/[^/]+$/.test(pathname);
 
@@ -96,7 +96,7 @@ export default function Layout() {
       <LayoutGrid id="main" data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
         <LayoutHeader>
           <SiteTitle />
-          <PrivacyLink to="/privacy">Privacy</PrivacyLink>
+          <PrivacyLink href="/privacy">Privacy</PrivacyLink>
         </LayoutHeader>
         <Suspense
           fallback={
@@ -105,7 +105,7 @@ export default function Layout() {
             </LayoutMessage>
           }
         >
-          <Outlet />
+          {children}
         </Suspense>
         <EditorControlsNav data-component="EditorControlsNav" aria-label="Editor controls">
           <Button

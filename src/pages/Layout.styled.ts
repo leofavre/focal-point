@@ -1,6 +1,5 @@
 import { keyframes } from "@emotion/react";
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
 
 const spin = keyframes`
   to {
@@ -32,7 +31,7 @@ export const LayoutHeader = styled.header`
 `;
 
 /** Link to privacy notice; positioned on the main grid, same column as title, aligned top/end. */
-export const PrivacyLink = styled(Link)`
+export const PrivacyLink = styled.a`
   grid-row: 1;
   grid-column: 2 / -2;
   align-self: start;

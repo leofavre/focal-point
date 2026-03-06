@@ -9,8 +9,9 @@ import {
   useState,
 } from "react";
 import toast from "react-hot-toast";
-import { useLocation, useNavigate } from "react-router-dom";
 import useDebouncedEffect from "use-debounced-effect";
+import { navigate as vikeNavigate } from "vike/client/router";
+import { usePageContext } from "vike-react/usePageContext";
 import { copyTextToClipboardWithToast } from "./components/CodeSnippet/helpers/copyToClipboard";
 import { getCodeSnippet } from "./components/CodeSnippet/helpers/getCodeSnippet";
 import { logError } from "./helpers/errorHandling";
@@ -95,9 +96,12 @@ export function AppContext({ children }: PropsWithChildren) {
   const uploaderButtonRef = useRef<HTMLButtonElement>(null);
   const focalPointImageRef = useRef<HTMLDivElement>(null);
   const aspectRatioSliderRef = useRef<HTMLInputElement>(null);
-  const { pathname } = useLocation();
+  const pageContext = usePageContext();
+  const pathname = pageContext?.urlPathname ?? "";
   const imageId = getImageIdFromPathname(pathname);
-  const navigate = useNavigate();
+  const navigate = useCallback((url: string) => {
+    vikeNavigate(url);
+  }, []);
 
   const { images, addImage, updateImage } = usePersistedImages({
     onRefreshImagesError: logError,
