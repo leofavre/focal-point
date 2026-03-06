@@ -31,15 +31,16 @@ import {
  * - Keyboard shortcuts page.
  * - Back button in text-only pages.
  * - Better styling for text-only pages.
+ * - Review Privacy page.
  *
  * ### Multi-site set-up.
  *
- * - Buy domains.
- * - Set up DNS.
  * - Text for devs.
  * - Text for designers.
  * - Cross-linking between sites.
  * - GDPR compliant analytics.
+ * - Buy domains.
+ * - Set up DNS.
  *
  * ### Advanced functionality
  *

@@ -1,10 +1,12 @@
+# Vike builds static assets to dist/client/. See https://vike.dev/netlify
 [build]
   command = "yarn build"
-  publish = "dist"
+  publish = "dist/client"
 
 [build.environment]
   NODE_VERSION = "24"
 
+# SPA fallback: client-side routing (Vike client router) needs index.html for all routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
