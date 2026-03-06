@@ -325,62 +325,66 @@ export function AppContext({ children }: PropsWithChildren) {
     [imageId, aspectRatio, persistenceMode, updateImage],
   );
 
-  useEffect(() => {
-    async function asyncSetImageState() {
-      if (imageId == null) return;
+  useDebouncedEffect(
+    () => {
+      async function asyncSetImageState() {
+        if (imageId == null) return;
 
-      if (imageCount == null) {
-        console.log("persistence layer is loading");
-        safeSetImage(null);
-        return;
+        if (imageCount == null) {
+          console.log("persistence layer is loading");
+          safeSetImage(null);
+          return;
+        }
+
+        if (imageCount === 0) {
+          console.log("persistence layer is empty");
+          safeSetImage(null);
+          setImageNotFoundConfirmed(true);
+          return;
+        }
+
+        const imageRecord = stableImageRecordGetter(imageId);
+
+        if (imageRecord == null) {
+          console.log("image not found in the persistence layer");
+          safeSetImage(null);
+          setImageNotFoundConfirmed(true);
+          return;
+        }
+
+        const result = hasUrl(imageRecord)
+          ? await createImageStateFromUrl({
+              imageDraft: {
+                name: imageRecord.name,
+                type: imageRecord.type,
+                createdAt: imageRecord.createdAt,
+                breakpoints: imageRecord.breakpoints,
+              },
+              url: imageRecord.url,
+            })
+          : await createImageStateFromRecord(imageRecord);
+
+        if (result.rejected != null) {
+          safeSetImage(null);
+          toast.error(getCreateImageStateErrorMessage(result.rejected.reason));
+          return;
+        }
+
+        const nextImageState = result.accepted;
+        safeSetImage(nextImageState);
+        setAspectRatio(
+          imageRecord.lastKnownAspectRatio ??
+            nextImageState.naturalAspectRatio ??
+            DEFAULT_ASPECT_RATIO,
+        );
+        console.log("loaded image from record", imageRecord);
       }
 
-      if (imageCount === 0) {
-        console.log("persistence layer is empty");
-        safeSetImage(null);
-        setImageNotFoundConfirmed(true);
-        return;
-      }
-
-      const imageRecord = stableImageRecordGetter(imageId);
-
-      if (imageRecord == null) {
-        console.log("image not found in the persistence layer");
-        safeSetImage(null);
-        setImageNotFoundConfirmed(true);
-        return;
-      }
-
-      const result = hasUrl(imageRecord)
-        ? await createImageStateFromUrl({
-            imageDraft: {
-              name: imageRecord.name,
-              type: imageRecord.type,
-              createdAt: imageRecord.createdAt,
-              breakpoints: imageRecord.breakpoints,
-            },
-            url: imageRecord.url,
-          })
-        : await createImageStateFromRecord(imageRecord);
-
-      if (result.rejected != null) {
-        safeSetImage(null);
-        toast.error(getCreateImageStateErrorMessage(result.rejected.reason));
-        return;
-      }
-
-      const nextImageState = result.accepted;
-      safeSetImage(nextImageState);
-      setAspectRatio(
-        imageRecord.lastKnownAspectRatio ??
-          nextImageState.naturalAspectRatio ??
-          DEFAULT_ASPECT_RATIO,
-      );
-      console.log("loaded image from record", imageRecord);
-    }
-
-    asyncSetImageState();
-  }, [imageId, imageCount, setAspectRatio]);
+      asyncSetImageState();
+    },
+    { timeout: 50 },
+    [imageId, imageCount, setAspectRatio],
+  );
 
   const isUnknownRoute = pathname !== "/" && pathname !== "/privacy" && !isEditingRoute;
 

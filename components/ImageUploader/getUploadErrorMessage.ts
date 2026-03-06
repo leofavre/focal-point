@@ -54,7 +54,7 @@ export function getUploadErrorMessage(error: { reason: UploadErrorCode }): strin
       return "Please select only one image.";
 
     case IMAGE_FORMAT_NOT_SUPPORTED:
-      return "This image can't be displayed. It may be corrupted or in an unsupported format.";
+      return "This image can’t be displayed. It may be corrupted or in an unsupported format.";
 
     default:
       void (reason satisfies never);
