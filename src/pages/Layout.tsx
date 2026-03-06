@@ -32,6 +32,17 @@ import {
  * - Back button in text-only pages.
  * - Better styling for text-only pages.
  * - Show loading just after a bit of delay.
+ * - Warn if image is not supported by the device, i. e., HEIC/HEIF.
+ * - Maybe SSR?
+ *
+ * ### Multi-site set-up.
+ *
+ * - Buy domains.
+ * - Set up DNS.
+ * - Text for devs.
+ * - Text for designers.
+ * - Cross-linking between sites.
+ * - GDPR compliant analytics.
  *
  * ### Advanced functionality
  *
@@ -41,7 +52,6 @@ import {
  * - Maybe make a browser extension?
  * - Maybe make a React component?
  * - Maybe make a native custom element?
- * - Maybe SSR?
  */
 export default function Layout() {
   const {
