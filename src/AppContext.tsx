@@ -339,7 +339,6 @@ export function AppContext({ children }: PropsWithChildren) {
       if (imageCount === 0) {
         console.log("persistence layer is empty");
         safeSetImage(null);
-        setImageNotFoundConfirmed(true);
         return;
       }
 

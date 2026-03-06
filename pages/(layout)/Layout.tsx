@@ -31,9 +31,7 @@ import {
  * - Keyboard shortcuts page.
  * - Back button in text-only pages.
  * - Better styling for text-only pages.
- * - Show loading just after a bit of delay.
  * - Warn if image is not supported by the device, i. e., HEIC/HEIF.
- * - Maybe SSR?
  *
  * ### Multi-site set-up.
  *
