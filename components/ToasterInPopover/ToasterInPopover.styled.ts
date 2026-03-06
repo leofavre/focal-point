@@ -17,4 +17,8 @@ export const Wrapper = styled.div`
   &[popover]::backdrop {
     background: transparent;
   }
+
+  [data-rht-toaster] {
+    text-wrap: balance;
+  }
 `;

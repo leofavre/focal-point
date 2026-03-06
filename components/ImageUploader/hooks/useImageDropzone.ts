@@ -3,16 +3,15 @@ import { type ErrorCode, type FileRejection, useDropzone } from "react-dropzone"
 import type { Err } from "@/src/helpers/errorHandling";
 import type { ImageDraftState, ImageDraftStateAndFile } from "@/src/types";
 import {
+  IMAGE_FORMAT_NOT_SUPPORTED,
   NO_FILE_PROVIDED,
   NO_FILES_PROVIDED,
+  NOT_IMAGE,
   SINGLE_IMAGE_REQUIRED,
   type UploadErrorCode,
 } from "../getUploadErrorMessage";
+import { canBrowserDecodeImage } from "../helpers/canBrowserDecodeImage";
 import type { ImageUploaderProps } from "../types";
-
-const IMAGE_ACCEPT = {
-  "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif"],
-} as const;
 
 export type UseImageDropzoneOptions = Pick<
   ImageUploaderProps,
@@ -78,13 +77,13 @@ export function useImageDropzone({
   const stableOnImageUploadError = useEffectEvent((error: Err<UploadErrorCode>) =>
     onImageUploadError?.(error),
   );
-  const stableOnImagesUploadError = useEffectEvent((errors: Err<ErrorCode>[]) =>
+  const stableOnImagesUploadError = useEffectEvent((errors: Err<UploadErrorCode>[]) =>
     onImagesUploadError?.(errors),
   );
   const stableOnDropAccepted = useEffectEvent(() => onDropAccepted?.());
 
   const onDrop = useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+    async (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       const totalFiles = acceptedFiles.length + fileRejections.length;
 
       if (totalFiles === 0) {
@@ -99,25 +98,51 @@ export function useImageDropzone({
         return;
       }
 
-      const accepted = filesToDraftsAndFiles(acceptedFiles);
       const rejected = fileRejectionsToErrors(fileRejections);
 
-      if (accepted.length > 0) {
+      const imageFiles = acceptedFiles.filter((file) => file.type.startsWith("image/"));
+      const nonImageFiles = acceptedFiles.filter((file) => !file.type.startsWith("image/"));
+      const notImageErrors: Err<UploadErrorCode>[] = nonImageFiles.map(() => ({
+        reason: NOT_IMAGE,
+      }));
+
+      if (imageFiles.length === 0) {
+        const allErrors = [...rejected, ...notImageErrors];
+        if (allErrors.length > 0) {
+          stableOnImageUploadError(allErrors[0]);
+          stableOnImagesUploadError(allErrors);
+        }
+        return;
+      }
+
+      const decodeResults = await Promise.all(
+        imageFiles.map(async (file) => ({
+          file,
+          supported: await canBrowserDecodeImage(file),
+        })),
+      );
+      const supportedFiles = decodeResults.filter((r) => r.supported).map((r) => r.file);
+      const formatErrors: Err<UploadErrorCode>[] = decodeResults
+        .filter((r) => !r.supported)
+        .map(() => ({ reason: IMAGE_FORMAT_NOT_SUPPORTED }));
+
+      const allErrors = [...rejected, ...notImageErrors, ...formatErrors];
+      if (allErrors.length > 0) {
+        stableOnImageUploadError(allErrors[0]);
+        stableOnImagesUploadError(allErrors);
+      }
+
+      if (supportedFiles.length > 0) {
+        const accepted = filesToDraftsAndFiles(supportedFiles);
         stableOnImageUpload(accepted[0]);
         stableOnImagesUpload(accepted);
         stableOnDropAccepted();
-      }
-
-      if (rejected.length > 0) {
-        stableOnImageUploadError(rejected[0]);
-        stableOnImagesUploadError(rejected);
       }
     },
     [multiple],
   );
 
   return useDropzone({
-    accept: IMAGE_ACCEPT,
     onDrop,
     noClick,
     noDrag,

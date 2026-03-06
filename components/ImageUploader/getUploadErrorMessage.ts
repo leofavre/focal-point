@@ -12,12 +12,16 @@ export const NO_FILE_PROVIDED = "NoFileProvidedError" as const;
 /** Custom error when file is not an image (from processImageFilesWithErrorHandling). */
 export const NOT_IMAGE = "NotImageError" as const;
 
+/** Custom error when the browser cannot decode the image format (e.g. HEIC in Chrome). */
+export const IMAGE_FORMAT_NOT_SUPPORTED = "ImageFormatNotSupportedError" as const;
+
 export type UploadErrorCode =
   | ErrorCode
   | typeof SINGLE_IMAGE_REQUIRED
   | typeof NO_FILES_PROVIDED
   | typeof NO_FILE_PROVIDED
-  | typeof NOT_IMAGE;
+  | typeof NOT_IMAGE
+  | typeof IMAGE_FORMAT_NOT_SUPPORTED;
 
 /**
  * Maps upload rejection codes to user-facing messages.
@@ -28,23 +32,32 @@ export function getUploadErrorMessage(error: { reason: UploadErrorCode }): strin
 
   switch (reason) {
     case NO_FILES_PROVIDED:
-      return "No files provided";
+      return "Please select at least one image to upload.";
+
     case NO_FILE_PROVIDED:
-      return "No file provided";
+      return "Please select an image to upload.";
+
     case ErrorCode.FileInvalidType:
-      return "Only image files are allowed";
-    case ErrorCode.FileTooLarge:
-      return "File is too large";
-    case ErrorCode.FileTooSmall:
-      return "File is too small";
-    case ErrorCode.TooManyFiles:
-      return "Too many files";
-    case SINGLE_IMAGE_REQUIRED:
-      return "Only a single image is allowed";
     case NOT_IMAGE:
-      return "File is not an image";
+      return "The selected file is not an image.";
+
+    case ErrorCode.FileTooLarge:
+      return "The image is too large.";
+
+    case ErrorCode.FileTooSmall:
+      return "The image is too small.";
+
+    case ErrorCode.TooManyFiles:
+      return "Too many files selected.";
+
+    case SINGLE_IMAGE_REQUIRED:
+      return "Please upload only one image.";
+
+    case IMAGE_FORMAT_NOT_SUPPORTED:
+      return "This image can't be displayed. It may be corrupted or in an unsupported format.";
+
     default:
       void (reason satisfies never);
-      return "File could not be uploaded";
+      return "The image couldn't be uploaded. Please try again.";
   }
 }

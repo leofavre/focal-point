@@ -1,5 +1,4 @@
 import type { ComponentPropsWithoutRef, Ref } from "react";
-import type { ErrorCode } from "react-dropzone";
 import type { Err } from "@/src/helpers/errorHandling";
 import type { ImageDraftStateAndFile, ImageDraftStateAndUrl } from "@/src/types";
 import type { UploadErrorCode } from "./getUploadErrorMessage";
@@ -17,7 +16,7 @@ export type MultipleImagesUploaderProps = {
   onImagesUpload: (
     draftsAndFilesOrUrls: (ImageDraftStateAndFile | ImageDraftStateAndUrl)[],
   ) => void;
-  onImagesUploadError?: (errors: Err<ErrorCode>[]) => void;
+  onImagesUploadError?: (errors: Err<UploadErrorCode>[]) => void;
 };
 
 export type ImageUploaderProps = SingleImageUploaderProps | MultipleImagesUploaderProps;
