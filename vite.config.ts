@@ -1,4 +1,5 @@
 import path from "node:path";
+import netlify from "@netlify/vite-plugin";
 import react from "@vitejs/plugin-react";
 import vike from "vike/plugin";
 import { VitePWA } from "vite-plugin-pwa";
@@ -29,6 +30,7 @@ export default defineConfig(({ mode }) => ({
       manifest: false,
     }),
     vike(),
+    netlify(),
   ],
   test: {
     environment: "jsdom",
