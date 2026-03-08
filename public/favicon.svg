@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" fill="none">
-  <path d="M11 2V5" stroke="#eb8552" stroke-width="2" />
-  <path d="M2 11H5" stroke="#eb8552" stroke-width="2" />
-  <path d="M11 20V17" stroke="#eb8552" stroke-width="2" />
-  <path d="M20 11H17" stroke="#eb8552" stroke-width="2" />
-  <path d="M11 12V10" stroke="#eb8552" stroke-width="2" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <path d="M16 2.909V7.273" stroke="#eb8552" stroke-width="3" />
+  <path d="M2.909 16H7.273" stroke="#eb8552" stroke-width="3" />
+  <path d="M16 29.091V24.727" stroke="#eb8552" stroke-width="3" />
+  <path d="M29.091 16H24.727" stroke="#eb8552" stroke-width="3" />
+  <path d="M16 17.455V14.545" stroke="#eb8552" stroke-width="3" />
   <path
-    d="M16.7488 10.9893L11 5.2405L5.25122 10.9893L11 16.7381L13.8744 13.8637L16.7488 10.9893Z"
+    d="M24.361 16.003L16 7.622L7.638 16.003L16 24.346L20.181 20.165L24.361 16.003Z"
     stroke="#eb8552"
-    stroke-width="2"
+    stroke-width="3"
   />
 </svg>
