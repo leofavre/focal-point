@@ -54,7 +54,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Install Vercel CLI
-        run: yarn add -D vercel
+        run: yarn install --global vercel
       - name: Pull Vercel environment
         run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
       - name: Deploy to Vercel
