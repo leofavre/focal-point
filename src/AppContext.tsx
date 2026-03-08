@@ -322,7 +322,7 @@ export function AppContext({ children }: PropsWithChildren) {
       });
     },
     { timeout: INTERACTION_DEBOUNCE_MS },
-    [imageId, aspectRatio, persistenceMode, updateImage],
+    [imageId, aspectRatio, updateImage],
   );
 
   useDebouncedEffect(

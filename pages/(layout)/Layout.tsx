@@ -32,6 +32,7 @@ import {
  * - Back button in text-only pages.
  * - Better styling for text-only pages.
  * - Review Privacy page.
+ * - Fix bug in which the toast does not appear in production, unless another failed toast is in the DOM.
  *
  * ### Multi-site set-up.
  *
