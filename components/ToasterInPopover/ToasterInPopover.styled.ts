@@ -7,19 +7,21 @@ import styled from "@emotion/styled";
 export const Wrapper = styled.div`
   top: 0;
   left: 50%;
-  transform: translate(-50%, calc(0 * 100% + 1 * var(--base-line-05x)));
+  transform: translate(-50%, calc(var(--position) * 100% + (var(--position) + 1) * var(--base-line-05x)));
+  transition: transform 132ms ease-in-out;
   text-wrap: balance;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  box-shadow: none;
 
-  &[popover] {
+  &::backdrop {
     background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    overflow: visible;
-    box-shadow: none;
   }
 
-  &[popover]::backdrop {
-    background: transparent;
+  &[data-dismissed] {
+    transform: translate(-50%, -150%);
   }
 `;

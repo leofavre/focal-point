@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
 import type { Toast } from "react-hot-toast";
-import { ToastBar, Toaster } from "react-hot-toast";
+import { ToastBar, useToaster } from "react-hot-toast";
+import { parseBooleanAttr } from "@/src/helpers/parseBooleanAttr";
 import { BACKDROP_HIDE_DELAY_MS } from "@/src/hooks/useClosingTransition";
 import { Wrapper } from "./ToasterInPopover.styled";
 
-function ToastPopover({ toast, children }: { toast: Toast; children: React.ReactNode }) {
+function ToastPopover({ toast, children, ...rest }: { toast: Toast; children: React.ReactNode }) {
   const popoverRef = useRef<HTMLDivElement>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -37,41 +38,46 @@ function ToastPopover({ toast, children }: { toast: Toast; children: React.React
   }, [toast.visible]);
 
   return (
-    <Wrapper ref={popoverRef} popover="manual">
+    <Wrapper ref={popoverRef} popover="manual" {...rest}>
       {children}
     </Wrapper>
   );
 }
 
 export function ToasterInPopover() {
-  return (
-    <Toaster
-      toastOptions={{
-        style: {
-          borderRadius: 0,
-          opacity: 1,
-        },
-        success: {
-          iconTheme: {
-            primary: "var(--color-toast-success)",
-            secondary: "#fff",
-          },
-        },
-        error: {
-          iconTheme: {
-            primary: "var(--color-toast-error)",
-            secondary: "#fff",
-          },
-        },
-      }}
-    >
-      {(t) => {
-        return (
-          <ToastPopover toast={t}>
-            <ToastBar toast={t} />
-          </ToastPopover>
-        );
-      }}
-    </Toaster>
-  );
+  const { toasts } = useToaster({
+    style: {
+      borderRadius: 0,
+      opacity: 1,
+    },
+    success: {
+      iconTheme: {
+        primary: "var(--color-toast-success)",
+        secondary: "#fff",
+      },
+    },
+    error: {
+      iconTheme: {
+        primary: "var(--color-toast-error)",
+        secondary: "#fff",
+      },
+    },
+  });
+
+  const dismissedCount = toasts.filter((toast) => toast.dismissed).length;
+
+  return toasts.map((toast, index, arr) => {
+    const position = arr.length - index - dismissedCount - 1;
+
+    return (
+      <ToastPopover
+        data-dismissed={parseBooleanAttr(toast.dismissed)}
+        key={toast.id}
+        toast={toast}
+        css={{ "--position": position }}
+      >
+        <ToastBar toast={toast} />
+      </ToastPopover>
+    );
+  });
 }
