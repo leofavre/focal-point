@@ -32,6 +32,7 @@ import {
  * - Back button in text-only pages.
  * - Better styling for text-only pages.
  * - Review Privacy page.
+ * - Review margins of landing page.
  * - Add route to open image with code dialog open.
  *
  * ### Multi-site set-up.
@@ -45,6 +46,7 @@ import {
  *
  * ### Advanced functionality
  *
+ * - Support videos.
  * - Use the native API for page transitions.
  * - Support external image sources.
  * - Multiple images with "file system".
