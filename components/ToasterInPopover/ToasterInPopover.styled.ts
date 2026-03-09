@@ -5,6 +5,11 @@ import styled from "@emotion/styled";
  * UA styles so no visible box or backdrop is shown—only the toasts.
  */
 export const Wrapper = styled.div`
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, calc(0 * 100% + 1 * var(--base-line-05x)));
+  text-wrap: balance;
+
   &[popover] {
     background: transparent;
     border: none;
@@ -16,9 +21,5 @@ export const Wrapper = styled.div`
 
   &[popover]::backdrop {
     background: transparent;
-  }
-
-  [data-rht-toaster] {
-    text-wrap: balance;
   }
 `;
