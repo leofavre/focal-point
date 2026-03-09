@@ -24,4 +24,10 @@ export const Wrapper = styled.div`
   &[data-dismissed] {
     transform: translate(-50%, -150%);
   }
+
+  > div {
+    padding: var(--base-line-025x);
+    padding-inline-start: var(--base-line-05x);
+    min-height: 5ch;
+  }
 `;
