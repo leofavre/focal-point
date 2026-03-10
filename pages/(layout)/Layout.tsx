@@ -16,6 +16,7 @@ import { IconMask } from "@/src/icons/IconMask";
 import { IconReference } from "@/src/icons/IconReference";
 import {
   EditorControlsNav,
+  HeaderLinks,
   LayoutGrid,
   LayoutHeader,
   LayoutMessage,
@@ -96,7 +97,10 @@ export default function Layout({ children }: PropsWithChildren) {
       <LayoutGrid id="main" data-has-bottom-bar={parseBooleanAttr(showBottomBar)}>
         <LayoutHeader>
           <SiteTitle />
-          <PrivacyLink href="/privacy">Privacy</PrivacyLink>
+          <HeaderLinks>
+            <PrivacyLink href="/shortcuts">Shortcuts</PrivacyLink>
+            <PrivacyLink href="/privacy">Privacy</PrivacyLink>
+          </HeaderLinks>
         </LayoutHeader>
         <Suspense
           fallback={

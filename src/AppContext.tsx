@@ -386,7 +386,8 @@ export function AppContext({ children }: PropsWithChildren) {
     [imageId, imageCount, setAspectRatio],
   );
 
-  const isUnknownRoute = pathname !== "/" && pathname !== "/privacy" && !isEditingRoute;
+  const isUnknownRoute =
+    pathname !== "/" && pathname !== "/privacy" && pathname !== "/shortcuts" && !isEditingRoute;
 
   const isLoading =
     isProcessingImageUpload || (isOnImageRoute && image == null && !imageNotFoundConfirmed);
