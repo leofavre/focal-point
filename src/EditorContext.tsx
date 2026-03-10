@@ -354,7 +354,7 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
       asyncSetImageState();
     },
     { timeout: IMAGE_LOAD_DEBOUNCE_MS },
-    [imageId, imageCount, setAspectRatio],
+    [imageId, imageCount, setAspectRatio, images],
   );
 
   const isLoading = isOnImageRoute && image == null && !imageNotFoundConfirmed;

@@ -17,7 +17,6 @@ import { HeaderLinks, LayoutGrid, LayoutHeader, PrivacyLink } from "./Layout.sty
  * - Review Privacy all pages.
  * - Better styling for text-only pages.
  * - Make sure button is animated from disabled to enable every time, but specially during hydration.
- * - Keep overlay for a few seconds when image is loaded using the big button on the Landing page.
  *
  * ### Multi-site set-up.
  *

@@ -85,13 +85,16 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       }
 
       const nextImageId = addResult.accepted;
-      const shouldNavigate = nextImageId != null && imageId !== nextImageId;
+      // Use current URL so navigation decision is correct after client-side navigation (e.g. on image edit page, usePageContext in layout can be stale).
+      const currentPathname = typeof window !== "undefined" ? window.location.pathname : pathname;
+      const currentImageId = getImageIdFromPathname(currentPathname);
+      const shouldNavigate = nextImageId != null && currentImageId !== nextImageId;
 
       if (shouldNavigate) {
         await navigate(`/image/${nextImageId}`);
       }
     },
-    [addImage, navigate, imageId],
+    [addImage, navigate, pathname],
   );
 
   const value: AppContextValue = {
