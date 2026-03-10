@@ -17,6 +17,7 @@ import { HeaderLinks, LayoutGrid, LayoutHeader, PrivacyLink } from "./Layout.sty
  * - Review Privacy all pages.
  * - Better styling for text-only pages.
  * - Make sure button is animated from disabled to enable every time, but specially during hydration.
+ * - Flaky E2E tests are really bothering me.
  *
  * ### Multi-site set-up.
  *
