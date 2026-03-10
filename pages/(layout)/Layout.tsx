@@ -31,7 +31,8 @@ import {
  *
  * - Review Privacy all pages.
  * - Better styling for text-only pages.
- * - Maybe improve context to allow some pages to be strictly static.
+ * - Remove animation of bottom bar and make it part of editing.
+ * - Maybe refactor context so that some part is restricted to editing images and some part is shared in the whole app (like drag and drop)?
  *
  * ### Multi-site set-up.
  *
