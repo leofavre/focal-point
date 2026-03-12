@@ -14,9 +14,10 @@ import { HeaderLinks, LayoutGrid, LayoutHeader, PrivacyLink } from "./Layout.sty
  *
  * ### MELHORIZE™ UI.
  *
- * - Review Privacy all pages.
- * - Better styling for text-only pages.
- * - Make sure button is animated from disabled to enable every time, but specially during hydration.
+ * - Review Privacy page.
+ * - Review Shortcuts page.
+ * - Review Landing page.
+ * - Shared style for text-only pages.
  * - Flaky E2E tests are really bothering me.
  *
  * ### Multi-site set-up.
