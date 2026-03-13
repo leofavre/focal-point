@@ -18,6 +18,7 @@ export function ImageUploaderButton({
   onImageUploadError,
   onImagesUploadError,
   grow,
+  disabled,
   ...rest
 }: ImageUploaderButtonProps) {
   const isHydrated = useHydrated();
@@ -93,9 +94,9 @@ export function ImageUploaderButton({
           toggleable
           toggled={isOpened}
           onClick={handleButtonClick}
-          scale={size === "medium" ? 2 : size === "large" ? 4 : 1}
+          scale={size === "large" ? 2 : 1}
           grow={grow}
-          disabled={!isHydrated}
+          disabled={!isHydrated || disabled}
         >
           <IconAdd />
           <Button.ButtonText>{label}</Button.ButtonText>

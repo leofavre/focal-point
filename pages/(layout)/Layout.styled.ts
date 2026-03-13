@@ -7,6 +7,13 @@ export const LayoutMessage = styled.h3`
   margin: auto;
 `;
 
+/** Centered container for interactive content (e.g. Choose Image button) in the main content area. */
+export const LayoutCenter = styled.div`
+  grid-column: 1 / -1;
+  grid-row: 1 / -2;
+  margin: auto;
+`;
+
 /** Header row; display: contents so title and privacy link are laid out on the main grid. */
 export const LayoutHeader = styled.header`
   display: contents;
@@ -50,15 +57,6 @@ export const LayoutGrid = styled.main`
   margin: 0;
   width: 100dvw;
   min-height: 100dvh;
-
-  [data-component="Landing"] {
-    grid-column: 1 / -1;
-    grid-row: 1 / -1;
-    margin: auto;
-
-    width: 100%;
-    max-width: 80rem;
-  }
 
   [data-component="FocalPointEditor"] {
     grid-row: 1 / 3;

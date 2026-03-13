@@ -20,6 +20,7 @@ export function AspectRatioControl({
   aspectRatio,
   aspectRatioList,
   onAspectRatioChange,
+  disabled,
   ...rest
 }: AspectRatioControlProps) {
   const minItem = aspectRatioList.at(0);
@@ -122,7 +123,7 @@ export function AspectRatioControl({
         list="aspect-ratio"
         aria-label="Aspect ratio"
         aria-valuetext={ariaValuetext}
-        disabled={!isHydrated}
+        disabled={!isHydrated || disabled}
       />
       <datalist id="aspect-ratio">
         {aspectRatioList.map(({ position }) => (

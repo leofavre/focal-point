@@ -27,19 +27,14 @@ export function EditorControlsNav() {
     handleImageUpload,
     uploaderButtonRef,
     aspectRatioSliderRef,
-    isLoading,
-    pathname,
   } = useEditorContext();
   const isHydrated = useHydrated();
-  const isEditingOrLanding = pathname === "/" || /^\/image\/[^/]+$/.test(pathname);
-  const isEditingRoute = /^\/image\/[^/]+$/.test(pathname);
 
   const handleImageUploadError = useCallback((error: Err<UploadErrorCode>) => {
     toast.error(getUploadErrorMessage(error));
   }, []);
 
-  const isUIStateButtonDisabled =
-    !isHydrated || (!isEditingOrLanding && !isLoading) || (isEditingRoute && image == null);
+  const isUIStateButtonDisabled = !isHydrated || image == null;
 
   return (
     <EditorControlsNavStyled data-component="EditorControlsNav" aria-label="Editor controls">
@@ -72,6 +67,7 @@ export function EditorControlsNav() {
         aspectRatio={aspectRatio}
         defaultAspectRatio={image?.naturalAspectRatio}
         onAspectRatioChange={setAspectRatio}
+        disabled={isUIStateButtonDisabled}
       />
       <Button
         type="button"
@@ -91,6 +87,7 @@ export function EditorControlsNav() {
         onImageUpload={handleImageUpload}
         onImageUploadError={handleImageUploadError}
         grow
+        disabled={isUIStateButtonDisabled}
       />
     </EditorControlsNavStyled>
   );
