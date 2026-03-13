@@ -14,6 +14,7 @@ import { HeaderLinks, LayoutGrid, LayoutHeader, PrivacyLink } from "./Layout.sty
  *
  * ### MELHORIZE™ UI.
  *
+ * - Maybe bug: failed to load image on mobile.
  * - Review Privacy page.
  * - Review Shortcuts page.
  * - Review Landing page.
@@ -22,6 +23,8 @@ import { HeaderLinks, LayoutGrid, LayoutHeader, PrivacyLink } from "./Layout.sty
  *
  * ### Multi-site set-up.
  *
+ * - Explanatory video.
+ * - OK icon.
  * - Text for devs.
  * - Text for designers.
  * - Cross-linking between sites.
@@ -31,7 +34,6 @@ import { HeaderLinks, LayoutGrid, LayoutHeader, PrivacyLink } from "./Layout.sty
  *
  * ### Advanced functionality
  *
- * - Explanatory video.
  * - Dark mode.
  * - Support videos.
  * - Use the native API for page transitions.

@@ -1,19 +1,13 @@
-import type { Dispatch, PropsWithChildren, RefObject, SetStateAction } from "react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useEffectEvent,
-  useRef,
-  useState,
-} from "react";
+import type { PropsWithChildren, SetStateAction } from "react";
+import { useCallback, useContext, useEffect, useEffectEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { usePageContext } from "vike-react/usePageContext";
 import { copyTextToClipboardWithToast } from "@/components/CodeSnippet/helpers/copyToClipboard";
 import { getCodeSnippet } from "@/components/CodeSnippet/helpers/getCodeSnippet";
 import { useDialogUrlSync } from "@/components/Dialog/useDialogUrlSync";
 import { useAppContext } from "./AppContext";
+import type { EditorContextValue } from "./EditorContext.types";
+import { EditorContextInstance } from "./EditorContextInstance";
 import { createImageStateFromRecord } from "./editor/helpers/createImageStateFromRecord";
 import { createImageStateFromUrl } from "./editor/helpers/createImageStateFromUrl";
 import { createKeyboardShortcutHandler } from "./editor/helpers/createKeyboardShortcutHandler";
@@ -40,36 +34,7 @@ const IMAGE_LOAD_DEBOUNCE_MS = 50;
 const SINGLE_IMAGE_MODE_ID = "edit" as ImageId;
 const PERSISTENCE_MODE: UIPersistenceMode = "singleImage";
 
-export type EditorContextValue = {
-  pathname: string;
-  persistenceMode: UIPersistenceMode;
-  imageId: ImageId | undefined;
-  image: ImageState | null;
-  images: ReturnType<typeof useAppContext>["images"];
-  imageCount: number | undefined;
-  aspectRatio: number | undefined;
-  setAspectRatio: Dispatch<SetStateAction<number | undefined>>;
-  showFocalPoint: boolean | undefined;
-  setShowFocalPoint: Dispatch<SetStateAction<boolean | undefined>>;
-  showImageOverflow: boolean | undefined;
-  setShowImageOverflow: Dispatch<SetStateAction<boolean | undefined>>;
-  showCodeSnippet: boolean;
-  setShowCodeSnippet: Dispatch<SetStateAction<boolean>>;
-  codeSnippetLanguage: CodeSnippetLanguage | undefined;
-  setCodeSnippetLanguage: Dispatch<SetStateAction<CodeSnippetLanguage | undefined>>;
-  currentObjectPosition: ObjectPositionString | undefined;
-  imageNotFoundConfirmed: boolean;
-  isLoading: boolean;
-  isEditingSingleImage: boolean;
-  handleImageUpload: ReturnType<typeof useAppContext>["handleImageUpload"];
-  handleImageError: () => void;
-  handleObjectPositionChange: (objectPosition: ObjectPositionString) => void;
-  uploaderButtonRef: RefObject<HTMLButtonElement | null>;
-  focalPointImageRef: RefObject<HTMLDivElement | null>;
-  aspectRatioSliderRef: RefObject<HTMLInputElement | null>;
-};
-
-const EditorContextInstance = createContext<EditorContextValue | null>(null);
+export type { EditorContextValue };
 
 export function EditorContextProvider({ children }: PropsWithChildren) {
   const { pathname, imageId, images, updateImage, handleImageUpload, registerDragStartHandler } =
@@ -393,8 +358,10 @@ export function EditorContextProvider({ children }: PropsWithChildren) {
 
 export function useEditorContext(): EditorContextValue {
   const context = useContext(EditorContextInstance);
+
   if (context == null) {
     throw new Error("useEditorContext must be used within EditorContextProvider");
   }
+
   return context;
 }

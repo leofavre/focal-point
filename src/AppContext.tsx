@@ -1,14 +1,16 @@
 import type { PropsWithChildren } from "react";
-import { createContext, useCallback, useContext, useRef } from "react";
+import { useCallback, useContext, useRef } from "react";
 import toast from "react-hot-toast";
 import { navigate as vikeNavigate } from "vike/client/router";
 import { usePageContext } from "vike-react/usePageContext";
+import type { AppContextValue } from "./AppContext.types";
+import { AppContextInstance } from "./AppContextInstance";
 import { createImageStateFromDraftAndFile } from "./editor/helpers/createImageStateFromDraftAndFile";
 import { createImageStateFromUrl } from "./editor/helpers/createImageStateFromUrl";
 import { usePersistedImages } from "./editor/hooks/usePersistedImages";
 import { logError } from "./helpers/errorHandling";
 import { getCreateImageStateErrorMessage } from "./helpers/getCreateImageStateErrorMessage";
-import type { ImageDraftStateAndFile, ImageDraftStateAndUrl, ImageId, ImageRecord } from "./types";
+import type { ImageDraftStateAndFile, ImageDraftStateAndUrl, ImageId } from "./types";
 import { isImageDraftStateAndUrl } from "./types";
 
 const IMAGE_ROUTE_PREFIX = "/image/";
@@ -26,20 +28,7 @@ function getImageIdFromPathname(pathname: string): ImageId | undefined {
   return segment === "" ? undefined : (segment as ImageId);
 }
 
-export type AppContextValue = {
-  pathname: string;
-  imageId: ImageId | undefined;
-  images: ImageRecord[] | undefined;
-  addImage: ReturnType<typeof usePersistedImages>["addImage"];
-  updateImage: ReturnType<typeof usePersistedImages>["updateImage"];
-  handleImageUpload: (
-    draftAndFileOrUrl: ImageDraftStateAndFile | ImageDraftStateAndUrl | undefined,
-  ) => Promise<void>;
-  registerDragStartHandler: (handler: (() => void) | null) => void;
-  onDragStart: () => void;
-};
-
-const AppContextInstance = createContext<AppContextValue | null>(null);
+export type { AppContextValue };
 
 export function AppContextProvider({ children }: PropsWithChildren) {
   const pageContext = usePageContext();
@@ -113,8 +102,10 @@ export function AppContextProvider({ children }: PropsWithChildren) {
 
 export function useAppContext(): AppContextValue {
   const context = useContext(AppContextInstance);
+
   if (context == null) {
     throw new Error("useAppContext must be used within AppContextProvider");
   }
+
   return context;
 }
